@@ -163,3 +163,7 @@ log
 # ignore result folder for pushing and pull speed
 result/
 Miniconda3-latest-Linux-x86_64.sh
+
+manual_1CLL_1zg4_restraints.tbl
+zap_wsl_git
+zap_wsl_git.pub

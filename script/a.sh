@@ -29,7 +29,7 @@ COMPUTATIONAL_DIR=""
 EXPERIMENTAL_DIR=""
 OUTPUT_ROOT="$PWD/result"
 PROJECT_NAME=""
-NCORES=20
+NCORES=10
 SAMPLING_OVERRIDE=""
 CONF_THRESHOLD=0.6
 MAX_ACTIVE_RESIDUES=40
@@ -837,6 +837,12 @@ unambig_value = sys.argv[8]
 reference = sys.argv[9]
 molecules = sys.argv[10:]
 
+def parse_files(value):
+    return [item for item in value.split(",") if item]
+
+ambig_files = parse_files(ambig_value)
+unambig_files = parse_files(unambig_value)
+
 with open(config_path, 'w', encoding='utf-8') as fh:
     fh.write(f"run_dir = \"{run_dir}\"\n")
     fh.write("mode = \"local\"\n")
@@ -862,12 +868,24 @@ with open(config_path, 'w', encoding='utf-8') as fh:
     def write_restraints(section):
         fh.write(f"[{section}]\n")
         fh.write("tolerance = 5\n")
-        if ambig_value:
-            fh.write(f"ambig_fname = \"{ambig_value}\"\n")
+        if ambig_files:
+            if len(ambig_files) == 1:
+                fh.write(f"ambig_fname = \"{ambig_files[0]}\"\n")
+            else:
+                fh.write("ambig_fname = [\n")
+                for path in ambig_files:
+                    fh.write(f"  \"{path}\",\n")
+                fh.write("]\n")
             if version >= 2:
                 fh.write("randremoval = true\n")
-        if unambig_value:
-            fh.write(f"unambig_fname = \"{unambig_value}\"\n")
+        if unambig_files:
+            if len(unambig_files) == 1:
+                fh.write(f"unambig_fname = \"{unambig_files[0]}\"\n")
+            else:
+                fh.write("unambig_fname = [\n")
+                for path in unambig_files:
+                    fh.write(f"  \"{path}\",\n")
+                fh.write("]\n")
         fh.write("\n")
 
     write_restraints('flexref')
@@ -1241,6 +1259,43 @@ join_for_config() {
     echo "${rels[*]}"
 }
 
+combine_restraint_files() {
+    local -n arr=$1
+    local dest="$2"
+    local header="${3:-}"
+    if (( ${#arr[@]} == 0 )); then
+        return 0
+    fi
+    if (( ${#arr[@]} == 1 )); then
+        return 0
+    fi
+    mkdir -p "$(dirname "$dest")"
+    python3 - "$dest" "$header" "${arr[@]}" <<'PY'
+import sys
+from pathlib import Path
+
+dest = Path(sys.argv[1])
+header = sys.argv[2]
+sources = [Path(arg) for arg in sys.argv[3:]]
+
+with dest.open('w', encoding='utf-8') as handle:
+    if header:
+        handle.write(f'! {header}\n')
+    for src in sources:
+        if not src.exists():
+            continue
+        text = src.read_text(encoding='utf-8')
+        if not text:
+            continue
+        handle.write(text)
+        if not text.endswith('\n'):
+            handle.write('\n')
+if dest.stat().st_size == 0 and header:
+    dest.write_text(f'! {header}\n', encoding='utf-8')
+PY
+    arr=("$dest")
+}
+
 success_count=0
 failure_count=0
 skipped_count=0
@@ -1343,6 +1398,15 @@ PY
                 auto_restraints_count=$((auto_restraints_count + 1))
             fi
         fi
+    fi
+
+    if (( ${#pair_ambig_files[@]} > 1 )); then
+        combine_restraint_files pair_ambig_files "$pair_rest_dir/${pair_label}_combined_ambig.tbl" \
+            "Combined ambiguous restraints for $pair_label"
+    fi
+    if (( ${#pair_unambig_files[@]} > 1 )); then
+        combine_restraint_files pair_unambig_files "$pair_rest_dir/${pair_label}_combined_unambig.tbl" \
+            "Combined unambiguous restraints for $pair_label"
     fi
 
     if (( ${#pair_ambig_files[@]} > 0 )); then
