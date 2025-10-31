@@ -1,11 +1,5 @@
 # Changelog
 
-- 2025-10-22: Allow the definition of chain combinations to be used for scoring - Issue #1414
-- 2025-09-11: Added `grid` mode
-- 2025-09-11: Corrected antibody-antigen notebook - Issue #1383
-- 2025-09-09: Removes undesired directory created when running the uni-tests - Issue #1380
-- 2025-09-09: Added notebooks with tutorials - Issue #1367
-- 2025-09-05: Consistancy in cluster naming in contactmap module - Issue #1359
 - 2025-09-03: Added support for THR-glycosylation - Issue #1371
 - 2025-08-25: Distribute the `haddock-restraints` binary
 - 2025-08-22: Added check for max/min possible coordinates in CNS scripts - Issue #1350

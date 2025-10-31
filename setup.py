@@ -22,13 +22,13 @@ CNS_BINARIES = {
     "aarch64-linux": "https://surfdrive.surf.nl/files/index.php/s/3rHpxcufHGrntHn/download",
 }
 
-HADDOCK_RESTRAINTS_VERSION = "0.10.0"
+HADDOCK_RESTRAINTS_VERSION = "0.9.0"
 BASE_GITHUB_URL = f"https://github.com/haddocking/haddock-restraints/releases/download/v{HADDOCK_RESTRAINTS_VERSION}"
 HADDOCK_RESTRAINTS_BINARIES = {
-    "x86_64-linux": f"{BASE_GITHUB_URL}/haddock-restraints-v{HADDOCK_RESTRAINTS_VERSION}-x86_64-unknown-linux-musl.tar.gz",
+    "x86_64-linux": f"{BASE_GITHUB_URL}/haddock-restraints-v{HADDOCK_RESTRAINTS_VERSION}-x86_64-unknown-linux-gnu.tar.gz",
     "x86_64-darwin": f"{BASE_GITHUB_URL}/haddock-restraints-v{HADDOCK_RESTRAINTS_VERSION}-x86_64-apple-darwin.tar.gz",
     "arm64-darwin": f"{BASE_GITHUB_URL}/haddock-restraints-v{HADDOCK_RESTRAINTS_VERSION}-aarch64-apple-darwin.tar.gz",
-    "aarch64-linux": f"{BASE_GITHUB_URL}/haddock-restraints-v{HADDOCK_RESTRAINTS_VERSION}-aarch64-unknown-linux-musl.tar.gz",
+    "aarch64-linux": f"{BASE_GITHUB_URL}/haddock-restraints-v{HADDOCK_RESTRAINTS_VERSION}-aarch64-unknown-linux-gnu.tar.gz",
 }
 
 
@@ -130,16 +130,6 @@ class CustomBuild(build_ext):
             if not status:
                 print(msg)
                 sys.exit(1)
-
-            if arch != "x86_64-linux" and filename.name == "cns":
-                # Force the download of the linux binary, this is needed for GRID executions
-                download_path = Path(target_bin_dir, "cns_linux")
-                status, msg = self.download_file(
-                    binary_dict["x86_64-linux"], download_path
-                )
-                if not status:
-                    print(msg)
-                    sys.exit(1)
 
             if "".join(filename.suffixes) == ".tar.gz":
                 try:

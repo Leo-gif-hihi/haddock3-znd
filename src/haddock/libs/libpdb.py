@@ -1,7 +1,5 @@
 """Parse molecular structures in PDB format."""
-
 import os
-from copy import deepcopy
 from functools import partial
 from pathlib import Path
 
@@ -20,9 +18,10 @@ from haddock.core.typing import (
     Optional,
     TypeVar,
     Union,
-)
-from haddock.libs.libio import PDBFile, working_directory
+    )
+from haddock.libs.libio import working_directory, PDBFile
 from haddock.libs.libutil import get_result_or_same_in_list, sort_numbered_paths
+
 
 slc_record = slice(0, 6)
 slc_serial = slice(6, 11)
@@ -64,15 +63,15 @@ def format_atom_name(atom: str, element: str) -> str:
         Formatted atom name.
     """
     # string formats for atom name
-    _3 = " {:<3s}"
-    _4 = "{:<4s}"
+    _3 = ' {:<3s}'
+    _4 = '{:<4s}'
     # len of element, atom formatting string
     # anything outside this is an error
     _atom_format_dict = {
         # len of element: {len of atom name}
         1: {1: _3, 2: _3, 3: _3, 4: _4},
         2: {1: _4, 2: _4, 3: _4, 4: _4},
-    }
+        }
 
     atm = atom.strip()
     len_atm = len(atm)
@@ -81,7 +80,7 @@ def format_atom_name(atom: str, element: str) -> str:
     try:
         return _atom_format_dict[len_ele][len_atm].format(atm)
     except KeyError as err:
-        _ = f"Could not format this atom:type -> {atom}:{element}"
+        _ = f'Could not format this atom:type -> {atom}:{element}'
         # raising KeyError assures that no context in IDPConfGen
         # will handle it. @joaomcteixeira never handles pure Python
         # exceptions, those are treated as bugs.
@@ -108,13 +107,14 @@ _to_rename = {
     "HIE": "HIS",
     "WAT ": "TIP3",
     " 0.00969": " 0.00   ",
-}
+    }
 
 # Get list of supported residues to keep when pre-processing
 _to_keep = list(supported_residues)
 
 
-def split_ensemble(pdb_file_path: Path, dest: Optional[FilePath] = None) -> list[Path]:
+def split_ensemble(pdb_file_path: Path,
+                   dest: Optional[FilePath] = None) -> list[Path]:
     """
     Split a multimodel PDB file into different structures.
 
@@ -153,7 +153,8 @@ def tidy(pdb_file_path: FilePath, new_pdb_file_path: FilePath) -> None:
                     output_handler.write(line)
 
 
-def swap_segid_chain(pdb_file_path: FilePath, new_pdb_file_path: FilePath) -> None:
+def swap_segid_chain(pdb_file_path: FilePath,
+                     new_pdb_file_path: FilePath) -> None:
     """Add to the Chain ID column the found Segid."""
     abs_path = Path(pdb_file_path).resolve().parent.absolute()
     with open(pdb_file_path) as input_handler:
@@ -164,15 +165,13 @@ def swap_segid_chain(pdb_file_path: FilePath, new_pdb_file_path: FilePath) -> No
 
 
 def sanitize(
-    pdb_file_path: FilePathT,
-    overwrite: bool = True,
-    custom_topology: Optional[FilePath] = None,
-) -> Union[FilePathT, Path]:
+        pdb_file_path: FilePathT,
+        overwrite: bool = True,
+        custom_topology: Optional[FilePath] = None) -> Union[FilePathT, Path]:
     """Sanitize a PDB file."""
-    to_keep = deepcopy(_to_keep)
     if custom_topology:
         custom_res_to_keep = get_supported_residues(custom_topology)
-        to_keep.extend(custom_res_to_keep)
+        _to_keep.extend(custom_res_to_keep)
 
     good_lines: list[str] = []
     with open(pdb_file_path) as input_handler:
@@ -184,7 +183,7 @@ def sanitize(
                     line = line.replace(tag, new_tag)
                 # check if this residue is known
                 res = line[17:20].strip()
-                if res and res in to_keep:
+                if res and res in _to_keep:
                     good_lines.append(line)
         # Terminate file with an END statement
         if len(good_lines) > 0 and good_lines[-1] != "END":
@@ -192,7 +191,9 @@ def sanitize(
 
     # Check if anything has been kept from this file
     if len(good_lines) == 0:
-        raise SetupError(f"No coordinates kept after sanitzing {pdb_file_path.name}.")
+        raise SetupError(
+            f"No coordinates kept after sanitzing {pdb_file_path.name}."
+        )
 
     if overwrite:
         with open(pdb_file_path, "w") as output_handler:
@@ -206,9 +207,8 @@ def sanitize(
     return new_pdb_file
 
 
-def identify_chainseg(
-    pdb_file_path: FilePath, sort: bool = True
-) -> tuple[list[str], list[str]]:
+def identify_chainseg(pdb_file_path: FilePath,
+                      sort: bool = True) -> tuple[list[str], list[str]]:
     """Return segID OR chainID."""
     segids: list[str] = []
     chains: list[str] = []
@@ -228,11 +228,11 @@ def identify_chainseg(
                     segids.append(segid)
                 if chainid:
                     chains.append(chainid)
-
+                
                 if not segid and not chainid:
                     raise ValueError(
                         f"Could not identify chainID or segID in pdb {pdb_file_path}, line {line}"
-                    )
+                        )
 
     if sort:
         segids = sorted(list(set(segids)))
@@ -252,11 +252,12 @@ def get_new_models(pdb_file_path: FilePath) -> list[Path]:
     new_models = get_result_or_same_in_list(
         get_pdb_file_suffix_variations,
         pdb_file_path,
-    )
+        )
     return new_models
 
 
-def get_pdb_file_suffix_variations(file_name: FilePath, sep: str = "_") -> list[Path]:
+def get_pdb_file_suffix_variations(file_name: FilePath,
+                                   sep: str = "_") -> list[Path]:
     """
     List suffix variations of a PDB file in the current path.
 
@@ -283,10 +284,9 @@ def get_pdb_file_suffix_variations(file_name: FilePath, sep: str = "_") -> list[
 
 
 def read_RECORD_section(
-    lines: Iterable[str],
-    section_slice: slice,
-    func: Callable[[Iterable[str]], Iterable[str]] = set,
-) -> Iterable[str]:
+        lines: Iterable[str],
+        section_slice: slice,
+        func: Callable[[Iterable[str]], Iterable[str]] = set) -> Iterable[str]:
     """
     Create a set of observations from a section of the ATOM line.
 
@@ -299,20 +299,19 @@ def read_RECORD_section(
     chainids = func(
         the_line
         for line in lines
-        if line.startswith(("ATOM", "HETATM"))
-        and (the_line := line[section_slice].strip())  # noqa: E501
-    )
+        if line.startswith(('ATOM', 'HETATM')) and (the_line := line[section_slice].strip())  # noqa: E501
+        )
     return chainids
 
 
-read_chainids = partial(read_RECORD_section, section_slice=slc_chainid, func=list)
+read_chainids = partial(read_RECORD_section, section_slice=slc_chainid, func=list)  # noqa: E501
 read_segids = partial(read_RECORD_section, section_slice=slc_segid, func=list)
 
 
 def add_TER_on_chain_breaks(
-    input_pdb: FilePath,
-    output_pdb: FilePath,
-) -> None:
+        input_pdb: FilePath,
+        output_pdb: FilePath,
+        ) -> None:
     """Detect chain breaks and add TER statements between them.
 
     Parameters
@@ -323,7 +322,7 @@ def add_TER_on_chain_breaks(
         Output PDB filepath with added TER statements between chain breaks.
     """
     Residue = dict[str, Union[list[str], list[float], str]]
-    residueT = TypeVar("residueT", bound=Residue)
+    residueT = TypeVar('residueT', bound=Residue)
 
     def euclidean_dist(atm1: list[float], atm2: list[float]) -> float:
         """Compute Euclidean distances between two points.
@@ -363,7 +362,7 @@ def add_TER_on_chain_breaks(
         backbone_dists = {
             "protein": 3.5,  # very loose !
             "DNA": 4.5,
-        }
+            }
         # Detect type of residues
         # DNA case
         try:
@@ -395,7 +394,7 @@ def add_TER_on_chain_breaks(
 
     def write_residue(fhandler, residue_lines: list[str]) -> None:
         """Writes residues line to file.
-
+        
         Parameters
         ----------
         fhandler : _type_
@@ -405,12 +404,12 @@ def add_TER_on_chain_breaks(
         """
         for _ in residue_lines:
             fhandler.write(_)
-
+    
     def write_previous_residue(
-        fhandler,
-        previous: residueT,
-        current: residueT,
-    ) -> None:
+            fhandler,
+            previous: residueT,
+            current: residueT,
+            ) -> None:
         """Write residue lines to file, possibly ending by TER.
 
         Parameters
@@ -428,30 +427,23 @@ def add_TER_on_chain_breaks(
         chain_break = detected_chain_break(
             previous,
             current,
-        )
+            )
         # If chain break detected or new chain in file
         if chain_break or previous["chain"] != current["chain"]:
             fhandler.write(f"TER{os.linesep}")
 
     # Initiate parsing variables
     BB_atomnames: tuple[str, str, str, str] = (
-        "C",
-        "N",  # for peptide bonds
-        "O3'",
-        "O5'",  # for DNA/RNA
-    )
-    current_resid: tuple[str, str] = ("-", "-")
+        "C", "N",  # for peptide bonds
+        "O3'", "O5'",  # for DNA/RNA
+        )
+    current_resid: tuple[str, str] = ("-", "-", )
     previous_residue: residueT = {"lines": []}
     current_residue: residueT = {"lines": []}
     # Read input file
     with open(input_pdb, "r") as fin, open(output_pdb, "w") as fout:
         for _ in fin:
-            if _.startswith(
-                (
-                    "ATOM",
-                    "HETATM",
-                )
-            ):
+            if _.startswith(("ATOM", "HETATM", )):
                 # Extract specific data from coordinates record
                 chainid = _[slc_chainid].strip()
                 resid = _[slc_resseq].strip()
@@ -462,14 +454,15 @@ def add_TER_on_chain_breaks(
                     # Make sure it is not first residue
                     if len(previous_residue["lines"]) > 0:
                         # Write previous residue
-                        write_previous_residue(fout, previous_residue, current_residue)
+                        write_previous_residue(
+                            fout,
+                            previous_residue,
+                            current_residue
+                            )
                     # Reset previous residue to current residue
                     previous_residue = current_residue
                     # Initialize new current residue
-                    current_resid = (
-                        chainid,
-                        resid,
-                    )
+                    current_resid = (chainid, resid, )
                     current_residue = {"lines": [], "chain": chainid}
 
                 # Hold residue line
@@ -482,9 +475,13 @@ def add_TER_on_chain_breaks(
                         float(_[slc_x]),
                         float(_[slc_y]),
                         float(_[slc_z]),
-                    ]
+                        ]
         # Last previous residue
-        write_previous_residue(fout, previous_residue, current_residue)
+        write_previous_residue(
+            fout,
+            previous_residue,
+            current_residue
+            )
         # Last residue
         write_residue(fout, current_residue["lines"])
         # Write final TER statement
@@ -501,6 +498,8 @@ def check_combination_chains(combination: list[PDBFile]) -> list[str]:
         chainsegs = sorted(list(set(segids) | set(chains)))
         # check if any of chainsegs is already in chainid_list
         if any(chainseg in chainid_list for chainseg in chainsegs):
-            raise ValueError(f"Chain/seg IDs are not unique for pdbs {combination}.")
+            raise ValueError(
+                f"Chain/seg IDs are not unique for pdbs {combination}."
+            )
         chainid_list.extend(chainsegs)
     return chainid_list

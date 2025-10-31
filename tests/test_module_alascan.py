@@ -742,23 +742,21 @@ def test_model_point_mutation_run_with_output_mutants_true(mocker, monkeypatch):
         assert result.success is True
 
 
-def test_model_point_mutation_fail(monkeypatch):
+def test_model_point_mutation_fail():
     """Test ModelPointMutation with non-existent model file."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        monkeypatch.chdir(tmpdir)
-        job = ModelPointMutation(
-            model_path=Path("non-pdb-here.pdb"),
-            model_id="test",
-            chain="A",
-            resid=1,
-            ori_resname="ALA", 
-            target_resname="TRP",
-            native_scores=(0, 0, 0, 0, 0),
-            output_mutants=False
-        )
-        result = job.run()
-        # Should return failed result
-        assert result.success is False
+    job = ModelPointMutation(
+        model_path=Path("non-pdb-here.pdb"),
+        model_id="test",
+        chain="A",
+        resid=1,
+        ori_resname="ALA", 
+        target_resname="TRP",
+        native_scores=(0, 0, 0, 0, 0),
+        output_mutants=False
+    )
+    result = job.run()
+    # Should return failed result
+    assert result.success is False
 
 
 def test_model_point_mutation_cleanup(mocker, mutation_job, monkeypatch):

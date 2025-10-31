@@ -19,7 +19,7 @@ CCFLAGS = -O -DINTEGER='long int' -DCNS_ARCH_TYPE_$(CNS_ARCH_TYPE) $(EXT_CCFLAGS
 
 # link options
 LD = gfortran
-LDFLAGS = -w $(EXT_LDFLAGS) -static -static-libgfortran -static-libgcc
+LDFLAGS = -w $(EXT_LDFLAGS) -static-libgfortran
 
 # utility programs
 compile-utils:

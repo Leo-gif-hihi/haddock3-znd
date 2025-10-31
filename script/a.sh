@@ -1,0 +1,1455 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+
+SCRIPT_NAME=$(basename "$0")
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
+VERSION=3
+INPUT_MODE="multichain"
+declare -a PARTNER_ORDER=()
+declare -A PARTNER_SPECS=()
+declare -A PARTNER_FILES=()
+declare -A PARTNER_COMBINED=()
+declare -A PARTNER_MAPPING=()
+declare -A PARTNER_BODY_TBL=()
+declare -A PARTNER_SPLITFILES=()
+declare -A GROUP_BODY_SOURCE=()
+declare -A GROUP_BODY_CHAINLIST=()
+declare -a GROUP_BODY_JSON_FILES=()
+declare -a AMBIG_MANUAL=()
+declare -a UNAMBIG_MANUAL=()
+declare -a PAIR_OVERRIDES=()
+declare -A PARTNER_GROUP_BODY=()
+declare -A PAIR_SET=()
+declare -a PAIR_LIST=()
+PAIR_FILE=""
+AUTO_PARTNER_DIR=""
+COMPUTATIONAL_DIR=""
+EXPERIMENTAL_DIR=""
+OUTPUT_ROOT="$PWD/result"
+PROJECT_NAME=""
+NCORES=20
+SAMPLING_OVERRIDE=""
+CONF_THRESHOLD=0.6
+MAX_ACTIVE_RESIDUES=40
+MAX_RESTRAINT_PAIRS=4000
+ABINITIO_PRESET=false
+FORCE_RANAIR=false
+DRY_RUN=false
+SKIP_RUN=false
+REFERENCE_PDB=""
+
+usage() {
+    cat <<'USAGE'
+Usage: a.sh --partner A=<path> --partner B=<path> [options]
+
+Required:
+  --partner <label>=<spec>    Define docking partner input. Provide at least two partners.
+                             <spec> can be a PDB file, a directory with *.pdb, a comma-separated
+                             list of PDB files, or a .lst file with one path per line.
+
+Modes & presets:
+  --input-mode {split,multichain}  Interpret partner specs as split chains or multi-chain PDBs.
+  --group-bodies <label>=<pdb|json>  Mapping for split mode. Repeat per partner or provide a JSON file.
+  --auto-partners <dir>       Discover partners automatically from PDBs inside <dir>.
+  --v, --version {1|2|3}       Select workflow generation (default: 3).
+  --abinitio                   Shortcut for version 1 with high sampling and ranair.
+  --ranair                     Force [rigidbody] ranair = true (applies to any version).
+
+Pair selection (optional):
+  --pair <label1,label2>       Restrict docking to the specified labelled pair. Repeatable.
+  --pairs-file <file>          Text/CSV file with one pair per line (label1,label2).
+
+Restraints & data sources:
+  --ambig <tbl[,tbl..]>        Manual ambiguous restraint files (copied into the run directory).
+  --unambig <tbl[,tbl..]>      Manual unambiguous restraint files.
+  --computational-dir <dir>    Directory tree with computational annotations (for V2/V3).
+  --experimental-dir <dir>     Directory tree with experimental annotations (for V3 priority).
+  --confidence-threshold <f>   Confidence cutoff for computational data (default 0.6).
+  --max-active <int>           Max active residues per partner when building restraints (default 40).
+  --max-pairs <int>            Cap number of ambiguous restraints (default 4000).
+
+Execution & I/O:
+  --out <dir>                  Root directory for generated runs (default: $PWD/result).
+  --project <name>             Name of the run folder inside --out (default: auto timestamp).
+  --ncores <int>               Number of cores passed to HADDOCK3 (default: 4).
+  --sampling <int>             Override rigid-body sampling value.
+  --reference <pdb>            Native complex for CAPRI evaluation.
+  --dry-run                    Prepare config/artifacts but skip haddock3 execution.
+  --no-run                     Alias for --dry-run but still write run assets.
+  --help                       Print this message.
+
+Examples:
+  # Multi-chain docking using experimental + computational restraints (Version 3)
+  ./a.sh --partner A=proteinA.pdb --partner B=proteinB.pdb --v 3 \
+        --computational-dir data/predict --experimental-dir data/exp --project demo_v3
+
+  # Split-chain workflow with explicit body grouping plus manual restraints
+  ./a.sh --input-mode split \
+        --partner A=chains/proteinA --partner B=chains/proteinB \
+        --group-bodies mapping.json --ambig manual_air.tbl
+
+See README for details on manifest formats accepted by --group-bodies.
+USAGE
+}
+
+log() { printf '[%s] %s\n' "$(date '+%H:%M:%S')" "$*"; }
+warn() { log "WARN: $*"; }
+error() { log "ERROR: $*"; }
+die() { error "$*"; exit 1; }
+
+require_command() {
+    command -v "$1" >/dev/null 2>&1 || die "Missing required command '$1'"
+}
+
+abs_path() {
+    python3 - "$1" <<'PY'
+import os, sys
+print(os.path.abspath(sys.argv[1]))
+PY
+}
+
+split_csv() {
+    local list="$1"
+    local IFS=','
+    read -r -a _tmp <<< "$list"
+    printf '%s\n' "${_tmp[@]}"
+}
+
+select_chain_pool() {
+    local index="$1"
+    local base="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    local length=${#base}
+    local offset=$(( index % length ))
+    printf '%s%s\n' "${base:offset}" "${base:0:offset}"
+}
+
+append_unique() {
+    local -n _arr=$1
+    local value="$2"
+    local existing
+    for existing in "${_arr[@]}"; do
+        if [[ "$existing" == "$value" ]]; then
+            return 0
+        fi
+    done
+    _arr+=("$value")
+}
+
+canonical_pair_key() {
+    local a="$1"
+    local b="$2"
+    if [[ "$a" < "$b" ]]; then
+        printf '%s|%s\n' "$a" "$b"
+    else
+        printf '%s|%s\n' "$b" "$a"
+    fi
+}
+
+add_pair_unique() {
+    local lhs="$1"
+    local rhs="$2"
+
+    [[ -z "$lhs" || -z "$rhs" ]] && return 1
+    [[ "$lhs" == "$rhs" ]] && die "Pair definition requires two distinct partners (got '$lhs' twice)."
+
+    local canonical
+    canonical=$(canonical_pair_key "$lhs" "$rhs")
+    if [[ -z "${PAIR_SET[$canonical]:-}" ]]; then
+        PAIR_SET["$canonical"]=1
+        PAIR_LIST+=("$lhs|$rhs")
+    fi
+    return 0
+}
+
+parse_group_json() {
+    local json_path="$1"
+    [[ -f "$json_path" ]] || die "Group manifest not found: $json_path"
+    mapfile -t _entries < <(python3 - "$json_path" <<'PY'
+import json
+import os
+import sys
+path = sys.argv[1]
+with open(path, 'r', encoding='utf-8') as handle:
+    data = json.load(handle)
+if isinstance(data, dict) and 'groups' in data and isinstance(data['groups'], dict):
+    data = data['groups']
+if not isinstance(data, dict):
+    raise SystemExit('Expected mapping at top level of %s' % path)
+for key, value in data.items():
+    if isinstance(value, str):
+        source = value
+        chains = []
+    elif isinstance(value, dict):
+        source = value.get('source') or value.get('pdb') or value.get('file') or ''
+        chains = value.get('chains') or value.get('files') or []
+    else:
+        source = ''
+        chains = []
+    if isinstance(chains, str):
+        chains = [chain.strip() for chain in chains.split(',') if chain.strip()]
+    elif isinstance(chains, list):
+        chains = [str(chain).strip() for chain in chains if str(chain).strip()]
+    else:
+        chains = []
+    print(f"{key}|{source}|{','.join(chains) if chains else '-'}")
+PY
+    )
+    local line label source chains
+    for line in "${_entries[@]}"; do
+        [[ -z "$line" ]] && continue
+        label=${line%%|*}
+        source=${line#*|}
+        source=${source%%|*}
+        chains=${line##*|}
+        if [[ -n "$source" ]]; then
+            GROUP_BODY_SOURCE["$label"]="$source"
+        fi
+        if [[ -n "$chains" && "$chains" != '-' ]]; then
+            GROUP_BODY_CHAINLIST["$label"]="$chains"
+        fi
+    done
+}
+
+resolve_partner_spec() {
+    local label="$1"
+    local spec="$2"
+    local mode="$3"
+    local -a files=()
+
+    if [[ "$spec" == *,* ]]; then
+        mapfile -t files < <(split_csv "$spec")
+    elif [[ -d "$spec" ]]; then
+        mapfile -t files < <(find "$spec" -maxdepth 1 -type f -name '*.pdb' | sort)
+    elif [[ -f "$spec" && "$spec" == *.lst ]]; then
+        mapfile -t files < <(grep -v '^#' "$spec" | sed '/^\s*$/d')
+    elif [[ -f "$spec" ]]; then
+        files=("$spec")
+    else
+        die "Partner '$label' spec does not resolve to files: $spec"
+    fi
+
+    (( ${#files[@]} == 0 )) && die "Partner '$label' has no PDB files"
+
+    local idx
+    for idx in "${!files[@]}"; do
+        files[$idx]=$(abs_path "${files[$idx]}")
+        [[ -f "${files[$idx]}" ]] || die "File not found for partner '$label': ${files[$idx]}"
+    done
+
+    if [[ "$mode" == "multichain" && ${#files[@]} -ne 1 ]]; then
+        warn "Partner '$label' provided ${#files[@]} files; treating as multi-chain by merging."
+    fi
+
+    PARTNER_FILES["$label"]=$(printf '%s\n' "${files[@]}")
+}
+
+resolve_group_chain_order() {
+    local label="$1"
+    local -a files=()
+    mapfile -t files < <(printf '%s\n' "${PARTNER_FILES[$label]}")
+    local manifest="${GROUP_BODY_CHAINLIST[$label]:-}"
+    [[ -z "$manifest" ]] && return 0
+    local IFS=','
+    read -r -a desired <<< "$manifest"
+    (( ${#desired[@]} == 0 )) && return 0
+
+    local -a reordered=()
+    local name file found
+    for name in "${desired[@]}"; do
+        found=""
+        for file in "${files[@]}"; do
+            if [[ "$(basename "$file")" == "$name" ]]; then
+                found="$file"
+                break
+            fi
+        done
+        [[ -z "$found" ]] && die "Group manifest lists '$name' for '$label' but file not provided"
+        reordered+=("$found")
+    done
+    if (( ${#reordered[@]} != ${#files[@]} )); then
+        warn "Group manifest for '$label' does not cover all files; keeping unmatched afterwards."
+        local extras=()
+        for file in "${files[@]}"; do
+            local base="$(basename "$file")"
+            local present=false
+            for name in "${desired[@]}"; do
+                [[ "$base" == "$name" ]] && { present=true; break; }
+            done
+            $present || extras+=("$file")
+        done
+        reordered+=("${extras[@]}")
+    fi
+    PARTNER_FILES["$label"]=$(printf '%s\n' "${reordered[@]}")
+}
+
+run_prepare_partner() {
+    local label="$1"
+    local index="$2"
+    local mode="$3"
+    local -a files=()
+    mapfile -t files < <(printf '%s\n' "${PARTNER_FILES[$label]}")
+    local prep_dir="$4"
+    mkdir -p "$prep_dir"
+
+    local rename_mode="rename"
+
+    local chain_pool="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    local pool_offset=$(( index * 8 ))
+    local pool="${chain_pool:pool_offset}${chain_pool:0:pool_offset}"
+
+    mapfile -t PREP_INFO < <(
+        python3 - "$rename_mode" "$mode" "$prep_dir" "$label" "$pool" "${files[@]}" <<'PY'
+import os
+import sys
+import json
+import shutil
+import subprocess
+from collections import OrderedDict, defaultdict
+
+rename_mode = sys.argv[1]
+input_mode = sys.argv[2]
+output_dir = sys.argv[3]
+label = sys.argv[4]
+chain_pool = sys.argv[5]
+input_files = sys.argv[6:]
+
+if rename_mode not in {"rename", "preserve"}:
+    raise SystemExit(f"Unsupported rename mode: {rename_mode}")
+
+if input_mode not in {"split", "multichain"}:
+    raise SystemExit(f"Unsupported input mode: {input_mode}")
+
+if not input_files:
+    raise SystemExit("No input files provided")
+
+STANDARD_RESIDUES = {
+    "ALA", "ARG", "ASN", "ASP", "CYS", "GLN", "GLU", "GLY",
+    "HIS", "ILE", "LEU", "LYS", "MET", "PHE", "PRO", "SER",
+    "THR", "TRP", "TYR", "VAL", "MSE"
+}
+
+pool_chars = [c for c in chain_pool if not c.isspace()]
+
+raw_lines = []
+for path in input_files:
+    if not os.path.isfile(path):
+        raise SystemExit(f"File not found: {path}")
+    with open(path, 'r', encoding='utf-8', errors='ignore') as handle:
+        lines = handle.readlines()
+    for line in lines:
+        if line.startswith('END'):  # avoid duplicate END
+            continue
+        raw_lines.append(line.rstrip('\n'))
+    if raw_lines and not raw_lines[-1].startswith('TER'):
+        raw_lines.append('TER')
+
+if not raw_lines:
+    raise SystemExit("Input files produced no content")
+
+chain_order = []
+for line in raw_lines:
+    if not line.startswith(('ATOM', 'HETATM')):
+        continue
+    chain_id = line[21].strip() or '_'
+    if chain_id not in chain_order:
+        chain_order.append(chain_id)
+
+if not chain_order:
+    chain_order.append('A')
+
+if len(pool_chars) < len(chain_order):
+    raise SystemExit("Not enough unique chain identifiers provided")
+
+chain_mapping = OrderedDict()
+for idx, original in enumerate(chain_order):
+    if rename_mode == "rename":
+        target = pool_chars[idx]
+    else:
+        target = original if original != '_' else pool_chars[idx]
+    chain_mapping[original] = {"new_chain": target, "segid": target}
+
+residue_map = {}
+residue_counter = defaultdict(int)
+combined_lines = []
+chain_to_lines = OrderedDict((mapping["new_chain"], []) for mapping in chain_mapping.values())
+atom_serial = 0
+
+for line in raw_lines:
+    record = line[:6].strip()
+    if record == 'TER':
+        combined_lines.append('TER')
+        continue
+    if record not in {'ATOM', 'HETATM'}:
+        continue
+    resn = line[17:20].strip()
+    if resn not in STANDARD_RESIDUES:
+        continue
+    atom_serial += 1
+    original_chain = line[21].strip() or '_'
+    mapping = chain_mapping.get(original_chain)
+    if mapping is None:
+        mapping = {"new_chain": pool_chars[len(chain_mapping)], "segid": pool_chars[len(chain_mapping)]}
+        chain_mapping[original_chain] = mapping
+    resseq = line[22:26].strip() or '0'
+    inscode = line[26].strip()
+    key = (original_chain, resseq, inscode or '_')
+    if key not in residue_map:
+        if rename_mode == "rename":
+            residue_counter[original_chain] += 1
+            new_res = residue_counter[original_chain]
+        else:
+            try:
+                new_res = int(resseq)
+            except Exception:
+                residue_counter[original_chain] += 1
+                new_res = residue_counter[original_chain]
+            residue_counter[original_chain] = max(residue_counter[original_chain], new_res)
+        residue_map[key] = {"chain": mapping["new_chain"], "residue": new_res, "icode": inscode}
+    mapped = residue_map[key]
+
+    chars = list(f"{line:<80}")
+    chars[6:11] = list(f"{atom_serial:5d}")
+    chars[21] = mapped['chain'][0]
+    chars[22:26] = list(f"{mapped['residue']:4d}")
+    chars[26] = mapped['icode'][:1] if mapped['icode'] else ' '
+    segid = mapping['segid']
+    segid_fmt = segid[:4].rjust(4)
+    chars[72:76] = list(segid_fmt)
+    new_line = ''.join(chars[:80])
+    combined_lines.append(new_line)
+    chain_to_lines.setdefault(mapped['chain'], []).append(new_line)
+
+def ensure_end(lines):
+    if not lines:
+        return lines
+    if lines[-1] != 'END':
+        lines.append('END')
+    return lines
+
+combined_path = os.path.join(output_dir, f"{label}_combined.pdb")
+with open(combined_path, 'w', encoding='utf-8') as handle:
+    ensure_end(combined_lines)
+    handle.write('\n'.join(combined_lines))
+    handle.write('\n')
+
+mapping_path = os.path.join(output_dir, f"{label}_mapping.json")
+residue_dump = {}
+for (chain, res, icode), info in residue_map.items():
+    residue_dump[f"{chain}:{res}:{icode}"] = info
+
+payload = {
+    "label": label,
+    "input_mode": input_mode,
+    "rename_mode": rename_mode,
+    "inputs": input_files,
+    "output_path": os.path.abspath(combined_path),
+    "chain_mapping": chain_mapping,
+    "residue_map": residue_dump,
+}
+
+with open(mapping_path, 'w', encoding='utf-8') as handle:
+    json.dump(payload, handle, indent=2)
+
+split_outputs = []
+for chain_id, chain_lines in chain_to_lines.items():
+    if not chain_lines:
+        continue
+    chain_file = os.path.join(output_dir, f"{label}_chain_{chain_id}.pdb")
+    with open(chain_file, 'w', encoding='utf-8') as handle:
+        ensure_end(chain_lines)
+        handle.write('\n'.join(chain_lines))
+        handle.write('\n')
+    split_outputs.append(os.path.abspath(chain_file))
+
+if not split_outputs:
+    split_outputs.append(os.path.abspath(combined_path))
+
+body_tbl = ''
+if input_mode == 'split' and len(split_outputs) > 1:
+    restrain_bin = shutil.which('haddock3-restraints')
+    if restrain_bin:
+        try:
+            target_tbl = os.path.join(output_dir, f"{label}_restrain_bodies.tbl")
+            result = subprocess.run(
+                [restrain_bin, 'restrain_bodies', combined_path],
+                cwd=output_dir,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                check=False,
+            )
+            candidate = os.path.join(output_dir, 'restrain_bodies.tbl')
+            if result.returncode == 0 and result.stdout.strip():
+                with open(target_tbl, 'w', encoding='utf-8') as handle:
+                    handle.write(result.stdout)
+                    if not result.stdout.endswith('\n'):
+                        handle.write('\n')
+                body_tbl = target_tbl
+            elif os.path.exists(candidate):
+                os.replace(candidate, target_tbl)
+                body_tbl = target_tbl
+        except Exception as exc:  # pragma: no cover
+            print(f"[WARN] restrain_bodies failed for {label}: {exc}", file=sys.stderr)
+    else:
+        print("[WARN] haddock3-restraints not available; skipping restrain_bodies", file=sys.stderr)
+
+print(os.path.abspath(combined_path))
+print(os.path.abspath(mapping_path))
+print(body_tbl)
+print(len(split_outputs))
+for item in split_outputs:
+    print(item)
+PY
+    )
+
+    (( ${#PREP_INFO[@]} >= 4 )) || die "prepare_structure failed for partner '$label'"
+
+    local combined="${PREP_INFO[0]}"
+    local mapping="${PREP_INFO[1]}"
+    local body_tbl="${PREP_INFO[2]}"
+    local split_count="${PREP_INFO[3]}"
+
+    PARTNER_COMBINED["$label"]="$combined"
+    PARTNER_MAPPING["$label"]="$mapping"
+    PARTNER_BODY_TBL["$label"]="$body_tbl"
+
+    local -a split_files=()
+    local idx
+    for (( idx=0; idx<split_count; idx++ )); do
+        split_files+=("${PREP_INFO[4+idx]}")
+    done
+    if (( ${#split_files[@]} == 0 )); then
+        split_files=("$combined")
+    fi
+    PARTNER_SPLITFILES["$label"]=$(printf '%s\n' "${split_files[@]}")
+}
+
+generate_auto_restraints() {
+    local out_dir="$1"
+    local pair_label="$2"
+    local mapping_a="$3"
+    local mapping_b="$4"
+    local combined_a="$5"
+    local combined_b="$6"
+
+    mkdir -p "$out_dir"
+    local ambig_path="$out_dir/auto_${pair_label}_ambig.tbl"
+    local unambig_path="$out_dir/auto_${pair_label}_unambig.tbl"
+
+    local result
+    if ! result=$(
+        AUT_MAX_ACTIVE="$MAX_ACTIVE_RESIDUES" \
+        AUT_MAX_PAIRS="$MAX_RESTRAINT_PAIRS" \
+        python3 - "$VERSION" "$COMPUTATIONAL_DIR" "$EXPERIMENTAL_DIR" "$CONF_THRESHOLD" \
+            "$mapping_a" "$mapping_b" "$ambig_path" "$unambig_path" "$combined_a" "$combined_b" <<'PY'
+import json
+import math
+import os
+import sys
+from collections import defaultdict
+
+version = int(sys.argv[1])
+comput_dir = sys.argv[2].strip()
+exp_dir = sys.argv[3].strip()
+conf_threshold = float(sys.argv[4])
+map_a_path = sys.argv[5]
+map_b_path = sys.argv[6]
+ambig_out = sys.argv[7]
+unambig_out = sys.argv[8]
+combined_a = sys.argv[9]
+combined_b = sys.argv[10]
+
+max_active = max(1, int(os.environ.get('AUT_MAX_ACTIVE', '40')))
+max_pairs = max(1, int(os.environ.get('AUT_MAX_PAIRS', '4000')))
+
+log_lines = []
+
+def log(msg):
+    log_lines.append(msg)
+
+if version < 2 and not (os.path.isdir(comput_dir) or os.path.isdir(exp_dir)):
+    print(json.dumps({"ambig": "", "unambig": "", "status": "skip"}))
+    sys.exit(0)
+
+with open(map_a_path, 'r', encoding='utf-8') as handle:
+    map_a = json.load(handle)
+with open(map_b_path, 'r', encoding='utf-8') as handle:
+    map_b = json.load(handle)
+
+ident_a = set(map_a.get('inputs', []))
+ident_b = set(map_b.get('inputs', []))
+
+# Utility helpers ---------------------------------------------------------
+
+def normalize_score(value):
+    if value is None:
+        return None
+    try:
+        score = float(value)
+    except Exception:
+        return None
+    if math.isnan(score) or math.isinf(score):
+        return None
+    if score > 1.0 and score <= 100.0:
+        score /= 100.0
+    return max(0.0, min(1.0, score))
+
+PAIR_KEYS = [
+    ('chain_a', 'residue_a', 'chain_b', 'residue_b'),
+    ('chainA', 'residueA', 'chainB', 'residueB'),
+    ('chain1', 'residue1', 'chain2', 'residue2'),
+]
+
+SINGLE_KEYS = ['chain', 'chain_id', 'chainId']
+RES_KEYS = ['residue', 'resseq', 'resSeq', 'resid']
+SCORE_KEYS = ['confidence', 'score', 'probability', 'weight']
+DATASET_KEYS = ['dataset', 'source', 'tool']
+
+
+def parse_record(record):
+    """Return tuple (pair, single) where pair is ((chain_a,res_a),(chain_b,res_b))."""
+    if not isinstance(record, dict):
+        return None, None, None
+    pair = None
+    for keys in PAIR_KEYS:
+        if all(k in record for k in keys):
+            pair = (
+                (str(record[keys[0]]).strip(), str(record[keys[1]]).strip()),
+                (str(record[keys[2]]).strip(), str(record[keys[3]]).strip()),
+            )
+            break
+    chain = None
+    residue = None
+    for key in SINGLE_KEYS:
+        if key in record:
+            chain = str(record[key]).strip()
+            break
+    for key in RES_KEYS:
+        if key in record:
+            residue = str(record[key]).strip()
+            break
+    score = None
+    for key in SCORE_KEYS:
+        if key in record:
+            score = normalize_score(record[key])
+            break
+    dataset = None
+    for key in DATASET_KEYS:
+        if key in record:
+            dataset = str(record[key]).strip()
+            break
+    return pair, (chain, residue, score, dataset), record
+
+
+def load_annotations(root):
+    entries = []
+    if not root or not os.path.isdir(root):
+        return entries
+    for dirpath, _, filenames in os.walk(root):
+        for filename in filenames:
+            path = os.path.join(dirpath, filename)
+            try:
+                if filename.lower().endswith('.json'):
+                    with open(path, 'r', encoding='utf-8', errors='ignore') as handle:
+                        data = json.load(handle)
+                    if isinstance(data, dict):
+                        if 'results' in data and isinstance(data['results'], list):
+                            data = data['results']
+                        elif 'data' in data and isinstance(data['data'], list):
+                            data = data['data']
+                        else:
+                            data = [data]
+                else:
+                    with open(path, 'r', encoding='utf-8', errors='ignore') as handle:
+                        lines = [line.strip() for line in handle if line.strip() and not line.startswith('#')]
+                    sep = ',' if any(',' in line for line in lines) else None
+                    if sep:
+                        parts = [line.split(sep) for line in lines]
+                        data = [dict(enumerate(chunk)) for chunk in parts]
+                    else:
+                        data = [line.split() for line in lines]
+                        data = [dict(enumerate(chunk)) for chunk in data]
+                for entry in data:
+                    pair, single, raw = parse_record(entry)
+                    if pair is None and (single is None or not single[0] or not single[1]):
+                        continue
+                    entries.append((path, pair, single, raw))
+            except Exception as exc:  # pragma: no cover
+                log(f"Failed to parse {filename}: {exc}")
+    return entries
+
+
+def build_map(meta, chain, residue):
+    residue_map = meta.get('residue_map', {}) or {}
+    for key, mapped in residue_map.items():
+        parts = key.split(':')
+        if len(parts) < 2:
+            continue
+        orig_chain, orig_res = parts[0], parts[1]
+        if chain and orig_chain.strip() != chain.strip():
+            continue
+        if residue and orig_res.strip() != residue.strip():
+            continue
+        return mapped
+    return None
+
+comput_entries = load_annotations(comput_dir)
+exp_entries = load_annotations(exp_dir)
+
+ambig_pairs = []
+unambig_pairs = []
+residues_a = set()
+residues_b = set()
+
+with open(map_a_path, 'r', encoding='utf-8') as handle:
+    meta_a = json.load(handle)
+with open(map_b_path, 'r', encoding='utf-8') as handle:
+    meta_b = json.load(handle)
+
+# Process experimental entries first for version 3
+if version == 3 and exp_entries:
+    for path, pair, single, raw in exp_entries:
+        if pair:
+            mapped_a = build_map(meta_a, pair[0][0], pair[0][1])
+            mapped_b = build_map(meta_b, pair[1][0], pair[1][1])
+            if mapped_a and mapped_b:
+                unambig_pairs.append((mapped_a, mapped_b))
+        elif single:
+            mapped = build_map(meta_a, single[0], single[1])
+            if mapped:
+                residues_a.add((mapped['chain'], mapped['residue']))
+            mapped = build_map(meta_b, single[0], single[1])
+            if mapped:
+                residues_b.add((mapped['chain'], mapped['residue']))
+
+comput_residues = defaultdict(set)
+for path, pair, single, raw in comput_entries:
+    if single:
+        chain, residue, score, dataset = single
+        if score is not None and score < conf_threshold:
+            continue
+        mapped = build_map(meta_a, chain, residue)
+        if mapped:
+            comput_residues['A'].add((mapped['chain'], mapped['residue']))
+        mapped = build_map(meta_b, chain, residue)
+        if mapped:
+            comput_residues['B'].add((mapped['chain'], mapped['residue']))
+    if pair:
+        mapped_a = build_map(meta_a, pair[0][0], pair[0][1])
+        mapped_b = build_map(meta_b, pair[1][0], pair[1][1])
+        if mapped_a and mapped_b:
+            ambig_pairs.append((mapped_a, mapped_b))
+
+if not ambig_pairs:
+    if comput_residues['A'] and comput_residues['B']:
+        for a in list(comput_residues['A'])[:max_active]:
+            for b in list(comput_residues['B'])[:max_active]:
+                ambig_pairs.append(({'chain': a[0], 'residue': a[1]}, {'chain': b[0], 'residue': b[1]}))
+
+ambig_pairs = ambig_pairs[:max_pairs]
+
+if residues_a and residues_b and not unambig_pairs:
+    for a in list(residues_a)[:max_active]:
+        for b in list(residues_b)[:max_active]:
+            unambig_pairs.append(({'chain': a[0], 'residue': a[1]}, {'chain': b[0], 'residue': b[1]}))
+
+ambig_written = ''
+if ambig_pairs:
+    with open(ambig_out, 'w', encoding='utf-8') as handle:
+        handle.write('! Auto-generated ambiguous restraints\n')
+        for lhs, rhs in ambig_pairs:
+            handle.write(
+                f"assign (segid {lhs['chain']} and resid {lhs['residue']}) "
+                f"(segid {rhs['chain']} and resid {rhs['residue']}) 2.0 2.0 0.0\n"
+            )
+    ambig_written = os.path.abspath(ambig_out)
+else:
+    if os.path.exists(ambig_out):
+        os.remove(ambig_out)
+
+unambig_written = ''
+if unambig_pairs:
+    with open(unambig_out, 'w', encoding='utf-8') as handle:
+        handle.write('! Auto-generated unambiguous restraints\n')
+        for lhs, rhs in unambig_pairs:
+            handle.write(
+                f"assign (segid {lhs['chain']} and resid {lhs['residue']}) "
+                f"(segid {rhs['chain']} and resid {rhs['residue']}) 0.0 0.0 0.0\n"
+            )
+    unambig_written = os.path.abspath(unambig_out)
+else:
+    if os.path.exists(unambig_out):
+        os.remove(unambig_out)
+
+print(json.dumps({
+    "ambig": ambig_written,
+    "unambig": unambig_written,
+    "status": "ok"
+}))
+PY
+    ); then
+        warn "Automatic restraint generation failed for $pair_label"
+        echo ""
+        return 1
+    fi
+    if [[ -z "$result" ]]; then
+        echo ""
+        return 0
+    fi
+    readarray -t result_lines <<<"$result"
+    if (( ${#result_lines[@]} > 1 )); then
+        for (( idx=0; idx<${#result_lines[@]}-1; idx++ )); do
+            line="${result_lines[$idx]}"
+            [[ -n "$line" ]] && warn "$line"
+        done
+    fi
+    last_index=$(( ${#result_lines[@]} - 1 ))
+    printf '%s\n' "${result_lines[$last_index]}"
+}
+
+create_config() {
+    local config_path="$1"
+    local run_dir_name="$2"
+    local sampling="$3"
+    local ncores="$4"
+    local ranair="$5"
+    local version="$6"
+    local ambig_value="$7"
+    local unambig_value="$8"
+    local reference="$9"
+    shift 9
+    local -a molecules=("$@")
+
+    python3 - "$config_path" "$run_dir_name" "$sampling" "$ncores" "$ranair" "$version" "$ambig_value" "$unambig_value" "$reference" "${molecules[@]}" <<'PY'
+import os
+import sys
+
+config_path = sys.argv[1]
+run_dir = sys.argv[2]
+sampling = int(sys.argv[3])
+ncores = int(sys.argv[4])
+ranair = sys.argv[5] == 'true'
+version = int(sys.argv[6])
+ambig_value = sys.argv[7]
+unambig_value = sys.argv[8]
+reference = sys.argv[9]
+molecules = sys.argv[10:]
+
+with open(config_path, 'w', encoding='utf-8') as fh:
+    fh.write(f"run_dir = \"{run_dir}\"\n")
+    fh.write("mode = \"local\"\n")
+    fh.write(f"ncores = {ncores}\n\n")
+
+    fh.write("molecules = [\n")
+    for mol in molecules:
+        fh.write(f"  \"{mol}\",\n")
+    fh.write("]\n\n")
+
+    fh.write("[topoaa]\n\n")
+
+    fh.write("[rigidbody]\n")
+    fh.write("tolerance = 20\n")
+    fh.write(f"sampling = {sampling}\n")
+    fh.write("cmrest = true\n")
+    if ranair:
+        fh.write("ranair = true\n")
+    fh.write("\n")
+
+    fh.write("[seletop]\nselect = 200\n\n")
+
+    def write_restraints(section):
+        fh.write(f"[{section}]\n")
+        fh.write("tolerance = 5\n")
+        if ambig_value:
+            fh.write(f"ambig_fname = \"{ambig_value}\"\n")
+            if version >= 2:
+                fh.write("randremoval = true\n")
+        if unambig_value:
+            fh.write(f"unambig_fname = \"{unambig_value}\"\n")
+        fh.write("\n")
+
+    write_restraints('flexref')
+    write_restraints('mdref')
+    write_restraints('emref')
+
+    if reference:
+        fh.write("[caprieval]\n")
+        fh.write(f"reference_fname = \"{reference}\"\n")
+PY
+}
+
+# ---------------------------------------------------------------------------
+# Argument parsing
+# ---------------------------------------------------------------------------
+
+require_command python3
+
+ARGS=("$@")
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --input-mode)
+            [[ $# -lt 2 ]] && die "--input-mode expects a value"
+            INPUT_MODE="$2"
+            shift 2
+            ;;
+        --auto-partners)
+            [[ $# -lt 2 ]] && die "--auto-partners expects a directory"
+            AUTO_PARTNER_DIR="$2"
+            shift 2
+            ;;
+        --partner)
+            [[ $# -lt 2 ]] && die "--partner expects label=spec"
+            local_entry="$2"
+            [[ "$local_entry" == *=* ]] || die "--partner value must be label=spec"
+            local_label="${local_entry%%=*}"
+            local_spec="${local_entry#*=}"
+            [[ -z "$local_label" ]] && die "Partner label cannot be empty"
+            PARTNER_SPECS["$local_label"]="$local_spec"
+            PARTNER_ORDER+=("$local_label")
+            shift 2
+            ;;
+        --group-bodies)
+            [[ $# -lt 2 ]] && die "--group-bodies expects label=path or json path"
+            gb_value="$2"
+            if [[ "$gb_value" == *=* ]]; then
+                gb_label="${gb_value%%=*}"
+                gb_path="${gb_value#*=}"
+                GROUP_BODY_SOURCE["$gb_label"]="$gb_path"
+            else
+                GROUP_BODY_JSON_FILES+=("$gb_value")
+            fi
+            shift 2
+            ;;
+        --pair)
+            [[ $# -lt 2 ]] && die "--pair expects label1,label2"
+            PAIR_OVERRIDES+=("$2")
+            shift 2
+            ;;
+        --pairs-file)
+            [[ $# -lt 2 ]] && die "--pairs-file expects path"
+            PAIR_FILE="$2"
+            shift 2
+            ;;
+        --ambig)
+            [[ $# -lt 2 ]] && die "--ambig expects file list"
+            mapfile -t tmp < <(split_csv "$2")
+            AMBIG_MANUAL+=("${tmp[@]}")
+            shift 2
+            ;;
+        --unambig)
+            [[ $# -lt 2 ]] && die "--unambig expects file list"
+            mapfile -t tmp < <(split_csv "$2")
+            UNAMBIG_MANUAL+=("${tmp[@]}")
+            shift 2
+            ;;
+        --computational-dir)
+            [[ $# -lt 2 ]] && die "--computational-dir expects path"
+            COMPUTATIONAL_DIR=$(abs_path "$2")
+            shift 2
+            ;;
+        --experimental-dir)
+            [[ $# -lt 2 ]] && die "--experimental-dir expects path"
+            EXPERIMENTAL_DIR=$(abs_path "$2")
+            shift 2
+            ;;
+        --v|--version)
+            [[ $# -lt 2 ]] && die "--version expects 1, 2 or 3"
+            VERSION="$2"
+            shift 2
+            ;;
+        --out)
+            [[ $# -lt 2 ]] && die "--out expects directory"
+            OUTPUT_ROOT=$(abs_path "$2")
+            shift 2
+            ;;
+        --project)
+            [[ $# -lt 2 ]] && die "--project expects name"
+            PROJECT_NAME="$2"
+            shift 2
+            ;;
+        --ncores)
+            [[ $# -lt 2 ]] && die "--ncores expects integer"
+            NCORES="$2"
+            shift 2
+            ;;
+        --sampling)
+            [[ $# -lt 2 ]] && die "--sampling expects integer"
+            SAMPLING_OVERRIDE="$2"
+            shift 2
+            ;;
+        --confidence-threshold)
+            [[ $# -lt 2 ]] && die "--confidence-threshold expects float"
+            CONF_THRESHOLD="$2"
+            shift 2
+            ;;
+        --max-active)
+            [[ $# -lt 2 ]] && die "--max-active expects integer"
+            MAX_ACTIVE_RESIDUES="$2"
+            shift 2
+            ;;
+        --max-pairs)
+            [[ $# -lt 2 ]] && die "--max-pairs expects integer"
+            MAX_RESTRAINT_PAIRS="$2"
+            shift 2
+            ;;
+        --reference)
+            [[ $# -lt 2 ]] && die "--reference expects path"
+            REFERENCE_PDB=$(abs_path "$2")
+            shift 2
+            ;;
+        --abinitio)
+            ABINITIO_PRESET=true
+            VERSION=1
+            FORCE_RANAIR=true
+            shift
+            ;;
+        --ranair)
+            FORCE_RANAIR=true
+            shift
+            ;;
+        --dry-run|--no-run)
+            DRY_RUN=true
+            SKIP_RUN=true
+            shift
+            ;;
+        --help|-h)
+            usage
+            exit 0
+            ;;
+        *)
+            die "Unknown option: $1"
+            ;;
+    esac
+done
+
+if [[ -n "$AUTO_PARTNER_DIR" ]]; then
+    AUTO_PARTNER_DIR=$(abs_path "$AUTO_PARTNER_DIR")
+    [[ -d "$AUTO_PARTNER_DIR" ]] || die "Auto partner directory not found: $AUTO_PARTNER_DIR"
+    mapfile -t auto_candidates < <(find "$AUTO_PARTNER_DIR" -type f -name "*.pdb" | sort)
+    (( ${#auto_candidates[@]} > 0 )) || die "No PDB files found in $AUTO_PARTNER_DIR"
+    for file in "${auto_candidates[@]}"; do
+        label="$(basename "${file%.*}")"
+        label="${label//[^A-Za-z0-9]/_}"
+        label="${label^^}"
+        [[ "$label" =~ ^[0-9] ]] && label="P${label}"
+        suffix=0
+        base_label="$label"
+        while [[ -n "${PARTNER_SPECS[$label]:-}" ]]; do
+            suffix=$((suffix + 1))
+            label="${base_label}_${suffix}"
+        done
+        PARTNER_SPECS["$label"]="$file"
+        PARTNER_ORDER+=("$label")
+    done
+fi
+
+(( ${#PARTNER_ORDER[@]} >= 2 )) || die "Provide at least two partners (via --partner or --auto-partners)."
+
+declare -A _label_seen=()
+for label in "${PARTNER_ORDER[@]}"; do
+    if [[ -n "${_label_seen[$label]:-}" ]]; then
+        die "Duplicate partner label detected: $label"
+    fi
+    _label_seen["$label"]=1
+done
+
+case "$INPUT_MODE" in
+    split|multichain) ;;
+    *) die "Unsupported --input-mode '$INPUT_MODE'";
+        ;;
+esac
+
+case "$VERSION" in
+    1|2|3) ;;
+    *) die "Unsupported version '$VERSION'";
+        ;;
+esac
+
+if [[ "$INPUT_MODE" == "split" ]]; then
+    if (( ${#GROUP_BODY_SOURCE[@]} == 0 && ${#GROUP_BODY_JSON_FILES[@]} == 0 )); then
+        die "split mode requires --group-bodies mapping (label=path or JSON manifest)"
+    fi
+fi
+
+if (( ${#GROUP_BODY_JSON_FILES[@]} )); then
+    for json_file in "${GROUP_BODY_JSON_FILES[@]}"; do
+        parse_group_json "$json_file"
+    done
+fi
+
+for label in "${!GROUP_BODY_SOURCE[@]}"; do
+    GROUP_BODY_SOURCE["$label"]=$(abs_path "${GROUP_BODY_SOURCE[$label]}")
+done
+
+# Resolve partner specs into absolute file lists
+for label in "${PARTNER_ORDER[@]}"; do
+    resolve_partner_spec "$label" "${PARTNER_SPECS[$label]}" "$INPUT_MODE"
+    resolve_group_chain_order "$label"
+    [[ "$INPUT_MODE" != "split" ]] && continue
+    if [[ -z "${GROUP_BODY_SOURCE[$label]:-}" ]]; then
+        warn "No explicit --group-bodies source for '$label'; will rely on sanitized structure"
+    fi
+    # Validate at least two files when split
+    mapfile -t _files < <(printf '%s\n' "${PARTNER_FILES[$label]}")
+    (( ${#_files[@]} >= 1 )) || die "split mode requires at least one chain file for '$label'"
+    if [[ -n "${GROUP_BODY_SOURCE[$label]:-}" && ! -f "${GROUP_BODY_SOURCE[$label]}" ]]; then
+        die "Group source for '$label' not found: ${GROUP_BODY_SOURCE[$label]}"
+    fi
+done
+
+# Resolve manual restraints to absolute paths
+for idx in "${!AMBIG_MANUAL[@]}"; do
+    path="${AMBIG_MANUAL[$idx]}"
+    [[ -f "$path" ]] || die "Ambiguous restraint file not found: $path"
+    AMBIG_MANUAL[$idx]=$(abs_path "$path")
+done
+
+for idx in "${!UNAMBIG_MANUAL[@]}"; do
+    path="${UNAMBIG_MANUAL[$idx]}"
+    [[ -f "$path" ]] || die "Unambiguous restraint file not found: $path"
+    UNAMBIG_MANUAL[$idx]=$(abs_path "$path")
+done
+
+if [[ -n "$REFERENCE_PDB" ]]; then
+    [[ -f "$REFERENCE_PDB" ]] || die "Reference PDB not found: $REFERENCE_PDB"
+fi
+
+if [[ -n "$COMPUTATIONAL_DIR" && ! -d "$COMPUTATIONAL_DIR" ]]; then
+    die "Computational annotation directory not found: $COMPUTATIONAL_DIR"
+fi
+
+if [[ -n "$EXPERIMENTAL_DIR" && ! -d "$EXPERIMENTAL_DIR" ]]; then
+    die "Experimental annotation directory not found: $EXPERIMENTAL_DIR"
+fi
+
+OUTPUT_ROOT=$(abs_path "$OUTPUT_ROOT")
+mkdir -p "$OUTPUT_ROOT"
+
+if [[ -z "$PROJECT_NAME" ]]; then
+    timestamp=$(date +%Y%m%d_%H%M%S)
+    base_project="dock_${timestamp}"
+    PROJECT_NAME="$base_project"
+    counter=1
+    while [[ -d "$OUTPUT_ROOT/$PROJECT_NAME" ]]; do
+        PROJECT_NAME="${base_project}_${counter}"
+        ((counter+=1))
+    done
+fi
+
+RUN_DIR="$OUTPUT_ROOT/$PROJECT_NAME"
+mkdir -p "$RUN_DIR"
+
+PREP_DIR="$RUN_DIR/prepared"
+mkdir -p "$PREP_DIR"
+
+log "Preparing partners in $PREP_DIR"
+log "  Partners: ${PARTNER_ORDER[*]}"
+log "  Mode: $INPUT_MODE | Version: $VERSION"
+
+idx=0
+for label in "${PARTNER_ORDER[@]}"; do
+    run_prepare_partner "$label" "$idx" "$INPUT_MODE" "$PREP_DIR/$label"
+    (( idx += 1 ))
+done
+
+for label in "${PARTNER_ORDER[@]}"; do
+    source_path="${GROUP_BODY_SOURCE[$label]:-}"
+    [[ -n "$source_path" ]] || continue
+    if [[ ! -f "$source_path" ]]; then
+        warn "Group source for '$label' not found: $source_path"
+        continue
+    fi
+    group_dir="$PREP_DIR/$label/group_source"
+    mkdir -p "$group_dir"
+    group_copy="$group_dir/$(basename "$source_path")"
+    cp "$source_path" "$group_copy"
+    if command -v haddock3-restraints >/dev/null 2>&1; then
+        group_tbl="$group_dir/${label}_restrain_bodies.tbl"
+        if haddock3-restraints restrain_bodies "$group_copy" > "$group_tbl" 2> "$group_dir/${label}_restrain_bodies.log"; then
+            PARTNER_GROUP_BODY["$label"]="$group_tbl"
+        else
+            warn "haddock3-restraints failed for '$label' group source ($source_path); see $group_dir/${label}_restrain_bodies.log"
+        fi
+    else
+        warn "haddock3-restraints not available; cannot process --group-bodies source for '$label'"
+    fi
+done
+
+if [[ -n "$PAIR_FILE" ]]; then
+    PAIR_FILE=$(abs_path "$PAIR_FILE")
+    [[ -f "$PAIR_FILE" ]] || die "Pairs file not found: $PAIR_FILE"
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        line="${line%%#*}"
+        line="${line//,/ }"
+        line="${line//|/ }"
+        line="${line//:/ }"
+        read -r lhs rhs _ <<< "$line"
+        [[ -z "$lhs" || -z "$rhs" ]] && continue
+        [[ -n "${PARTNER_SPECS[$lhs]:-}" ]] || die "Pairs file references unknown partner '$lhs'"
+        [[ -n "${PARTNER_SPECS[$rhs]:-}" ]] || die "Pairs file references unknown partner '$rhs'"
+        add_pair_unique "$lhs" "$rhs"
+    done < "$PAIR_FILE"
+fi
+
+for entry in "${PAIR_OVERRIDES[@]}"; do
+    cleaned="${entry//,/ }"
+    cleaned="${cleaned//|/ }"
+    cleaned="${cleaned//:/ }"
+    read -r lhs rhs _ <<< "$cleaned"
+    [[ -n "$lhs" && -n "$rhs" ]] || die "--pair expects label1,label2 (got '$entry')"
+    [[ -n "${PARTNER_SPECS[$lhs]:-}" ]] || die "--pair references unknown partner '$lhs'"
+    [[ -n "${PARTNER_SPECS[$rhs]:-}" ]] || die "--pair references unknown partner '$rhs'"
+    add_pair_unique "$lhs" "$rhs"
+done
+
+if (( ${#PAIR_LIST[@]} == 0 )); then
+    for ((i=0; i<${#PARTNER_ORDER[@]}-1; i++)); do
+        for ((j=i+1; j<${#PARTNER_ORDER[@]}; j++)); do
+            add_pair_unique "${PARTNER_ORDER[i]}" "${PARTNER_ORDER[j]}"
+        done
+    done
+fi
+
+TOTAL_PAIRS=${#PAIR_LIST[@]}
+(( TOTAL_PAIRS > 0 )) || die "No partner pairs scheduled for docking."
+
+log "Planned docking pairs:"
+for pair in "${PAIR_LIST[@]}"; do
+    IFS='|' read -r lhs rhs <<< "$pair"
+    log "  - $lhs vs $rhs"
+done
+
+if [[ "$SKIP_RUN" != true ]]; then
+    require_command haddock3
+fi
+
+relative_path() {
+    local path="$1"
+    echo "${path#$PAIR_DIR/}"
+}
+
+join_for_config() {
+    local -n arr=$1
+    local -a rels=()
+    local item
+    for item in "${arr[@]}"; do
+        rels+=("$(relative_path "$item")")
+    done
+    local IFS=','
+    echo "${rels[*]}"
+}
+
+success_count=0
+failure_count=0
+skipped_count=0
+guided_count=0
+blind_count=0
+auto_restraints_count=0
+
+pair_idx=0
+start_global=$(date +%s)
+
+for pair in "${PAIR_LIST[@]}"; do
+    pair_idx=$((pair_idx + 1))
+    IFS='|' read -r lhs rhs <<< "$pair"
+    pair_label="PAIR_${lhs}_vs_${rhs}"
+    PAIR_DIR="$RUN_DIR/$pair_label"
+    pair_input_dir="$PAIR_DIR/input"
+    pair_rest_dir="$PAIR_DIR/restraints"
+    pair_meta_dir="$PAIR_DIR/meta"
+    mkdir -p "$PAIR_DIR" "$pair_input_dir" "$pair_rest_dir" "$pair_meta_dir"
+
+    log ""
+    log "[$pair_idx/$TOTAL_PAIRS] Preparing $lhs vs $rhs"
+
+    declare -a molecules=()
+    for partner_label in "$lhs" "$rhs"; do
+        mapfile -t split_files < <(printf '%s\n' "${PARTNER_SPLITFILES[$partner_label]}")
+        seq_idx=0
+        for file in "${split_files[@]}"; do
+            base="$(basename "$file")"
+            dest_rel="input/${partner_label}_${seq_idx}_${base}"
+            dest_path="$PAIR_DIR/$dest_rel"
+            mkdir -p "$(dirname "$dest_path")"
+            cp "$file" "$dest_path"
+            molecules+=("$dest_rel")
+            seq_idx=$((seq_idx + 1))
+        done
+    done
+
+    mapping_lhs_src="${PARTNER_MAPPING[$lhs]}"
+    mapping_rhs_src="${PARTNER_MAPPING[$rhs]}"
+    mapping_lhs_dest="$pair_meta_dir/${lhs}_mapping.json"
+    mapping_rhs_dest="$pair_meta_dir/${rhs}_mapping.json"
+    cp "$mapping_lhs_src" "$mapping_lhs_dest"
+    cp "$mapping_rhs_src" "$mapping_rhs_dest"
+
+    declare -a pair_ambig_files=()
+    declare -a pair_unambig_files=()
+
+    for path in "${AMBIG_MANUAL[@]}"; do
+        base="$(basename "$path")"
+        dest="$pair_rest_dir/$base"
+        cp "$path" "$dest"
+        pair_ambig_files+=("$dest")
+    done
+
+    for path in "${UNAMBIG_MANUAL[@]}"; do
+        base="$(basename "$path")"
+        dest="$pair_rest_dir/$base"
+        cp "$path" "$dest"
+        pair_unambig_files+=("$dest")
+    done
+
+    for partner_label in "$lhs" "$rhs"; do
+        body_src="${PARTNER_BODY_TBL[$partner_label]}"
+        if [[ -n "$body_src" && -f "$body_src" ]]; then
+            body_dest="$pair_rest_dir/${partner_label}_restrain_bodies.tbl"
+            cp "$body_src" "$body_dest"
+            append_unique pair_unambig_files "$body_dest"
+        fi
+        group_tbl="${PARTNER_GROUP_BODY[$partner_label]:-}"
+        if [[ -n "$group_tbl" && -f "$group_tbl" ]]; then
+            group_dest="$pair_rest_dir/${partner_label}_restrain_bodies_source.tbl"
+            cp "$group_tbl" "$group_dest"
+            append_unique pair_unambig_files "$group_dest"
+        fi
+    done
+
+    auto_json=""
+    if [[ "$VERSION" -ge 2 ]]; then
+        auto_json=$(generate_auto_restraints "$pair_rest_dir" "$pair_label" \
+            "$mapping_lhs_dest" "$mapping_rhs_dest" \
+            "${PARTNER_COMBINED[$lhs]}" "${PARTNER_COMBINED[$rhs]}")
+        if [[ -n "$auto_json" ]]; then
+            auto_ambig=$(python3 - "$auto_json" <<'PY'
+import json, sys
+print(json.loads(sys.argv[1]).get("ambig", ""))
+PY
+)
+            auto_unambig=$(python3 - "$auto_json" <<'PY'
+import json, sys
+print(json.loads(sys.argv[1]).get("unambig", ""))
+PY
+)
+            if [[ -n "$auto_ambig" && -f "$auto_ambig" ]]; then
+                append_unique pair_ambig_files "$auto_ambig"
+                auto_restraints_count=$((auto_restraints_count + 1))
+            fi
+            if [[ -n "$auto_unambig" && -f "$auto_unambig" ]]; then
+                append_unique pair_unambig_files "$auto_unambig"
+                auto_restraints_count=$((auto_restraints_count + 1))
+            fi
+        fi
+    fi
+
+    if (( ${#pair_ambig_files[@]} > 0 )); then
+        guided_count=$((guided_count + 1))
+    elif (( ${#pair_unambig_files[@]} > 0 )); then
+        guided_count=$((guided_count + 1))
+    else
+        blind_count=$((blind_count + 1))
+    fi
+
+    if [[ -n "$SAMPLING_OVERRIDE" ]]; then
+        sampling_value="$SAMPLING_OVERRIDE"
+    else
+        if [[ "$VERSION" -eq 1 ]]; then
+            sampling_value=10000
+        else
+            sampling_value=4000
+        fi
+    fi
+
+    ranair_value=false
+    if [[ "$FORCE_RANAIR" == true ]]; then
+        ranair_value=true
+    elif [[ "$VERSION" -eq 1 && ${#pair_ambig_files[@]} -eq 0 && ${#pair_unambig_files[@]} -eq 0 ]]; then
+        ranair_value=true
+    fi
+
+    if (( ${#pair_ambig_files[@]} )); then
+        AMBIG_VALUE=$(join_for_config pair_ambig_files)
+    else
+        AMBIG_VALUE=""
+    fi
+    if (( ${#pair_unambig_files[@]} )); then
+        UNAMBIG_VALUE=$(join_for_config pair_unambig_files)
+    else
+        UNAMBIG_VALUE=""
+    fi
+
+    if [[ -n "$REFERENCE_PDB" ]]; then
+        ref_dest="$PAIR_DIR/reference.pdb"
+        cp "$REFERENCE_PDB" "$ref_dest"
+        REFERENCE_VALUE="reference.pdb"
+    else
+        REFERENCE_VALUE=""
+    fi
+
+    CONFIG_PATH="$PAIR_DIR/haddock3.cfg"
+    timestamp=$(date +%Y%m%d_%H%M%S)
+    base_run="run_${lhs}_vs_${rhs}_${timestamp}"
+    RUN_SUBDIR="$base_run"
+    counter=1
+    while [[ -d "$PAIR_DIR/$RUN_SUBDIR" ]]; do
+        RUN_SUBDIR="${base_run}_${counter}"
+        ((counter+=1))
+    done
+
+    create_config "$CONFIG_PATH" "$RUN_SUBDIR" "$sampling_value" "$NCORES" "$ranair_value" "$VERSION" "$AMBIG_VALUE" "$UNAMBIG_VALUE" "$REFERENCE_VALUE" "${molecules[@]}"
+
+    if [[ "$SKIP_RUN" == true ]]; then
+        log "  Dry run only. Config ready at $CONFIG_PATH"
+        skipped_count=$((skipped_count + 1))
+        continue
+    fi
+
+    pushd "$PAIR_DIR" >/dev/null
+    log "  Running haddock3 --setup"
+    if haddock3 --setup "$(basename "$CONFIG_PATH")" > setup.log 2>&1; then
+        log "  Setup completed"
+    else
+        error "Setup failed for $pair_label. See $PAIR_DIR/setup.log"
+        popd >/dev/null
+        failure_count=$((failure_count + 1))
+        continue
+    fi
+
+    log "  Running haddock3 main workflow"
+    if haddock3 --restart 0 "$(basename "$CONFIG_PATH")" > haddock3.log 2>&1; then
+        log "  Run finished. Outputs under $PAIR_DIR"
+        success_count=$((success_count + 1))
+    else
+        error "HADDOCK3 execution failed for $pair_label. See $PAIR_DIR/haddock3.log"
+        failure_count=$((failure_count + 1))
+    fi
+    popd >/dev/null
+done
+
+end_global=$(date +%s)
+duration=$((end_global - start_global))
+hours=$((duration / 3600))
+mins=$(((duration % 3600) / 60))
+
+log ""
+log "======================================"
+log "Workflow summary"
+log "======================================"
+log "Total runtime: ${hours}h${mins}m"
+log "Pairs scheduled: $TOTAL_PAIRS"
+log "Successful runs: $success_count"
+log "Failed runs:     $failure_count"
+if [[ "$SKIP_RUN" == true ]]; then
+    log "Dry-run only; $skipped_count configurations generated."
+fi
+log "Guided docking:  $guided_count"
+log "Blind docking:   $blind_count"
+if [[ "$VERSION" -ge 2 ]]; then
+    log "Auto restraints: $auto_restraints_count"
+fi
+log "Results root:    $RUN_DIR"
+
+exit 0

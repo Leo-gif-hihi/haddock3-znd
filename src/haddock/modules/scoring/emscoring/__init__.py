@@ -8,6 +8,7 @@ from pathlib import Path
 
 from haddock.core.defaults import MODULE_DEFAULT_YAML
 from haddock.core.typing import FilePath
+from haddock.gear.haddockmodel import HaddockModel
 from haddock.libs.libcns import prepare_cns_input, prepare_expected_pdb
 from haddock.libs.libontology import PDBFile
 from haddock.libs.libsubprocess import CNSJob
@@ -27,7 +28,7 @@ class HaddockModule(CNSScoringModule):
     def __init__(
         self, order: int, path: Path, initial_params: FilePath = DEFAULT_CONFIG
     ) -> None:
-        cns_script = Path(RECIPE_PATH, "cns", f"{self.name}.cns")
+        cns_script = Path(RECIPE_PATH, "cns", "emscoring.cns")
         super().__init__(order, path, initial_params, cns_script=cns_script)
 
     @classmethod
@@ -45,11 +46,6 @@ class HaddockModule(CNSScoringModule):
         except Exception as e:
             self.finish_with_error(e)
 
-        # Here we pop the parameter as not supported by CNS and only used
-        # at the python level for downstream analysis
-        interface_combinations = self.extract_interface_combinations()
-
-        # Itereate over models to prepare CNS inputs
         self.output_models = []
         for model_num, model in enumerate(models_to_score, start=1):
             scoring_input = prepare_cns_input(
@@ -58,17 +54,17 @@ class HaddockModule(CNSScoringModule):
                 self.path,
                 self.recipe_str,
                 self.params,
-                self.name,
+                "emscoring",
                 native_segid=True,
                 debug=self.params["debug"],
                 seed=model.seed if isinstance(model, PDBFile) else None,
             )
 
-            scoring_out = f"{self.name}_{model_num}.out"
-            err_fname = f"{self.name}_{model_num}.cnserr"
+            scoring_out = f"emscoring_{model_num}.out"
+            err_fname = f"emscoring_{model_num}.cnserr"
 
             # create the expected PDBobject
-            expected_pdb = prepare_expected_pdb(model, model_num, ".", self.name)
+            expected_pdb = prepare_expected_pdb(model, model_num, ".", "emscoring")
             # fill the ori_name field of expected_pdb
             expected_pdb.ori_name = model.file_name
             expected_pdb.md5 = model.md5
@@ -87,15 +83,25 @@ class HaddockModule(CNSScoringModule):
         engine.run()
         self.log("CNS jobs have finished")
 
-        # Update the score attributes for each output pdb
-        output_haddock_models = self.update_pdb_scores(interface_combinations)
-    
-        # Set output filename
-        output_fname = f"{self.name}.tsv"
-        # Process per-interface analysis
-        self.per_interface_output(output_fname, output_haddock_models)
-        # Generate output
+        # Get the weights from the defaults
+        _weight_keys = ("w_vdw", "w_elec", "w_desolv", "w_air", "w_bsa")
+        weights = {e: self.params[e] for e in _weight_keys}
+
+        # Check for generated output, fail it not all expected files are found
+        for pdb in self.output_models:
+            if pdb.is_present():
+                haddock_model = HaddockModel(pdb.file_name)
+                pdb.unw_energies = haddock_model.energies
+
+                haddock_score = haddock_model.calc_haddock_score(**weights)
+                pdb.score = haddock_score
+
+        output_fname = "emscoring.tsv"
         self.log(f"Saving output to {output_fname}")
         self.output(output_fname)
-        # Export models to next module
         self.export_io_models(faulty_tolerance=self.params["tolerance"])
+        
+        if self.params["per_interface_scoring"]:
+            self.per_interface_output(output_fname)
+
+        
