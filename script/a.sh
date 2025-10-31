@@ -39,6 +39,11 @@ FORCE_RANAIR=false
 DRY_RUN=false
 SKIP_RUN=false
 REFERENCE_PDB=""
+USE_FPOCKET=false
+FPOCKET_TOP_N=3
+FPOCKET_MIN_DRUG=0.5
+FPOCKET_MIN_VOLUME=50
+FPOCKET_AVAILABLE="unknown"
 
 usage() {
     cat <<'USAGE'
@@ -66,6 +71,7 @@ Restraints & data sources:
   --unambig <tbl[,tbl..]>      Manual unambiguous restraint files.
   --computational-dir <dir>    Directory tree with computational annotations (for V2/V3).
   --experimental-dir <dir>     Directory tree with experimental annotations (for V3 priority).
+  --use-fpocket                Run fpocket on prepared structures to seed computational annotations.
   --confidence-threshold <f>   Confidence cutoff for computational data (default 0.6).
   --max-active <int>           Max active residues per partner when building restraints (default 40).
   --max-pairs <int>            Cap number of ambiguous restraints (default 4000).
@@ -526,6 +532,323 @@ PY
     PARTNER_SPLITFILES["$label"]=$(printf '%s\n' "${split_files[@]}")
 }
 
+ensure_fpocket_available() {
+    if [[ "$FPOCKET_AVAILABLE" != "unknown" ]]; then
+        return
+    fi
+    if command -v fpocket >/dev/null 2>&1; then
+        FPOCKET_AVAILABLE="yes"
+    else
+        warn "fpocket executable not found in PATH; skipping fpocket-based annotations."
+        FPOCKET_AVAILABLE="no"
+    fi
+}
+
+generate_fpocket_predictions() {
+    local label="$1"
+    local combined_pdb="$2"
+    local target_root="$3"
+
+    [[ "$USE_FPOCKET" == true ]] || return 0
+
+    ensure_fpocket_available
+    [[ "$FPOCKET_AVAILABLE" == "yes" ]] || return 0
+
+    [[ -f "$combined_pdb" ]] || return 0
+
+    local combined_dir
+    combined_dir=$(dirname "$combined_pdb")
+    local combined_base
+    combined_base=$(basename "$combined_pdb" .pdb)
+
+    local work_dir="$combined_dir"
+    local fpocket_out="$work_dir/${combined_base}_out"
+
+    if [[ -d "$fpocket_out" ]]; then
+        rm -rf "$fpocket_out"
+    fi
+
+    if ! fpocket -f "$combined_pdb" >/dev/null 2>&1; then
+        warn "fpocket run failed for partner $label; skipping fpocket annotations."
+        rm -rf "$fpocket_out"
+        return 0
+    fi
+
+    if [[ ! -d "$fpocket_out" ]]; then
+        warn "fpocket did not generate expected output folder for $label."
+        return 0
+    fi
+
+    local target_dir="$target_root/$label/fpocket"
+    rm -rf "$target_dir"
+    mkdir -p "$target_dir"
+    cp -R "$fpocket_out" "$target_dir/raw"
+    rm -rf "$fpocket_out"
+
+    local info_file=""
+    local summary_file=""
+
+    if [[ -f "$target_dir/raw/info.txt" ]]; then
+        info_file="$target_dir/raw/info.txt"
+    elif [[ -f "$target_dir/raw/pockets/info.txt" ]]; then
+        info_file="$target_dir/raw/pockets/info.txt"
+    else
+        info_file=$(find "$target_dir/raw" -maxdepth 1 -type f -name "*info.txt" | head -n1 || true)
+    fi
+
+    summary_file=$(find "$target_dir/raw" -maxdepth 2 -type f -name "pocket_summary*.txt" | head -n1 || true)
+
+    local pockets_dir=""
+    if [[ -d "$target_dir/raw/pockets" ]]; then
+        pockets_dir="$target_dir/raw/pockets"
+    else
+        pockets_dir=$(find "$target_dir/raw" -maxdepth 3 -type d -name "pockets" | head -n1 || true)
+    fi
+
+    if [[ -z "$info_file" && -z "$summary_file" ]]; then
+        warn "fpocket output missing summary for $label (no info.txt or pocket_summary*.txt found)."
+        return 0
+    fi
+
+    if [[ -z "$pockets_dir" || ! -d "$pockets_dir" ]]; then
+        warn "fpocket output missing pockets directory for $label."
+        return 0
+    fi
+
+    local json_out="$target_dir/${label}_fpocket.json"
+
+    python3 - "${info_file:-}" "${summary_file:-}" "$pockets_dir" "$json_out" "$FPOCKET_TOP_N" "$FPOCKET_MIN_DRUG" "$FPOCKET_MIN_VOLUME" "$label" <<'PY'
+import json
+import math
+import os
+import sys
+from collections import defaultdict
+
+info_path = sys.argv[1].strip()
+summary_path = sys.argv[2].strip()
+pockets_dir, output_json, top_n, min_drug, min_vol, label = sys.argv[3:9]
+top_n = max(1, int(top_n))
+min_drug = float(min_drug)
+min_vol = float(min_vol)
+
+pockets = []
+current = None
+
+def flush_current():
+    global current
+    if current:
+        pockets.append(current.copy())
+        current = None
+
+def parse_classic(path):
+    global current
+    found = False
+    if not path or not os.path.isfile(path):
+        return False
+    with open(path, "r", encoding="utf-8", errors="ignore") as handle:
+        for raw_line in handle:
+            line = raw_line.strip()
+            if not line:
+                continue
+            if line.startswith("Pocket "):
+                flush_current()
+                head = line.split()[1]
+                try:
+                    pocket_id = int(head)
+                except Exception:
+                    pocket_id = len(pockets) + 1
+                current = {
+                    "id": pocket_id,
+                    "score": None,
+                    "druggability": None,
+                    "volume": None,
+                }
+                found = True
+                continue
+            if not found or current is None:
+                continue
+            if ":" not in line:
+                continue
+            key, value = line.split(":", 1)
+            key = key.strip().lower()
+            try:
+                number = float(value.strip().split()[0])
+            except Exception:
+                continue
+            if key.startswith("volume"):
+                current["volume"] = number
+            elif key.startswith("druggability"):
+                current["druggability"] = number
+            elif key.startswith("score"):
+                if current.get("score") is None:
+                    current["score"] = number
+    flush_current()
+    return found
+
+def parse_summary(path):
+    if not path or not os.path.isfile(path):
+        return False
+    local = []
+    with open(path, "r", encoding="utf-8", errors="ignore") as handle:
+        for raw_line in handle:
+            line = raw_line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if ';' in line:
+                parts = [part.strip() for part in line.split(';')]
+            else:
+                parts = line.split()
+            if len(parts) < 4:
+                continue
+            file_name = parts[0]
+            try:
+                score = float(parts[1])
+            except Exception:
+                continue
+            try:
+                drug = float(parts[2])
+            except Exception:
+                drug = None
+            try:
+                volume = float(parts[3])
+            except Exception:
+                volume = None
+            pocket_id = ''.join(ch for ch in file_name if ch.isdigit())
+            if pocket_id:
+                try:
+                    pocket_id = int(pocket_id)
+                except Exception:
+                    pocket_id = len(local) + 1
+            else:
+                pocket_id = len(local) + 1
+            local.append({
+                "id": pocket_id,
+                "score": score,
+                "druggability": drug,
+                "volume": volume,
+                "file": file_name,
+            })
+    if not local:
+        return False
+    pockets.extend(local)
+    return True
+
+parsed = False
+if info_path:
+    parsed = parse_classic(info_path)
+if not parsed and summary_path:
+    parsed = parse_summary(summary_path)
+if not parsed and info_path:
+    parsed = parse_summary(info_path)
+
+if not pockets:
+    sys.exit(0)
+
+def confidence_for(entry):
+    val = entry.get("druggability")
+    if val is not None and not math.isnan(val):
+        return max(0.0, min(1.0, val))
+    score = entry.get("score")
+    if score is None or math.isnan(score):
+        return 0.0
+    return max(0.0, min(1.0, score / 100.0))
+
+filtered = [
+    p for p in pockets
+    if (p.get("volume") or 0.0) >= min_vol and (p.get("druggability") or 0.0) >= min_drug
+]
+if not filtered:
+    filtered = [p for p in pockets if (p.get("volume") or 0.0) >= min_vol]
+if not filtered:
+    filtered = pockets[:]
+
+filtered.sort(key=lambda p: (p.get("druggability") if p.get("druggability") is not None else p.get("score", 0.0)), reverse=True)
+selected = filtered[:top_n]
+
+entries = []
+for pocket in selected:
+    pocket_id = pocket.get("id")
+    pocket_file = pocket.get("file")
+    candidates = []
+    if pocket_file:
+        candidates.append(os.path.join(pockets_dir, pocket_file))
+        if not pocket_file.endswith("_atm.pdb"):
+            candidates.append(os.path.join(pockets_dir, f"{pocket_file}_atm.pdb"))
+    pdb_name = f"pocket{pocket_id}_atm.pdb"
+    candidates.append(os.path.join(pockets_dir, pdb_name))
+    candidates.append(os.path.join(pockets_dir, f"pocket{pocket_id}.pdb"))
+    pdb_path = None
+    for cand in candidates:
+        if os.path.isfile(cand):
+            pdb_path = cand
+            break
+    if not os.path.isfile(pdb_path):
+        continue
+    residues = set()
+    with open(pdb_path, "r", encoding="utf-8", errors="ignore") as handle:
+        for line in handle:
+            if not line.startswith(("ATOM", "HETATM")):
+                continue
+            chain = line[21].strip() or "_"
+            resid = line[22:26].strip()
+            residues.add((chain, resid))
+    if not residues:
+        continue
+    confidence = confidence_for(pocket)
+    score = pocket.get("druggability")
+    if score is None or math.isnan(score):
+        score = pocket.get("score")
+    entry = {
+        "pocket_id": pocket_id,
+        "confidence": confidence,
+        "score": score,
+        "volume": pocket.get("volume"),
+        "residues": [
+            {"chain": chain, "residue": resid, "confidence": confidence}
+            for chain, resid in sorted(residues)
+        ],
+    }
+    entries.append(entry)
+
+if not entries:
+    sys.exit(0)
+
+flat_entries = []
+for entry in entries:
+    pocket_id = entry["pocket_id"]
+    confidence = entry["confidence"]
+    score = entry["score"]
+    volume = entry["volume"]
+    for residue in entry["residues"]:
+        flat = {
+            "chain": residue["chain"],
+            "residue": residue["residue"],
+            "confidence": residue["confidence"],
+            "source": f"fpocket:pocket{pocket_id}",
+        }
+        if score is not None:
+            flat["score"] = score
+        if volume is not None:
+            flat["volume"] = volume
+        flat_entries.append(flat)
+
+with open(output_json, "w", encoding="utf-8") as handle:
+    json.dump({
+        "label": label,
+        "pockets": entries,
+        "residue_annotations": flat_entries,
+    }, handle, indent=2)
+PY
+
+    if [[ ! -s "$json_out" ]]; then
+        log "   Fpocket: no qualifying pockets retained for $label (thresholds may be too strict)."
+        rm -f "$json_out"
+        return 0
+    fi
+
+    log "   Fpocket: stored pockets for $label → $target_dir"
+}
+
 generate_auto_restraints() {
     local out_dir="$1"
     local pair_label="$2"
@@ -533,6 +856,8 @@ generate_auto_restraints() {
     local mapping_b="$4"
     local combined_a="$5"
     local combined_b="$6"
+    local compute_paths="${7:-$COMPUTATIONAL_DIR}"
+    local experimental_paths="${8:-$EXPERIMENTAL_DIR}"
 
     mkdir -p "$out_dir"
     local ambig_path="$out_dir/auto_${pair_label}_ambig.tbl"
@@ -542,8 +867,8 @@ generate_auto_restraints() {
     if ! result=$(
         AUT_MAX_ACTIVE="$MAX_ACTIVE_RESIDUES" \
         AUT_MAX_PAIRS="$MAX_RESTRAINT_PAIRS" \
-        python3 - "$VERSION" "$COMPUTATIONAL_DIR" "$EXPERIMENTAL_DIR" "$CONF_THRESHOLD" \
-            "$mapping_a" "$mapping_b" "$ambig_path" "$unambig_path" "$combined_a" "$combined_b" <<'PY'
+    python3 - "$VERSION" "$compute_paths" "$experimental_paths" "$CONF_THRESHOLD" \
+        "$mapping_a" "$mapping_b" "$ambig_path" "$unambig_path" "$combined_a" "$combined_b" <<'PY'
 import json
 import math
 import os
@@ -569,7 +894,11 @@ log_lines = []
 def log(msg):
     log_lines.append(msg)
 
-if version < 2 and not (os.path.isdir(comput_dir) or os.path.isdir(exp_dir)):
+path_sep = os.pathsep
+comput_paths = [p for p in comput_dir.split(path_sep) if p.strip()]
+exp_paths = [p for p in exp_dir.split(path_sep) if p.strip()]
+
+if version < 2 and not any(os.path.isdir(p) for p in comput_paths) and not any(os.path.isdir(p) for p in exp_paths):
     print(json.dumps({"ambig": "", "unambig": "", "status": "skip"}))
     sys.exit(0)
 
@@ -643,41 +972,44 @@ def parse_record(record):
     return pair, (chain, residue, score, dataset), record
 
 
-def load_annotations(root):
+def load_annotations(roots):
     entries = []
-    if not root or not os.path.isdir(root):
-        return entries
-    for dirpath, _, filenames in os.walk(root):
-        for filename in filenames:
-            path = os.path.join(dirpath, filename)
-            try:
-                if filename.lower().endswith('.json'):
-                    with open(path, 'r', encoding='utf-8', errors='ignore') as handle:
-                        data = json.load(handle)
-                    if isinstance(data, dict):
-                        if 'results' in data and isinstance(data['results'], list):
-                            data = data['results']
-                        elif 'data' in data and isinstance(data['data'], list):
-                            data = data['data']
-                        else:
-                            data = [data]
-                else:
-                    with open(path, 'r', encoding='utf-8', errors='ignore') as handle:
-                        lines = [line.strip() for line in handle if line.strip() and not line.startswith('#')]
-                    sep = ',' if any(',' in line for line in lines) else None
-                    if sep:
-                        parts = [line.split(sep) for line in lines]
-                        data = [dict(enumerate(chunk)) for chunk in parts]
+    for root in roots:
+        if not root or not os.path.isdir(root):
+            continue
+        for dirpath, _, filenames in os.walk(root):
+            for filename in filenames:
+                path = os.path.join(dirpath, filename)
+                try:
+                    if filename.lower().endswith('.json'):
+                        with open(path, 'r', encoding='utf-8', errors='ignore') as handle:
+                            data = json.load(handle)
+                        if isinstance(data, dict):
+                            if 'results' in data and isinstance(data['results'], list):
+                                data = data['results']
+                            elif 'data' in data and isinstance(data['data'], list):
+                                data = data['data']
+                            elif 'residue_annotations' in data and isinstance(data['residue_annotations'], list):
+                                data = data['residue_annotations']
+                            else:
+                                data = [data]
                     else:
-                        data = [line.split() for line in lines]
-                        data = [dict(enumerate(chunk)) for chunk in data]
-                for entry in data:
-                    pair, single, raw = parse_record(entry)
-                    if pair is None and (single is None or not single[0] or not single[1]):
-                        continue
-                    entries.append((path, pair, single, raw))
-            except Exception as exc:  # pragma: no cover
-                log(f"Failed to parse {filename}: {exc}")
+                        with open(path, 'r', encoding='utf-8', errors='ignore') as handle:
+                            lines = [line.strip() for line in handle if line.strip() and not line.startswith('#')]
+                        sep = ',' if any(',' in line for line in lines) else None
+                        if sep:
+                            parts = [line.split(sep) for line in lines]
+                            data = [dict(enumerate(chunk)) for chunk in parts]
+                        else:
+                            data = [line.split() for line in lines]
+                            data = [dict(enumerate(chunk)) for chunk in data]
+                    for entry in data:
+                        pair, single, raw = parse_record(entry)
+                        if pair is None and (single is None or not single[0] or not single[1]):
+                            continue
+                        entries.append((path, pair, single, raw))
+                except Exception as exc:  # pragma: no cover
+                    log(f"Failed to parse {filename}: {exc}")
     return entries
 
 
@@ -695,8 +1027,8 @@ def build_map(meta, chain, residue):
         return mapped
     return None
 
-comput_entries = load_annotations(comput_dir)
-exp_entries = load_annotations(exp_dir)
+comput_entries = load_annotations(comput_paths)
+exp_entries = load_annotations(exp_paths)
 
 ambig_pairs = []
 unambig_pairs = []
@@ -1032,6 +1364,10 @@ while [[ $# -gt 0 ]]; do
             SKIP_RUN=true
             shift
             ;;
+        --use-fpocket)
+            USE_FPOCKET=true
+            shift
+            ;;
         --help|-h)
             usage
             exit 0
@@ -1165,6 +1501,9 @@ mkdir -p "$PREP_DIR"
 log "Preparing partners in $PREP_DIR"
 log "  Partners: ${PARTNER_ORDER[*]}"
 log "  Mode: $INPUT_MODE | Version: $VERSION"
+if [[ "$USE_FPOCKET" == true ]]; then
+    log "  Fpocket: enabled (top $FPOCKET_TOP_N pockets, min drug score $FPOCKET_MIN_DRUG, min volume $FPOCKET_MIN_VOLUME Å³)"
+fi
 
 idx=0
 for label in "${PARTNER_ORDER[@]}"; do
@@ -1341,6 +1680,11 @@ for pair in "${PAIR_LIST[@]}"; do
     cp "$mapping_lhs_src" "$mapping_lhs_dest"
     cp "$mapping_rhs_src" "$mapping_rhs_dest"
 
+    pair_comput_dir="$PAIR_DIR/computational_data"
+    mkdir -p "$pair_comput_dir"
+    generate_fpocket_predictions "$lhs" "${PARTNER_COMBINED[$lhs]}" "$pair_comput_dir"
+    generate_fpocket_predictions "$rhs" "${PARTNER_COMBINED[$rhs]}" "$pair_comput_dir"
+
     declare -a pair_ambig_files=()
     declare -a pair_unambig_files=()
 
@@ -1375,9 +1719,21 @@ for pair in "${PAIR_LIST[@]}"; do
 
     auto_json=""
     if [[ "$VERSION" -ge 2 ]]; then
+        declare -a compute_sources=()
+        if [[ -d "$pair_comput_dir" ]]; then
+            compute_sources+=("$pair_comput_dir")
+        fi
+        if [[ -n "$COMPUTATIONAL_DIR" ]]; then
+            compute_sources+=("$COMPUTATIONAL_DIR")
+        fi
+        compute_arg=""
+        if (( ${#compute_sources[@]} )); then
+            compute_arg=$(IFS=$':'; printf '%s' "${compute_sources[*]}")
+        fi
         auto_json=$(generate_auto_restraints "$pair_rest_dir" "$pair_label" \
             "$mapping_lhs_dest" "$mapping_rhs_dest" \
-            "${PARTNER_COMBINED[$lhs]}" "${PARTNER_COMBINED[$rhs]}")
+            "${PARTNER_COMBINED[$lhs]}" "${PARTNER_COMBINED[$rhs]}" \
+            "$compute_arg" "$EXPERIMENTAL_DIR")
         if [[ -n "$auto_json" ]]; then
             auto_ambig=$(python3 - "$auto_json" <<'PY'
 import json, sys
@@ -1430,7 +1786,7 @@ PY
     ranair_value=false
     if [[ "$FORCE_RANAIR" == true ]]; then
         ranair_value=true
-    elif [[ "$VERSION" -eq 1 && ${#pair_ambig_files[@]} -eq 0 && ${#pair_unambig_files[@]} -eq 0 ]]; then
+    elif [[ ${#pair_ambig_files[@]} -eq 0 && ${#pair_unambig_files[@]} -eq 0 ]]; then
         ranair_value=true
     fi
 
