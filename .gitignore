@@ -162,4 +162,5 @@ log
 
 # ignore result folder for pushing and pull speed
 result/
-result/
+Miniconda3-latest-Linux-x86_64.sh
+examples/protein-protein/traj_ensemble.pdb
