@@ -161,4 +161,4 @@ docs/clients/*rst
 log
 
 # ignore result folder for pushing and pull speed
-result
+result/
