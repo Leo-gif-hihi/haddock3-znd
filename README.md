@@ -1,4 +1,4 @@
-# script/a.sh — HADDOCK3 automation + fpocket
+# HADDOCK3 automation
 
 This repository contains a Bash orchestration script (`script/a.sh`) that prepares and runs protein–protein docking workflows using HADDOCK3. It supports both multichain and split-chain inputs, integrates optional fpocket pocket detection, and auto-generates restraints when possible.
 
