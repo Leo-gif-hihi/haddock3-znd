@@ -1,34 +1,62 @@
 #!/usr/bin/env bash
+# ===========================================================================
+# HADDOCK3 Automated Docking Workflow Script
+# ===========================================================================
+# This script automates the setup and execution of HADDOCK3 docking runs.
+# It handles:
+#   1. Input preparation (PDB cleaning, chain renaming, merging).
+#   2. Partner discovery and pairing (manual or automatic).
+#   3. Restraint generation (from experimental or computational data).
+#   4. Configuration generation (haddock3.cfg).
+#   5. Execution of HADDOCK3 (or preparation for parallel execution).
+#
+# Usage:
+#   ./a.sh --partner A=proteinA.pdb --partner B=proteinB.pdb [options]
+#
+# See 'usage()' function or run with --help for more details.
+# ===========================================================================
+
 set -euo pipefail
 IFS=$'\n\t'
 
 SCRIPT_NAME=$(basename "$0")
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
+# ---------------------------------------------------------------------------
+# Global Configuration & Defaults
+# ---------------------------------------------------------------------------
 VERSION=3
 INPUT_MODE="multichain"
-declare -a PARTNER_ORDER=()
-declare -A PARTNER_SPECS=()
-declare -A PARTNER_FILES=()
-declare -A PARTNER_COMBINED=()
-declare -A PARTNER_MAPPING=()
-declare -A PARTNER_BODY_TBL=()
-declare -A PARTNER_SPLITFILES=()
-declare -A GROUP_BODY_SOURCE=()
-declare -A GROUP_BODY_CHAINLIST=()
-declare -a GROUP_BODY_JSON_FILES=()
-declare -a AMBIG_MANUAL=()
-declare -a UNAMBIG_MANUAL=()
-declare -a PAIR_OVERRIDES=()
-declare -A PARTNER_GROUP_BODY=()
-declare -A PAIR_SET=()
-declare -a PAIR_LIST=()
-PAIR_FILE=""
+
+# Partner & Grouping Data Structures
+declare -a PARTNER_ORDER=()          # Ordered list of partner labels
+declare -A PARTNER_SPECS=()          # Input specifications (file paths/patterns)
+declare -A PARTNER_FILES=()          # Resolved absolute file paths
+declare -A PARTNER_COMBINED=()       # Path to combined/cleaned PDB
+declare -A PARTNER_MAPPING=()        # Path to JSON mapping (original -> new chains)
+declare -A PARTNER_BODY_TBL=()       # Path to rigid body restraint table
+declare -A PARTNER_SPLITFILES=()     # List of split chain files (if applicable)
+declare -A GROUP_BODY_SOURCE=()      # Source PDB for body grouping (split mode)
+declare -A GROUP_BODY_CHAINLIST=()   # Chain order for grouping
+declare -a GROUP_BODY_JSON_FILES=()  # JSON manifests for grouping
+declare -A PARTNER_GROUP_BODY=()     # Generated body restraints from group source
+
+# Restraints & Pairs
+declare -a AMBIG_MANUAL=()           # Manual ambiguous restraint files
+declare -a UNAMBIG_MANUAL=()         # Manual unambiguous restraint files
+declare -a PAIR_OVERRIDES=()         # Specific pairs requested via CLI
+declare -A PAIR_SET=()               # Set of unique pairs to avoid duplicates
+declare -a PAIR_LIST=()              # Final list of pairs to dock
+PAIR_FILE=""                         # File containing list of pairs
+
+# Directories & Paths
 AUTO_PARTNER_DIR=""
 COMPUTATIONAL_DIR=""
 EXPERIMENTAL_DIR=""
 OUTPUT_ROOT="$PWD/result"
 PROJECT_NAME=""
+
+# Run Parameters
 NCORES=10
 SAMPLING_OVERRIDE=""
 CONF_THRESHOLD=0.6
@@ -39,12 +67,19 @@ FORCE_RANAIR=false
 DRY_RUN=false
 SKIP_RUN=false
 REFERENCE_PDB=""
+
+# Fpocket Settings
 USE_FPOCKET=false
 FPOCKET_TOP_N=3
 FPOCKET_MIN_DRUG=0.5
 FPOCKET_MIN_VOLUME=50
 FPOCKET_AVAILABLE="unknown"
 
+# ---------------------------------------------------------------------------
+# Helper Functions
+# ---------------------------------------------------------------------------
+
+# Print usage information
 usage() {
     cat <<'USAGE'
 Usage: a.sh --partner A=<path> --partner B=<path> [options]
@@ -100,15 +135,18 @@ See README for details on manifest formats accepted by --group-bodies.
 USAGE
 }
 
+# Logging helpers
 log() { printf '[%s] %s\n' "$(date '+%H:%M:%S')" "$*"; }
 warn() { log "WARN: $*"; }
 error() { log "ERROR: $*"; }
 die() { error "$*"; exit 1; }
 
+# Check if a command exists in PATH
 require_command() {
     command -v "$1" >/dev/null 2>&1 || die "Missing required command '$1'"
 }
 
+# Resolve absolute path using Python
 abs_path() {
     python3 - "$1" <<'PY'
 import os, sys
@@ -116,6 +154,7 @@ print(os.path.abspath(sys.argv[1]))
 PY
 }
 
+# Split a comma-separated string into lines
 split_csv() {
     local list="$1"
     local IFS=','
@@ -123,6 +162,7 @@ split_csv() {
     printf '%s\n' "${_tmp[@]}"
 }
 
+# Select a pool of chain IDs based on index to avoid collisions
 select_chain_pool() {
     local index="$1"
     local base="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -131,6 +171,7 @@ select_chain_pool() {
     printf '%s%s\n' "${base:offset}" "${base:0:offset}"
 }
 
+# Append a value to an array only if it's not already present
 append_unique() {
     local -n _arr=$1
     local value="$2"
@@ -143,6 +184,7 @@ append_unique() {
     _arr+=("$value")
 }
 
+# Generate a canonical key for a pair of partners (sorted)
 canonical_pair_key() {
     local a="$1"
     local b="$2"
@@ -153,6 +195,7 @@ canonical_pair_key() {
     fi
 }
 
+# Add a pair to the list if it hasn't been added yet
 add_pair_unique() {
     local lhs="$1"
     local rhs="$2"
@@ -169,6 +212,7 @@ add_pair_unique() {
     return 0
 }
 
+# Parse a JSON file defining body groups for split mode
 parse_group_json() {
     local json_path="$1"
     [[ -f "$json_path" ]] || die "Group manifest not found: $json_path"
@@ -218,6 +262,7 @@ PY
     done
 }
 
+# Resolve partner specifications (files, directories, lists) to absolute paths
 resolve_partner_spec() {
     local label="$1"
     local spec="$2"
@@ -251,6 +296,7 @@ resolve_partner_spec() {
     PARTNER_FILES["$label"]=$(printf '%s\n' "${files[@]}")
 }
 
+# Reorder partner files based on group manifest if present
 resolve_group_chain_order() {
     local label="$1"
     local -a files=()
@@ -290,6 +336,11 @@ resolve_group_chain_order() {
     PARTNER_FILES["$label"]=$(printf '%s\n' "${reordered[@]}")
 }
 
+# ---------------------------------------------------------------------------
+# Core Logic Functions
+# ---------------------------------------------------------------------------
+
+# Prepare a partner structure: clean, rename chains, merge if needed
 run_prepare_partner() {
     local label="$1"
     local index="$2"
@@ -532,6 +583,7 @@ PY
     PARTNER_SPLITFILES["$label"]=$(printf '%s\n' "${split_files[@]}")
 }
 
+# Check if fpocket is installed and available
 ensure_fpocket_available() {
     if [[ "$FPOCKET_AVAILABLE" != "unknown" ]]; then
         return
@@ -544,6 +596,7 @@ ensure_fpocket_available() {
     fi
 }
 
+# Run fpocket on a partner structure and convert output to JSON
 generate_fpocket_predictions() {
     local label="$1"
     local combined_pdb="$2"
@@ -849,6 +902,7 @@ PY
     log "   Fpocket: stored pockets for $label → $target_dir"
 }
 
+# Generate ambiguous and unambiguous restraints from computational/experimental data
 generate_auto_restraints() {
     local out_dir="$1"
     local pair_label="$2"
@@ -1141,6 +1195,7 @@ PY
     printf '%s\n' "${result_lines[$last_index]}"
 }
 
+# Create the haddock3.cfg configuration file
 create_config() {
     local config_path="$1"
     local run_dir_name="$2"
@@ -1190,12 +1245,22 @@ with open(config_path, 'w', encoding='utf-8') as fh:
     fh.write("[rigidbody]\n")
     fh.write("tolerance = 20\n")
     fh.write(f"sampling = {sampling}\n")
-    fh.write("cmrest = true\n")
+    # Only enable cmrest for ab initio docking (no ambig files)
+    if not ambig_files:
+        fh.write("cmrest = true\n")
     if ranair:
         fh.write("ranair = true\n")
+    if ambig_files:
+        if len(ambig_files) == 1:
+            fh.write(f"ambig_fname = \"{ambig_files[0]}\"\n")
+        else:
+            fh.write("ambig_fname = [\n")
+            for path in ambig_files:
+                fh.write(f"  \"{path}\",\n")
+            fh.write("]\n")
     fh.write("\n")
 
-    fh.write("[seletop]\nselect = 200\n\n")
+    fh.write("[seletop]\nselect = 50\n\n")  # Changed from 200
 
     def write_restraints(section):
         fh.write(f"[{section}]\n")
@@ -1221,7 +1286,7 @@ with open(config_path, 'w', encoding='utf-8') as fh:
         fh.write("\n")
 
     write_restraints('flexref')
-    write_restraints('mdref')
+    # write_restraints('mdref')  # Commented out for speedup
     write_restraints('emref')
 
     if reference:
@@ -1231,7 +1296,7 @@ PY
 }
 
 # ---------------------------------------------------------------------------
-# Argument parsing
+# Argument Parsing
 # ---------------------------------------------------------------------------
 
 require_command python3
@@ -1378,6 +1443,10 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# ---------------------------------------------------------------------------
+# Partner Discovery & Validation
+# ---------------------------------------------------------------------------
+
 if [[ -n "$AUTO_PARTNER_DIR" ]]; then
     AUTO_PARTNER_DIR=$(abs_path "$AUTO_PARTNER_DIR")
     [[ -d "$AUTO_PARTNER_DIR" ]] || die "Auto partner directory not found: $AUTO_PARTNER_DIR"
@@ -1478,6 +1547,10 @@ if [[ -n "$EXPERIMENTAL_DIR" && ! -d "$EXPERIMENTAL_DIR" ]]; then
     die "Experimental annotation directory not found: $EXPERIMENTAL_DIR"
 fi
 
+# ---------------------------------------------------------------------------
+# Main Execution: Preparation & Configuration Generation
+# ---------------------------------------------------------------------------
+
 OUTPUT_ROOT=$(abs_path "$OUTPUT_ROOT")
 mkdir -p "$OUTPUT_ROOT"
 
@@ -1508,6 +1581,13 @@ fi
 idx=0
 for label in "${PARTNER_ORDER[@]}"; do
     run_prepare_partner "$label" "$idx" "$INPUT_MODE" "$PREP_DIR/$label"
+    
+    if [[ "$USE_FPOCKET" == true ]]; then
+        fpocket_target="$PREP_DIR/$label/computational_data"
+        mkdir -p "$fpocket_target"
+        generate_fpocket_predictions "$label" "${PARTNER_COMBINED[$label]}" "$fpocket_target"
+    fi
+
     (( idx += 1 ))
 done
 
@@ -1635,6 +1715,10 @@ PY
     arr=("$dest")
 }
 
+# ---------------------------------------------------------------------------
+# Pairwise Docking Setup Loop
+# ---------------------------------------------------------------------------
+
 success_count=0
 failure_count=0
 skipped_count=0
@@ -1682,8 +1766,17 @@ for pair in "${PAIR_LIST[@]}"; do
 
     pair_comput_dir="$PAIR_DIR/computational_data"
     mkdir -p "$pair_comput_dir"
-    generate_fpocket_predictions "$lhs" "${PARTNER_COMBINED[$lhs]}" "$pair_comput_dir"
-    generate_fpocket_predictions "$rhs" "${PARTNER_COMBINED[$rhs]}" "$pair_comput_dir"
+    
+    if [[ "$USE_FPOCKET" == true ]]; then
+        if [[ -d "$PREP_DIR/$lhs/computational_data/$lhs/fpocket" ]]; then
+             mkdir -p "$pair_comput_dir/$lhs"
+             cp -r "$PREP_DIR/$lhs/computational_data/$lhs/fpocket" "$pair_comput_dir/$lhs/"
+        fi
+        if [[ -d "$PREP_DIR/$rhs/computational_data/$rhs/fpocket" ]]; then
+             mkdir -p "$pair_comput_dir/$rhs"
+             cp -r "$PREP_DIR/$rhs/computational_data/$rhs/fpocket" "$pair_comput_dir/$rhs/"
+        fi
+    fi
 
     declare -a pair_ambig_files=()
     declare -a pair_unambig_files=()
@@ -1776,10 +1869,11 @@ PY
     if [[ -n "$SAMPLING_OVERRIDE" ]]; then
         sampling_value="$SAMPLING_OVERRIDE"
     else
-        if [[ "$VERSION" -eq 1 ]]; then
-            sampling_value=10000
+        # Set sampling based on whether ambig files are present
+        if [[ ${#pair_ambig_files[@]} -eq 0 ]]; then
+            sampling_value=2000  # Ab initio docking (no ambig files)
         else
-            sampling_value=4000
+            sampling_value=1000  # Restraint-guided docking (with ambig files)
         fi
     fi
 
@@ -1821,32 +1915,30 @@ PY
 
     create_config "$CONFIG_PATH" "$RUN_SUBDIR" "$sampling_value" "$NCORES" "$ranair_value" "$VERSION" "$AMBIG_VALUE" "$UNAMBIG_VALUE" "$REFERENCE_VALUE" "${molecules[@]}"
 
-    if [[ "$SKIP_RUN" == true ]]; then
-        log "  Dry run only. Config ready at $CONFIG_PATH"
-        skipped_count=$((skipped_count + 1))
-        continue
-    fi
+    log "  Config generated at $CONFIG_PATH"
+    success_count=$((success_count + 1))
+    
+    # Skip actual execution to allow parallel run later
+    # pushd "$PAIR_DIR" >/dev/null
+    # log "  Running haddock3 --setup"
+    # if haddock3 --setup "$(basename "$CONFIG_PATH")" > setup.log 2>&1; then
+    #     log "  Setup completed"
+    # else
+    #     error "Setup failed for $pair_label. See $PAIR_DIR/setup.log"
+    #     popd >/dev/null
+    #     failure_count=$((failure_count + 1))
+    #     continue
+    # fi
 
-    pushd "$PAIR_DIR" >/dev/null
-    log "  Running haddock3 --setup"
-    if haddock3 --setup "$(basename "$CONFIG_PATH")" > setup.log 2>&1; then
-        log "  Setup completed"
-    else
-        error "Setup failed for $pair_label. See $PAIR_DIR/setup.log"
-        popd >/dev/null
-        failure_count=$((failure_count + 1))
-        continue
-    fi
-
-    log "  Running haddock3 main workflow"
-    if haddock3 --restart 0 "$(basename "$CONFIG_PATH")" > haddock3.log 2>&1; then
-        log "  Run finished. Outputs under $PAIR_DIR"
-        success_count=$((success_count + 1))
-    else
-        error "HADDOCK3 execution failed for $pair_label. See $PAIR_DIR/haddock3.log"
-        failure_count=$((failure_count + 1))
-    fi
-    popd >/dev/null
+    # log "  Running haddock3 main workflow"
+    # if haddock3 --restart 0 "$(basename "$CONFIG_PATH")" > haddock3.log 2>&1; then
+    #     log "  Run finished. Outputs under $PAIR_DIR"
+    #     success_count=$((success_count + 1))
+    # else
+    #     error "HADDOCK3 execution failed for $pair_label. See $PAIR_DIR/haddock3.log"
+    #     failure_count=$((failure_count + 1))
+    # fi
+    # popd >/dev/null
 done
 
 end_global=$(date +%s)
@@ -1871,5 +1963,25 @@ if [[ "$VERSION" -ge 2 ]]; then
     log "Auto restraints: $auto_restraints_count"
 fi
 log "Results root:    $RUN_DIR"
+
+log ""
+log "====================================="
+log "How to run the generated jobs:"
+log "====================================="
+log ""
+log "Option 1 - Run sequentially:"
+log "  for dir in $RUN_DIR/PAIR_*; do"
+log "    (cd \$dir && haddock3 haddock3.cfg)"
+log "  done"
+log ""
+log "Option 2 (Recommended) - Run in parallel with GNU Parallel (5 jobs at a time):"
+log "  find $RUN_DIR -name 'haddock3.cfg' | parallel -j 5 'cd {//} && haddock3 {/} > run.log 2>&1'"
+log ""
+log "Option 3 - Run a single pair manually:"
+log "  cd $RUN_DIR/PAIR_<name>"
+log "  haddock3 haddock3.cfg"
+log ""
+log "IMPORTANT: Always cd into the pair directory before running haddock3!"
+log ""
 
 exit 0

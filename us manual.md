@@ -62,14 +62,27 @@ Readable help: `./script/a.sh --help`.
    - Collect manual, fpocket, and user-supplied computational data → generate ambiguous/unambiguous restraints automatically (versions ≥ 2).
    - **Blind docking safety**: if no restraints remain, `ranair = true` ensures random AIRs (applies for any version once the run is restraint-free).
    - Compose `haddock3.cfg` with `[topoaa]`, `[rigidbody]` (always `cmrest = true`, `ranair` determined at runtime), `[seletop]`, `[flexref]`, `[mdref]`, `[emref]`. CAPRI analysis runs post-hoc.
-   - Execute `haddock3 --setup` and `haddock3 --restart 0` unless `--dry-run`.
+   - **Note**: The script generates the configuration and directory structure but **does not execute** HADDOCK3 immediately. This allows for efficient parallel execution of multiple pairs.
 
-5. **Outputs**: per pair, you’ll find configs, logs, HADDOCK outputs under `run_*`, plus `analysis/` (reports) and `traceback/` directories.
-6. Final summary printed to stdout and saved as `result/<project>/SUMMARY.txt`.
+5. **Outputs**: per pair, you’ll find configs and input files under `PAIR_*`.
+6. Final summary printed to stdout and saved as `result/<project>/SUMMARY.txt`, including the command to run the jobs.
 
 ---
 
-## 4. fpocket integration details
+## 4. Running the jobs (Parallel Execution)
+
+Since the script only prepares the run directories, you need to execute the docking jobs. The script outputs a command at the end, typically using GNU Parallel:
+
+```bash
+ls result/<project_name>/PAIR_*/haddock3.cfg | parallel -j 5 "cd \$(dirname {}) && haddock3 \$(basename {})"
+```
+
+- Adjust `-j 5` to the number of concurrent jobs you want to run.
+- This command finds all generated config files, changes into their directory, and runs `haddock3`.
+
+---
+
+## 5. fpocket integration details
 
 - Enabled with `--use-fpocket`.
 - Script checks for `fpocket` in `PATH`. If missing, prints a warning and continues without pockets.
@@ -93,7 +106,7 @@ Readable help: `./script/a.sh --help`.
 
 ---
 
-## 5. Modes & performance knobs
+## 6. Modes & performance knobs
 
 - `--input-mode split` → supply each chain separately. The script auto-creates body restraints to keep chain groups rigid.
 - `--input-mode multichain` → each partner is a multichain PDB.
@@ -104,20 +117,26 @@ Readable help: `./script/a.sh --help`.
 
 ---
 
-## 6. Typical workflows
+## 7. Typical workflows
 
-### 6.1 All-vs-all, blind docking
-```
-./script/a.sh --auto-partners protein_test --v 1 --use-fpocket
-```
+### 7.1 All-vs-all, blind docking
+1. Generate configs:
+   ```bash
+   ./script/a.sh --auto-partners protein_test --v 1 --use-fpocket
+   ```
+2. Run:
+   ```bash
+   ls result/<project>/PAIR_*/haddock3.cfg | parallel -j 5 "cd \$(dirname {}) && haddock3 \$(basename {})"
+   ```
 
-### 6.2 Guided docking with external annotations
-```
+### 7.2 Guided docking with external annotations
+```bash
 ./script/a.sh --auto-partners protein_test --computational-dir annotations/ --experimental-dir exp_data/
+# Then run with parallel command
 ```
 
-### 6.3 Split chains with body locks
-```
+### 7.3 Split chains with body locks
+```bash
 ./script/a.sh \
   --input-mode split \
   --partner P1CLL=split/P1CLL_A.pdb,split/P1CLL_B.pdb \
@@ -125,17 +144,18 @@ Readable help: `./script/a.sh --help`.
   --group-bodies P1CLL=reference/P1CLL_all.pdb \
   --group-bodies P1ZG4=reference/P1ZG4_all.pdb \
   --use-fpocket
+# Then run with parallel command
 ```
 
-### 6.4 Dry-run (inspect configs without running HADDOCK)
-```
+### 7.4 Dry-run (inspect configs)
+```bash
 ./script/a.sh --auto-partners protein_test --use-fpocket --dry-run
 ```
-Check `result/<project>/PAIR_*/haddock3.cfg`, computational data, etc., before launching full runs.
+Check `result/<project>/PAIR_*/haddock3.cfg`, computational data, etc. Since execution is decoupled, `--dry-run` effectively just skips the final "ready to run" log message or specific setup checks if added back.
 
 ---
 
-## 7. Notes & best practices
+## 8. Notes & best practices
 
 - Always validate that `haddock3` and `fpocket` are available in the activated shell.
 - If you want the traditional CAPRI steps between every stage, you can extend `create_config` to insert `[caprieval]` etc.; the current setup relies on `haddock3-analyse` after completion.
@@ -152,9 +172,13 @@ Check `result/<project>/PAIR_*/haddock3.cfg`, computational data, etc., before l
 |---------|----------------------|
 | `Missing required command 'haddock3'` | Activate the HADDOCK3 environment (`conda activate haddock3`). |
 | `fpocket output missing summary` warning | Old runs; rerun after the parser update, or check fpocket executable. |
-| `haddock3 --setup` fails | Inspect `PAIR_*/setup.log` for parameter issues (e.g. bad `cmrest` values). |
+| `haddock3 --setup` fails | Inspect `PAIR_*/setup.log` for parameter issues (e.g. bad `cmrest` values). Note: Setup is now run during the parallel execution phase. |
 | Docking falls back to blind | Logs show “No restraints”; script will set `ranair=true` automatically. Consider providing more data. |
 | Long runtimes | Reduce `--sampling`, tweak `select` in `[seletop]`, disable `mdref`/`emref` (requires editing config writer). |
+
+---
+
+## 9. References
 
 ---
 

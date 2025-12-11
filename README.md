@@ -10,18 +10,22 @@ Key features:
 - Flexible restraint ingestion: manual tables, fpocket, user-provided computational/experimental metadata.
 - Blind docking safeguards (`cmrest` + automatic `ranair` whenever no restraints survive).
 - Config writer covering `[topoaa]`, `[rigidbody]`, `[seletop]`, `[flexref]`, `[mdref]`, `[emref]`; analysis executed by HADDOCK3 after completion.
-- Multi-pair execution, dry-run support, and summary logging.
+- Multi-pair execution preparation (generates configs for parallel execution).
 
 Refer to **us manual.md** for detailed usage, CLI options, workflow examples, and fpocket notes.
 
 ## Quick start
 
-```bash
-conda activate haddock3  # ensure haddock3 & fpocket on PATH
-./script/a.sh --auto-partners protein_test
-./script/a.sh --use-fpocket --auto-partners protein_test
-./script/a.sh --input-mode split --group-bodies P1CLL=ref.pdb --group-bodies P1ZG4=ref2.pdb --use-fpocket
-```
+1. **Generate configurations:**
+   ```bash
+   conda activate haddock3  # ensure haddock3 & fpocket on PATH
+   ./script/a.sh --auto-partners protein_test
+   ```
+
+2. **Run jobs in parallel (e.g., 5 at a time):**
+   ```bash
+   ls result/<project_name>/PAIR_*/haddock3.cfg | parallel -j 5 "cd \$(dirname {}) && haddock3 \$(basename {})"
+   ```
 
 Results appear under `result/<project>/PAIR_*`, with HADDOCK outputs in `run_*`, analysis reports, and a `SUMMARY.txt` in the project root.
 
