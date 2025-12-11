@@ -38,6 +38,7 @@ Key options:
 | | `--pairs-file file` | Text/CSV file listing pairs. |
 | **Execution** | `--out dir`, `--project name` | Control result location. |
 | | `--ncores`, `--sampling`, `--reference pdb` | Standard HADDOCK settings. |
+| | `--remove-hetatm` | Remove all HETATM records (default: keep all valid molecules). |
 | | `--dry-run` | Prepare inputs/config only (no `haddock3`). |
 | | `--no-run` | Alias for `--dry-run`. |
 
@@ -50,7 +51,10 @@ Readable help: `./script/a.sh --help`.
 1. **Argument parsing** → collects partners, flags, directories.
 2. **Preparation phase** → per partner:
    - Clean PDB: remove alternative conformations (keeps only A or first conformation), standardize formatting.
-   - **Always split by chain** and generate `*_mapping.json`.
+   - **Renumber residues and chains** while keeping all chains in a single multi-chain file.
+   - **Add TER statements** between different chains for proper structure separation.
+   - **Add END statement** at the end of each PDB file.
+   - Generate `*_mapping.json` with chain and residue mapping information.
    - By default, run `haddock3-restraints restrain_bodies` to force chains from the same PDB together (disable with `--keep-chains-separate`).
    - With `--group-bodies`, copy reference PDBs and create extra body locks.
    - If `--use-fpocket`, run fpocket on the cleaned combined PDB, parse top N pockets and export `computational_data/<label>/fpocket/<label>_fpocket.json`.
@@ -108,7 +112,8 @@ ls result/<project_name>/PAIR_*/haddock3.cfg | parallel -j 5 "cd \$(dirname {}) 
 
 ## 6. Modes & performance knobs
 
-- **All PDB files are automatically split by chain**. By default, chains from the same PDB are kept together via body restraints.
+- **Multi-chain files are preserved**. Chains are kept together in a single PDB file with TER statements separating chains and an END statement at the end.
+- By default, chains from the same PDB are kept together via body restraints during docking.
 - `--keep-chains-separate` → disable automatic body restraints, allowing chains to move independently during docking.
 - `--ncores` influences parallelism in HADDOCK (default 10).
 - `--sampling` adjusts rigid-body sampling (versions: V1 default 10000, others 4000 unless overridden). Lowering it speeds up first stage.
@@ -144,7 +149,7 @@ ls result/<project_name>/PAIR_*/haddock3.cfg | parallel -j 5 "cd \$(dirname {}) 
   --use-fpocket
 # Then run with parallel command
 ```
-Note: By default, chains from the same PDB stay together. Use `--keep-chains-separate` to allow independent movement.
+Note: By default, chains from the same PDB stay together via body restraints. Use `--keep-chains-separate` to allow independent movement of chains during docking.
 
 ### 7.4 Dry-run (inspect configs)
 ```bash
@@ -158,7 +163,9 @@ Check `result/<project>/PAIR_*/haddock3.cfg`, computational data, etc. Since exe
 
 - Always validate that `haddock3` and `fpocket` are available in the activated shell.
 - **Alternative conformations**: The script automatically handles multiple occupancy side-chain conformations by keeping only the first (A) conformation and removing B, C, etc. This prevents HADDOCK3 errors.
-- **Chain splitting**: All PDB files are split by chain. By default, chains from the same PDB are constrained together via body restraints (disable with `--keep-chains-separate`).
+- **HETATM records**: By default, all valid molecules (carbohydrates, ions, water, co-factors, nucleic acids, modified amino acids) in HETATM records are kept. Use `--remove-hetatm` to exclude all HETATM records if needed.
+- **Multi-chain files**: All chains are kept in a single PDB file. The script ensures proper formatting with TER statements between chains and an END statement at the end.
+- **Body restraints**: By default, chains from the same PDB are constrained together via body restraints (disable with `--keep-chains-separate`).
 - If you want the traditional CAPRI steps between every stage, you can extend `create_config` to insert `[caprieval]` etc.; the current setup relies on `haddock3-analyse` after completion.
 - For comparisons or debug, consider running with and without `--keep-chains-separate` to check the effect on docking quality.
 - Summary stats (success/failure counts, guided vs blind counts, number of auto restraints) are printed at the end.

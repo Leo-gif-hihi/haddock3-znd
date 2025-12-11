@@ -75,6 +75,9 @@ FPOCKET_MIN_DRUG=0.5
 FPOCKET_MIN_VOLUME=50
 FPOCKET_AVAILABLE="unknown"
 
+# PDB Cleaning Options
+REMOVE_HETATM=false
+
 # ---------------------------------------------------------------------------
 # Helper Functions
 # ---------------------------------------------------------------------------
@@ -90,8 +93,8 @@ Required:
                              list of PDB files, or a .lst file with one path per line.
 
 Modes & presets:
-  --keep-chains-separate          Split chains but don't force them together during docking.
-  --group-bodies <label>=<pdb|json>  Mapping for split mode. Repeat per partner or provide a JSON file.
+  --keep-chains-separate          Don't force chains from the same PDB together during docking.
+  --group-bodies <label>=<pdb|json>  Mapping for body restraints. Repeat per partner or provide a JSON file.
   --auto-partners <dir>       Discover partners automatically from PDBs inside <dir>.
   --v, --version {1|2|3}       Select workflow generation (default: 3).
   --abinitio                   Shortcut for version 1 with high sampling and ranair.
@@ -119,6 +122,7 @@ Execution & I/O:
   --reference <pdb>            Native complex for CAPRI evaluation.
   --dry-run                    Prepare config/artifacts but skip haddock3 execution.
   --no-run                     Alias for --dry-run but still write run assets.
+  --remove-hetatm              Remove all HETATM records (default: keep all valid molecules).
   --help                       Print this message.
 
 Examples:
@@ -126,7 +130,7 @@ Examples:
   ./a.sh --partner A=proteinA.pdb --partner B=proteinB.pdb --v 3 \
         --computational-dir data/predict --experimental-dir data/exp --project demo_v3
 
-  # Split chains but keep them separate (don't force together during docking)
+  # Docking with chains moving independently (no body restraints)
   ./a.sh --partner A=proteinA.pdb --partner B=proteinB.pdb \
         --keep-chains-separate --ambig manual_air.tbl
 
@@ -350,7 +354,7 @@ run_prepare_partner() {
     local pool="${chain_pool:pool_offset}${chain_pool:0:pool_offset}"
 
     mapfile -t PREP_INFO < <(
-        python3 - "$rename_mode" "$prep_dir" "$label" "$pool" "$FORCE_CHAINS_TOGETHER" "${files[@]}" <<'PY'
+        python3 - "$rename_mode" "$prep_dir" "$label" "$pool" "$FORCE_CHAINS_TOGETHER" "$REMOVE_HETATM" "${files[@]}" <<'PY'
 import os
 import sys
 import json
@@ -363,7 +367,8 @@ output_dir = sys.argv[2]
 label = sys.argv[3]
 chain_pool = sys.argv[4]
 force_together = sys.argv[5].lower() == 'true'
-input_files = sys.argv[6:]
+remove_hetatm = sys.argv[6].lower() == 'true'
+input_files = sys.argv[7:]
 
 if rename_mode not in {"rename", "preserve"}:
     raise SystemExit(f"Unsupported rename mode: {rename_mode}")
@@ -446,15 +451,17 @@ for idx, original in enumerate(chain_order):
 residue_map = {}
 residue_counter = defaultdict(int)
 combined_lines = []
-chain_to_lines = OrderedDict((mapping["new_chain"], []) for mapping in chain_mapping.values())
 atom_serial = 0
+current_chain = None
 
 for line in raw_lines:
     record = line[:6].strip()
     if record == 'TER':
-        combined_lines.append('TER')
-        continue
+        continue  # Will add TER properly between chains
     if record not in {'ATOM', 'HETATM'}:
+        continue
+    # Skip HETATM records if --remove-hetatm is enabled
+    if remove_hetatm and record == 'HETATM':
         continue
     # Handle alternative conformations - only keep first conformation (A or blank)
     altloc = line[16].strip()
@@ -469,6 +476,13 @@ for line in raw_lines:
     if mapping is None:
         mapping = {"new_chain": pool_chars[len(chain_mapping)], "segid": pool_chars[len(chain_mapping)]}
         chain_mapping[original_chain] = mapping
+    
+    # Add TER statement when chain changes
+    new_chain = mapping["new_chain"]
+    if current_chain is not None and current_chain != new_chain:
+        combined_lines.append('TER')
+    current_chain = new_chain
+    
     resseq = line[22:26].strip() or '0'
     inscode = line[26].strip()
     key = (original_chain, resseq, inscode or '_')
@@ -497,11 +511,15 @@ for line in raw_lines:
     chars[72:76] = list(segid_fmt)
     new_line = ''.join(chars[:80])
     combined_lines.append(new_line)
-    chain_to_lines.setdefault(mapped['chain'], []).append(new_line)
+
+# Add final TER before END
+if combined_lines and current_chain is not None:
+    combined_lines.append('TER')
 
 def ensure_end(lines):
     if not lines:
         return lines
+    # Ensure END statement at the end
     if lines[-1] != 'END':
         lines.append('END')
     return lines
@@ -530,22 +548,10 @@ payload = {
 with open(mapping_path, 'w', encoding='utf-8') as handle:
     json.dump(payload, handle, indent=2)
 
-split_outputs = []
-for chain_id, chain_lines in chain_to_lines.items():
-    if not chain_lines:
-        continue
-    chain_file = os.path.join(output_dir, f"{label}_chain_{chain_id}.pdb")
-    with open(chain_file, 'w', encoding='utf-8') as handle:
-        ensure_end(chain_lines)
-        handle.write('\n'.join(chain_lines))
-        handle.write('\n')
-    split_outputs.append(os.path.abspath(chain_file))
-
-if not split_outputs:
-    split_outputs.append(os.path.abspath(combined_path))
-
+# No longer creating split chain files - keep multi-chain file
+# Body restraints still generated if needed
 body_tbl = ''
-if force_together and len(split_outputs) > 1:
+if force_together and len(chain_mapping) > 1:
     restrain_bin = shutil.which('haddock3-restraints')
     if restrain_bin:
         try:
@@ -573,12 +579,12 @@ if force_together and len(split_outputs) > 1:
     else:
         print("[WARN] haddock3-restraints not available; skipping restrain_bodies", file=sys.stderr)
 
+# Output: combined_path, mapping_path, body_tbl, and always 1 output file (the combined file)
 print(os.path.abspath(combined_path))
 print(os.path.abspath(mapping_path))
 print(body_tbl)
-print(len(split_outputs))
-for item in split_outputs:
-    print(item)
+print("1")  # Always output 1 file (combined)
+print(os.path.abspath(combined_path))
 PY
     )
 
@@ -1453,6 +1459,10 @@ while [[ $# -gt 0 ]]; do
             USE_FPOCKET=true
             shift
             ;;
+        --remove-hetatm)
+            REMOVE_HETATM=true
+            shift
+            ;;
         --help|-h)
             usage
             exit 0
@@ -1576,7 +1586,7 @@ mkdir -p "$PREP_DIR"
 
 log "Preparing partners in $PREP_DIR"
 log "  Partners: ${PARTNER_ORDER[*]}"
-log "  Mode: split chains | Version: $VERSION | Force chains together: $FORCE_CHAINS_TOGETHER"
+log "  Mode: multi-chain files | Version: $VERSION | Force chains together: $FORCE_CHAINS_TOGETHER"
 if [[ "$USE_FPOCKET" == true ]]; then
     log "  Fpocket: enabled (top $FPOCKET_TOP_N pockets, min drug score $FPOCKET_MIN_DRUG, min volume $FPOCKET_MIN_VOLUME Å³)"
 fi

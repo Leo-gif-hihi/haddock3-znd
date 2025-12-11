@@ -5,7 +5,8 @@ This repository contains a Bash orchestration script (`script/a.sh`) that prepar
 Key features:
 
 - Clean PDB partners: removes alternative conformations (B, C, etc.), keeps only first conformation.
-- **Always splits chains**: all PDB files are split by chain with automated renumbering.
+- **Optional HETATM removal**: Use `--remove-hetatm` to exclude all HETATM records (default: keep all valid molecules).
+- **Multi-chain file handling**: PDB files are kept with multiple chains in a single file, with proper TER statements between chains and END statement at the end.
 - Auto body-restraints by default (via `haddock3-restraints restrain_bodies`) to keep chains from the same PDB together; disable with `--keep-chains-separate`.
 - Optional fpocket integration (`--use-fpocket`) producing pocket-based annotations stored under `computational_data/<label>/`.
 - Flexible restraint ingestion: manual tables, fpocket, user-provided computational/experimental metadata.

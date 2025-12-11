@@ -20,7 +20,10 @@ sudo apt install parallel
 conda create -n haddock3 python=3.9
 conda activate haddock3
 pip install haddock3
-
+#install arctic3d (a software to find interaction region)
+git clone git@github.com:haddocking/arctic3d.git
+pip install arctic3d
+arctic3d -h #not error => install successfull
 ** Task:
 - Replace fpocket by ARCTIC-3D or CPORT or both. Considered based on the runtime of each tool
 - Check the prepration step and all others step in the script.
