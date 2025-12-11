@@ -26,7 +26,7 @@ SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 # Global Configuration & Defaults
 # ---------------------------------------------------------------------------
 VERSION=3
-INPUT_MODE="multichain"
+FORCE_CHAINS_TOGETHER=true
 
 # Partner & Grouping Data Structures
 declare -a PARTNER_ORDER=()          # Ordered list of partner labels
@@ -90,7 +90,7 @@ Required:
                              list of PDB files, or a .lst file with one path per line.
 
 Modes & presets:
-  --input-mode {split,multichain}  Interpret partner specs as split chains or multi-chain PDBs.
+  --keep-chains-separate          Split chains but don't force them together during docking.
   --group-bodies <label>=<pdb|json>  Mapping for split mode. Repeat per partner or provide a JSON file.
   --auto-partners <dir>       Discover partners automatically from PDBs inside <dir>.
   --v, --version {1|2|3}       Select workflow generation (default: 3).
@@ -126,10 +126,9 @@ Examples:
   ./a.sh --partner A=proteinA.pdb --partner B=proteinB.pdb --v 3 \
         --computational-dir data/predict --experimental-dir data/exp --project demo_v3
 
-  # Split-chain workflow with explicit body grouping plus manual restraints
-  ./a.sh --input-mode split \
-        --partner A=chains/proteinA --partner B=chains/proteinB \
-        --group-bodies mapping.json --ambig manual_air.tbl
+  # Split chains but keep them separate (don't force together during docking)
+  ./a.sh --partner A=proteinA.pdb --partner B=proteinB.pdb \
+        --keep-chains-separate --ambig manual_air.tbl
 
 See README for details on manifest formats accepted by --group-bodies.
 USAGE
@@ -266,7 +265,6 @@ PY
 resolve_partner_spec() {
     local label="$1"
     local spec="$2"
-    local mode="$3"
     local -a files=()
 
     if [[ "$spec" == *,* ]]; then
@@ -288,10 +286,6 @@ resolve_partner_spec() {
         files[$idx]=$(abs_path "${files[$idx]}")
         [[ -f "${files[$idx]}" ]] || die "File not found for partner '$label': ${files[$idx]}"
     done
-
-    if [[ "$mode" == "multichain" && ${#files[@]} -ne 1 ]]; then
-        warn "Partner '$label' provided ${#files[@]} files; treating as multi-chain by merging."
-    fi
 
     PARTNER_FILES["$label"]=$(printf '%s\n' "${files[@]}")
 }
@@ -344,10 +338,9 @@ resolve_group_chain_order() {
 run_prepare_partner() {
     local label="$1"
     local index="$2"
-    local mode="$3"
     local -a files=()
     mapfile -t files < <(printf '%s\n' "${PARTNER_FILES[$label]}")
-    local prep_dir="$4"
+    local prep_dir="$3"
     mkdir -p "$prep_dir"
 
     local rename_mode="rename"
@@ -357,7 +350,7 @@ run_prepare_partner() {
     local pool="${chain_pool:pool_offset}${chain_pool:0:pool_offset}"
 
     mapfile -t PREP_INFO < <(
-        python3 - "$rename_mode" "$mode" "$prep_dir" "$label" "$pool" "${files[@]}" <<'PY'
+        python3 - "$rename_mode" "$prep_dir" "$label" "$pool" "$FORCE_CHAINS_TOGETHER" "${files[@]}" <<'PY'
 import os
 import sys
 import json
@@ -366,25 +359,48 @@ import subprocess
 from collections import OrderedDict, defaultdict
 
 rename_mode = sys.argv[1]
-input_mode = sys.argv[2]
-output_dir = sys.argv[3]
-label = sys.argv[4]
-chain_pool = sys.argv[5]
+output_dir = sys.argv[2]
+label = sys.argv[3]
+chain_pool = sys.argv[4]
+force_together = sys.argv[5].lower() == 'true'
 input_files = sys.argv[6:]
 
 if rename_mode not in {"rename", "preserve"}:
     raise SystemExit(f"Unsupported rename mode: {rename_mode}")
 
-if input_mode not in {"split", "multichain"}:
-    raise SystemExit(f"Unsupported input mode: {input_mode}")
-
 if not input_files:
     raise SystemExit("No input files provided")
 
 STANDARD_RESIDUES = {
+    # Standard amino acids
     "ALA", "ARG", "ASN", "ASP", "CYS", "GLN", "GLU", "GLY",
     "HIS", "ILE", "LEU", "LYS", "MET", "PHE", "PRO", "SER",
-    "THR", "TRP", "TYR", "VAL", "MSE"
+    "THR", "TRP", "TYR", "VAL", "MSE",
+    # Protonation states and variants (already includes ASH, GLH from modified amino acids)
+    "HID", "HIE", "HIP", "ASH", "GLH", "LYN",
+    # Carbohydrates
+    "A2G", "ABE", "BDP", "BGC", "BMA", "FCA", "FCB", "FUC",
+    "FUL", "GAL", "GLB", "GLA", "GLC", "GXL", "MAG", "MAN",
+    "MMA", "NAG", "NDG", "NGA", "RAM", "SIA", "SIB", "XYP", "XYS",
+    # Ions (Single)
+    "AG", "AL", "AU", "BR", "CA", "CD", "CL", "CO", "CR", "CS",
+    "CU", "F", "FE", "HG", "HO", "I", "IR", "K", "KR", "LI",
+    "MG", "MN", "MO", "NA", "NI", "OS", "PB", "PT", "SR", "U",
+    "V", "YB", "ZN",
+    # Ions (Multi-atom)
+    "PO4", "SO4", "WO4",
+    # Water
+    "TIP", "WAT",
+    # Co-factors
+    "HEB", "HEC",
+    # Nucleic Acids (DNA)
+    "DA", "DC", "DG", "DT",
+    # Nucleic Acids (RNA)
+    "A", "C", "G", "U",
+    # Modified Amino Acids (ASH, GLH, MSE already listed above)
+    "ACE", "ALY", "CFE", "CSP", "CTN", "CYC", "CYF", "CYM",
+    "DDZ", "HY3", "HYP", "M3L", "MLY", "MLZ", "NEP", "NME",
+    "PCA", "PNS", "PTR", "QSR", "SEC", "SEP", "TOP", "TYP", "TYS"
 }
 
 pool_chars = [c for c in chain_pool if not c.isspace()]
@@ -440,6 +456,10 @@ for line in raw_lines:
         continue
     if record not in {'ATOM', 'HETATM'}:
         continue
+    # Handle alternative conformations - only keep first conformation (A or blank)
+    altloc = line[16].strip()
+    if altloc and altloc != 'A':
+        continue  # Skip alternative conformations B, C, etc.
     resn = line[17:20].strip()
     if resn not in STANDARD_RESIDUES:
         continue
@@ -468,6 +488,7 @@ for line in raw_lines:
 
     chars = list(f"{line:<80}")
     chars[6:11] = list(f"{atom_serial:5d}")
+    chars[16] = ' '  # Clear alternative location indicator
     chars[21] = mapped['chain'][0]
     chars[22:26] = list(f"{mapped['residue']:4d}")
     chars[26] = mapped['icode'][:1] if mapped['icode'] else ' '
@@ -498,8 +519,8 @@ for (chain, res, icode), info in residue_map.items():
 
 payload = {
     "label": label,
-    "input_mode": input_mode,
     "rename_mode": rename_mode,
+    "force_chains_together": force_together,
     "inputs": input_files,
     "output_path": os.path.abspath(combined_path),
     "chain_mapping": chain_mapping,
@@ -524,7 +545,7 @@ if not split_outputs:
     split_outputs.append(os.path.abspath(combined_path))
 
 body_tbl = ''
-if input_mode == 'split' and len(split_outputs) > 1:
+if force_together and len(split_outputs) > 1:
     restrain_bin = shutil.which('haddock3-restraints')
     if restrain_bin:
         try:
@@ -1304,10 +1325,9 @@ require_command python3
 ARGS=("$@")
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --input-mode)
-            [[ $# -lt 2 ]] && die "--input-mode expects a value"
-            INPUT_MODE="$2"
-            shift 2
+        --keep-chains-separate)
+            FORCE_CHAINS_TOGETHER=false
+            shift
             ;;
         --auto-partners)
             [[ $# -lt 2 ]] && die "--auto-partners expects a directory"
@@ -1478,23 +1498,11 @@ for label in "${PARTNER_ORDER[@]}"; do
     _label_seen["$label"]=1
 done
 
-case "$INPUT_MODE" in
-    split|multichain) ;;
-    *) die "Unsupported --input-mode '$INPUT_MODE'";
-        ;;
-esac
-
 case "$VERSION" in
     1|2|3) ;;
     *) die "Unsupported version '$VERSION'";
         ;;
 esac
-
-if [[ "$INPUT_MODE" == "split" ]]; then
-    if (( ${#GROUP_BODY_SOURCE[@]} == 0 && ${#GROUP_BODY_JSON_FILES[@]} == 0 )); then
-        die "split mode requires --group-bodies mapping (label=path or JSON manifest)"
-    fi
-fi
 
 if (( ${#GROUP_BODY_JSON_FILES[@]} )); then
     for json_file in "${GROUP_BODY_JSON_FILES[@]}"; do
@@ -1508,15 +1516,10 @@ done
 
 # Resolve partner specs into absolute file lists
 for label in "${PARTNER_ORDER[@]}"; do
-    resolve_partner_spec "$label" "${PARTNER_SPECS[$label]}" "$INPUT_MODE"
+    resolve_partner_spec "$label" "${PARTNER_SPECS[$label]}"
     resolve_group_chain_order "$label"
-    [[ "$INPUT_MODE" != "split" ]] && continue
-    if [[ -z "${GROUP_BODY_SOURCE[$label]:-}" ]]; then
-        warn "No explicit --group-bodies source for '$label'; will rely on sanitized structure"
-    fi
-    # Validate at least two files when split
     mapfile -t _files < <(printf '%s\n' "${PARTNER_FILES[$label]}")
-    (( ${#_files[@]} >= 1 )) || die "split mode requires at least one chain file for '$label'"
+    (( ${#_files[@]} >= 1 )) || die "At least one PDB file required for partner '$label'"
     if [[ -n "${GROUP_BODY_SOURCE[$label]:-}" && ! -f "${GROUP_BODY_SOURCE[$label]}" ]]; then
         die "Group source for '$label' not found: ${GROUP_BODY_SOURCE[$label]}"
     fi
@@ -1573,14 +1576,14 @@ mkdir -p "$PREP_DIR"
 
 log "Preparing partners in $PREP_DIR"
 log "  Partners: ${PARTNER_ORDER[*]}"
-log "  Mode: $INPUT_MODE | Version: $VERSION"
+log "  Mode: split chains | Version: $VERSION | Force chains together: $FORCE_CHAINS_TOGETHER"
 if [[ "$USE_FPOCKET" == true ]]; then
     log "  Fpocket: enabled (top $FPOCKET_TOP_N pockets, min drug score $FPOCKET_MIN_DRUG, min volume $FPOCKET_MIN_VOLUME Å³)"
 fi
 
 idx=0
 for label in "${PARTNER_ORDER[@]}"; do
-    run_prepare_partner "$label" "$idx" "$INPUT_MODE" "$PREP_DIR/$label"
+    run_prepare_partner "$label" "$idx" "$PREP_DIR/$label"
     
     if [[ "$USE_FPOCKET" == true ]]; then
         fpocket_target="$PREP_DIR/$label/computational_data"
@@ -1795,20 +1798,22 @@ for pair in "${PAIR_LIST[@]}"; do
         pair_unambig_files+=("$dest")
     done
 
-    for partner_label in "$lhs" "$rhs"; do
-        body_src="${PARTNER_BODY_TBL[$partner_label]}"
-        if [[ -n "$body_src" && -f "$body_src" ]]; then
-            body_dest="$pair_rest_dir/${partner_label}_restrain_bodies.tbl"
-            cp "$body_src" "$body_dest"
-            append_unique pair_unambig_files "$body_dest"
-        fi
-        group_tbl="${PARTNER_GROUP_BODY[$partner_label]:-}"
-        if [[ -n "$group_tbl" && -f "$group_tbl" ]]; then
-            group_dest="$pair_rest_dir/${partner_label}_restrain_bodies_source.tbl"
-            cp "$group_tbl" "$group_dest"
-            append_unique pair_unambig_files "$group_dest"
-        fi
-    done
+    if [[ "$FORCE_CHAINS_TOGETHER" == true ]]; then
+        for partner_label in "$lhs" "$rhs"; do
+            body_src="${PARTNER_BODY_TBL[$partner_label]}"
+            if [[ -n "$body_src" && -f "$body_src" ]]; then
+                body_dest="$pair_rest_dir/${partner_label}_restrain_bodies.tbl"
+                cp "$body_src" "$body_dest"
+                append_unique pair_unambig_files "$body_dest"
+            fi
+            group_tbl="${PARTNER_GROUP_BODY[$partner_label]:-}"
+            if [[ -n "$group_tbl" && -f "$group_tbl" ]]; then
+                group_dest="$pair_rest_dir/${partner_label}_restrain_bodies_source.tbl"
+                cp "$group_tbl" "$group_dest"
+                append_unique pair_unambig_files "$group_dest"
+            fi
+        done
+    fi
 
     auto_json=""
     if [[ "$VERSION" -ge 2 ]]; then

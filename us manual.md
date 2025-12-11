@@ -24,8 +24,8 @@ Key options:
 |----------|--------|-------------|
 | **Partner selection** | `--partner A=file.pdb` | Define a partner label and its PDB/manifest. Repeat per partner. |
 | | `--auto-partners dir` | Auto-load every `*.pdb` in `dir` (label derived from filename). |
-| | `--input-mode {split,multichain}` | Interpret partner specs as per-chain files or multi-chain PDB. |
-| | `--group-bodies label=path` | Provide reference PDB/manifest for body restraints (split mode). |
+| | `--keep-chains-separate` | Split chains but don't force them together during docking (default: chains are forced together). |
+| | `--group-bodies label=path` | Provide reference PDB/manifest for body restraints (optional, for complex grouping). |
 | **Workflow tiers** | `--v {1|2|3}` | Version: V1 blind, V2 computational, V3 experimental priority (default 3). |
 | | `--abinitio` | Shortcut: set version 1, high sampling, `ranair=true`. |
 | | `--ranair` | Force random AIR generation during rigidbody stage. |
@@ -49,9 +49,9 @@ Readable help: `./script/a.sh --help`.
 
 1. **Argument parsing** → collects partners, flags, directories.
 2. **Preparation phase** → per partner:
-   - Clean PDB (`rename` mode even for multichain to avoid chain collisions).
-   - Split by chain (if requested) and generate `*_mapping.json`.
-   - Run `haddock3-restraints restrain_bodies` for split partners where applicable.
+   - Clean PDB: remove alternative conformations (keeps only A or first conformation), standardize formatting.
+   - **Always split by chain** and generate `*_mapping.json`.
+   - By default, run `haddock3-restraints restrain_bodies` to force chains from the same PDB together (disable with `--keep-chains-separate`).
    - With `--group-bodies`, copy reference PDBs and create extra body locks.
    - If `--use-fpocket`, run fpocket on the cleaned combined PDB, parse top N pockets and export `computational_data/<label>/fpocket/<label>_fpocket.json`.
 
@@ -108,8 +108,8 @@ ls result/<project_name>/PAIR_*/haddock3.cfg | parallel -j 5 "cd \$(dirname {}) 
 
 ## 6. Modes & performance knobs
 
-- `--input-mode split` → supply each chain separately. The script auto-creates body restraints to keep chain groups rigid.
-- `--input-mode multichain` → each partner is a multichain PDB.
+- **All PDB files are automatically split by chain**. By default, chains from the same PDB are kept together via body restraints.
+- `--keep-chains-separate` → disable automatic body restraints, allowing chains to move independently during docking.
 - `--ncores` influences parallelism in HADDOCK (default 10).
 - `--sampling` adjusts rigid-body sampling (versions: V1 default 10000, others 4000 unless overridden). Lowering it speeds up first stage.
 - `--skip-flexref` (if you add it) or editing `[flexref]/[mdref]/[emref]` blocks can shorten runs, but by default all refinement stages run sequentially.
@@ -135,17 +135,16 @@ ls result/<project_name>/PAIR_*/haddock3.cfg | parallel -j 5 "cd \$(dirname {}) 
 # Then run with parallel command
 ```
 
-### 7.3 Split chains with body locks
+### 7.3 Docking with separate chains (no body locks)
 ```bash
 ./script/a.sh \
-  --input-mode split \
-  --partner P1CLL=split/P1CLL_A.pdb,split/P1CLL_B.pdb \
-  --partner P1ZG4=split/P1ZG4_A.pdb,split/P1ZG4_B.pdb \
-  --group-bodies P1CLL=reference/P1CLL_all.pdb \
-  --group-bodies P1ZG4=reference/P1ZG4_all.pdb \
+  --partner P1CLL=protein1.pdb \
+  --partner P1ZG4=protein2.pdb \
+  --keep-chains-separate \
   --use-fpocket
 # Then run with parallel command
 ```
+Note: By default, chains from the same PDB stay together. Use `--keep-chains-separate` to allow independent movement.
 
 ### 7.4 Dry-run (inspect configs)
 ```bash
@@ -158,8 +157,10 @@ Check `result/<project>/PAIR_*/haddock3.cfg`, computational data, etc. Since exe
 ## 8. Notes & best practices
 
 - Always validate that `haddock3` and `fpocket` are available in the activated shell.
+- **Alternative conformations**: The script automatically handles multiple occupancy side-chain conformations by keeping only the first (A) conformation and removing B, C, etc. This prevents HADDOCK3 errors.
+- **Chain splitting**: All PDB files are split by chain. By default, chains from the same PDB are constrained together via body restraints (disable with `--keep-chains-separate`).
 - If you want the traditional CAPRI steps between every stage, you can extend `create_config` to insert `[caprieval]` etc.; the current setup relies on `haddock3-analyse` after completion.
-- For comparisons or debug, consider running baseline (multichain PDB) + split without body locks + split with locks to check the effect on docking quality.
+- For comparisons or debug, consider running with and without `--keep-chains-separate` to check the effect on docking quality.
 - Summary stats (success/failure counts, guided vs blind counts, number of auto restraints) are printed at the end.
 - `computational_data/<label>/fpocket/raw/` retains original fpocket output for reference.
 - You can still supply manual restraints (they take priority when present).

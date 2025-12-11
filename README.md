@@ -4,8 +4,9 @@ This repository contains a Bash orchestration script (`script/a.sh`) that prepar
 
 Key features:
 
-- Clean & split PDB partners with automated chain renumbering.
-- Auto body-restraints for split chains (via `haddock3-restraints restrain_bodies`).
+- Clean PDB partners: removes alternative conformations (B, C, etc.), keeps only first conformation.
+- **Always splits chains**: all PDB files are split by chain with automated renumbering.
+- Auto body-restraints by default (via `haddock3-restraints restrain_bodies`) to keep chains from the same PDB together; disable with `--keep-chains-separate`.
 - Optional fpocket integration (`--use-fpocket`) producing pocket-based annotations stored under `computational_data/<label>/`.
 - Flexible restraint ingestion: manual tables, fpocket, user-provided computational/experimental metadata.
 - Blind docking safeguards (`cmrest` + automatic `ranair` whenever no restraints survive).
