@@ -68,12 +68,18 @@ DRY_RUN=false
 SKIP_RUN=false
 REFERENCE_PDB=""
 
-# Fpocket Settings
-USE_FPOCKET=false
-FPOCKET_TOP_N=3
-FPOCKET_MIN_DRUG=0.5
-FPOCKET_MIN_VOLUME=50
-FPOCKET_AVAILABLE="unknown"
+# ARCTIC3D Settings
+USE_ARCTIC3D=false
+ARCTIC3D_PROB_THRESHOLD=0.4
+ARCTIC3D_AVAILABLE="unknown"
+ARCTIC3D_BLAST_DB=""
+ARCTIC3D_POSITION_TOLERANCE=1.0  # Angstrom tolerance for CA position matching
+
+# ARCTIC3D Data Structures (populated before cleaning)
+declare -A PARTNER_ORIGINAL_FILES=()      # Original PDB files (before cleaning)
+declare -A PARTNER_CHAIN_UNIPROTS=()      # Chain -> Uniprot ID mapping (JSON string)
+declare -A PARTNER_PDB_IDS=()             # PDB ID extracted from original files
+declare -A PARTNER_ARCTIC3D_MANIFEST=()   # Path to ARCTIC3D manifest for each partner
 
 # PDB Cleaning Options
 REMOVE_HETATM=false
@@ -109,7 +115,9 @@ Restraints & data sources:
   --unambig <tbl[,tbl..]>      Manual unambiguous restraint files.
   --computational-dir <dir>    Directory tree with computational annotations (for V2/V3).
   --experimental-dir <dir>     Directory tree with experimental annotations (for V3 priority).
-  --use-fpocket                Run fpocket on prepared structures to seed computational annotations.
+  --use-arctic3d               Run ARCTIC3D on prepared structures to generate interface restraints.
+  --arctic3d-prob <float>      Probability threshold for ARCTIC3D restraints (default: 0.4).
+  --arctic3d-blast-db <path>   Path to local BLAST database for ARCTIC3D (optional).
   --confidence-threshold <f>   Confidence cutoff for computational data (default 0.6).
   --max-active <int>           Max active residues per partner when building restraints (default 40).
   --max-pairs <int>            Cap number of ambiguous restraints (default 4000).
@@ -117,7 +125,7 @@ Restraints & data sources:
 Execution & I/O:
   --out <dir>                  Root directory for generated runs (default: $PWD/result).
   --project <name>             Name of the run folder inside --out (default: auto timestamp).
-  --ncores <int>               Number of cores passed to HADDOCK3 (default: 4).
+  --ncores <int>               Number of cores passed to HADDOCK3 (default: 10).
   --sampling <int>             Override rigid-body sampling value.
   --reference <pdb>            Native complex for CAPRI evaluation.
   --dry-run                    Prepare config/artifacts but skip haddock3 execution.
@@ -196,6 +204,53 @@ canonical_pair_key() {
     else
         printf '%s|%s\n' "$b" "$a"
     fi
+}
+
+# ---------------------------------------------------------------------------
+# Chain Count Detection for Pair Validation
+# ---------------------------------------------------------------------------
+MAX_CHAIN_LIMIT=36
+declare -a SKIPPED_PAIRS_INFO=()  # Stores "lhs|rhs|total_chains|reason" for skipped pairs
+
+# Count chains from a partner's mapping JSON file
+count_partner_chains() {
+    local mapping_json="$1"
+    if [[ ! -f "$mapping_json" ]]; then
+        echo "0"
+        return
+    fi
+    python3 -c "import json; print(len(json.load(open('$mapping_json')).get('chain_mapping', {})))"
+}
+
+# Check if a pair exceeds the maximum chain limit
+# Returns 0 (true) if pair should be SKIPPED, 1 (false) if OK to process
+check_pair_chain_limit() {
+    local lhs="$1"
+    local rhs="$2"
+    local lhs_mapping="${PARTNER_MAPPING[$lhs]:-}"
+    local rhs_mapping="${PARTNER_MAPPING[$rhs]:-}"
+    
+    local lhs_chains=0
+    local rhs_chains=0
+    
+    if [[ -n "$lhs_mapping" && -f "$lhs_mapping" ]]; then
+        lhs_chains=$(count_partner_chains "$lhs_mapping")
+    fi
+    
+    if [[ -n "$rhs_mapping" && -f "$rhs_mapping" ]]; then
+        rhs_chains=$(count_partner_chains "$rhs_mapping")
+    fi
+    
+    local total_chains=$((lhs_chains + rhs_chains))
+    
+    if (( total_chains >= MAX_CHAIN_LIMIT )); then
+        # Return the total chain count for logging
+        echo "$total_chains"
+        return 0  # Should skip
+    fi
+    
+    echo "$total_chains"
+    return 1  # OK to process
 }
 
 # Add a pair to the list if it hasn't been added yet
@@ -335,6 +390,171 @@ resolve_group_chain_order() {
 }
 
 # ---------------------------------------------------------------------------
+# Dynamic Rechaining Helpers
+# ---------------------------------------------------------------------------
+
+rechain_partner() {
+    local json_file="$1"
+    local start_char="$2"
+    local arctic_dir="$3"
+    shift 3
+    local pdb_files=("$@")
+    
+    python3 - "$json_file" "$start_char" "$arctic_dir" "${pdb_files[@]}" <<'PY'
+import sys
+import json
+import os
+import shutil
+
+json_path = sys.argv[1]
+start_char = sys.argv[2]
+arctic_dir = sys.argv[3]
+pdb_files = sys.argv[4:]
+
+chain_pool = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+try:
+    start_idx = chain_pool.index(start_char)
+except ValueError:
+    start_idx = 0
+
+with open(json_path, 'r') as f:
+    mapping = json.load(f)
+
+chain_map = mapping.get("chain_mapping", {})
+# Sort by current new_chain to ensure stability
+sorted_chains = sorted(chain_map.items(), key=lambda x: x[1]["new_chain"])
+
+remap_dict = {}
+current_idx = start_idx
+
+for original_chain, info in sorted_chains:
+    old_chain = info["new_chain"]
+    if current_idx >= len(chain_pool):
+        raise ValueError("Ran out of chain identifiers during rechaining")
+    new_chain = chain_pool[current_idx]
+    info["new_chain"] = new_chain
+    info["segid"] = new_chain
+    remap_dict[old_chain] = new_chain
+    current_idx += 1
+
+# Update JSON
+with open(json_path, 'w') as f:
+    json.dump(mapping, f, indent=2)
+
+# Update PDBs
+for pdb_path in pdb_files:
+    with open(pdb_path, 'r') as f:
+        lines = f.readlines()
+    new_lines = []
+    for line in lines:
+        if line.startswith(('ATOM', 'HETATM')):
+            chain = line[21]
+            if chain in remap_dict:
+                new_chain = remap_dict[chain]
+                # Update chain ID (col 22) and segid (col 73-76)
+                line = line[:21] + new_chain + line[22:72] + new_chain.rjust(4) + line[76:]
+        new_lines.append(line)
+    with open(pdb_path, 'w') as f:
+        f.writelines(new_lines)
+
+# Rename Arctic Folders
+if arctic_dir and os.path.isdir(arctic_dir):
+    moves = []
+    for old_c, new_c in remap_dict.items():
+        old_p = os.path.join(arctic_dir, f"chain_{old_c}")
+        new_p = os.path.join(arctic_dir, f"chain_{new_c}")
+        if os.path.exists(old_p):
+            moves.append((old_p, new_p))
+            
+    # Use temp moves to avoid collisions (e.g. A->B when B exists)
+    temp_moves = []
+    final_moves = []
+    for i, (old_p, new_p) in enumerate(moves):
+        temp_p = f"{old_p}_tmp_{i}"
+        temp_moves.append((old_p, temp_p))
+        final_moves.append((temp_p, new_p))
+        
+    for src, dst in temp_moves:
+        os.rename(src, dst)
+    for src, dst in final_moves:
+        if os.path.exists(dst):
+            shutil.rmtree(dst)
+        os.rename(src, dst)
+
+    # Update manifest
+    manifest_path = os.path.join(arctic_dir, "chain_manifest.json")
+    if os.path.exists(manifest_path):
+        with open(manifest_path, 'r') as f:
+            manifest = json.load(f)
+        new_chains = {}
+        for old_c, new_c in remap_dict.items():
+            if old_c in manifest.get("chains", {}):
+                new_chains[new_c] = manifest["chains"][old_c]
+        manifest["chains"] = new_chains
+        with open(manifest_path, 'w') as f:
+            json.dump(manifest, f, indent=2)
+
+# Print mapping for shell usage: A:C,B:D
+pairs = [f"{k}:{v}" for k, v in remap_dict.items()]
+print(",".join(pairs))
+PY
+}
+
+remap_tbl_chain() {
+    local tbl_file="$1"
+    local chain_map="$2" # e.g. "A:C,B:D"
+    
+    python3 - "$tbl_file" "$chain_map" <<'PY'
+import sys
+import re
+
+tbl_path = sys.argv[1]
+chain_map_str = sys.argv[2]
+
+if not chain_map_str:
+    sys.exit(0)
+
+mapping = {}
+for pair in chain_map_str.split(','):
+    if ':' in pair:
+        k, v = pair.split(':')
+        mapping[k] = v
+
+with open(tbl_path, 'r') as f:
+    content = f.read()
+
+# Regex to find segid "X" or chain "X" in TBL
+# HADDOCK TBL format usually: assign (segid A and resid 10) ...
+# We need to be careful not to replace other things.
+# Usually segid is used.
+
+def replace_chain(match):
+    chain = match.group(1)
+    return f'segid {mapping.get(chain, chain)}'
+
+# Replace 'segid X'
+pattern = re.compile(r'segid\s+([A-Za-z0-9])')
+new_content = pattern.sub(replace_chain, content)
+
+with open(tbl_path, 'w') as f:
+    f.write(new_content)
+PY
+}
+
+# ---------------------------------------------------------------------------
+# Source ARCTIC3D Functions
+# ---------------------------------------------------------------------------
+# Load ARCTIC3D-related functions from separate file for better code organization
+ARCTIC3D_FUNCTIONS_FILE="$SCRIPT_DIR/arctic3d_functions.sh"
+if [[ -f "$ARCTIC3D_FUNCTIONS_FILE" ]]; then
+    source "$ARCTIC3D_FUNCTIONS_FILE"
+elif [[ "$USE_ARCTIC3D" == true ]]; then
+    warn "ARCTIC3D functions file not found: $ARCTIC3D_FUNCTIONS_FILE"
+    warn "ARCTIC3D features will not be available."
+    USE_ARCTIC3D=false
+fi
+
+# ---------------------------------------------------------------------------
 # Core Logic Functions
 # ---------------------------------------------------------------------------
 
@@ -350,8 +570,9 @@ run_prepare_partner() {
     local rename_mode="rename"
 
     local chain_pool="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    local pool_offset=$(( index * 8 ))
-    local pool="${chain_pool:pool_offset}${chain_pool:0:pool_offset}"
+    # local pool_offset=$(( index * 8 ))
+    # local pool="${chain_pool:pool_offset}${chain_pool:0:pool_offset}"
+    local pool="$chain_pool"
 
     mapfile -t PREP_INFO < <(
         python3 - "$rename_mode" "$prep_dir" "$label" "$pool" "$FORCE_CHAINS_TOGETHER" "$REMOVE_HETATM" "${files[@]}" <<'PY'
@@ -608,325 +829,11 @@ PY
         split_files=("$combined")
     fi
     PARTNER_SPLITFILES["$label"]=$(printf '%s\n' "${split_files[@]}")
-}
-
-# Check if fpocket is installed and available
-ensure_fpocket_available() {
-    if [[ "$FPOCKET_AVAILABLE" != "unknown" ]]; then
-        return
+    
+    # Run ARCTIC3D analysis if enabled
+    if [[ "$USE_ARCTIC3D" == true ]]; then
+        run_arctic3d_analysis "$label" "$prep_dir" "$mapping"
     fi
-    if command -v fpocket >/dev/null 2>&1; then
-        FPOCKET_AVAILABLE="yes"
-    else
-        warn "fpocket executable not found in PATH; skipping fpocket-based annotations."
-        FPOCKET_AVAILABLE="no"
-    fi
-}
-
-# Run fpocket on a partner structure and convert output to JSON
-generate_fpocket_predictions() {
-    local label="$1"
-    local combined_pdb="$2"
-    local target_root="$3"
-
-    [[ "$USE_FPOCKET" == true ]] || return 0
-
-    ensure_fpocket_available
-    [[ "$FPOCKET_AVAILABLE" == "yes" ]] || return 0
-
-    [[ -f "$combined_pdb" ]] || return 0
-
-    local combined_dir
-    combined_dir=$(dirname "$combined_pdb")
-    local combined_base
-    combined_base=$(basename "$combined_pdb" .pdb)
-
-    local work_dir="$combined_dir"
-    local fpocket_out="$work_dir/${combined_base}_out"
-
-    if [[ -d "$fpocket_out" ]]; then
-        rm -rf "$fpocket_out"
-    fi
-
-    if ! fpocket -f "$combined_pdb" >/dev/null 2>&1; then
-        warn "fpocket run failed for partner $label; skipping fpocket annotations."
-        rm -rf "$fpocket_out"
-        return 0
-    fi
-
-    if [[ ! -d "$fpocket_out" ]]; then
-        warn "fpocket did not generate expected output folder for $label."
-        return 0
-    fi
-
-    local target_dir="$target_root/$label/fpocket"
-    rm -rf "$target_dir"
-    mkdir -p "$target_dir"
-    cp -R "$fpocket_out" "$target_dir/raw"
-    rm -rf "$fpocket_out"
-
-    local info_file=""
-    local summary_file=""
-
-    if [[ -f "$target_dir/raw/info.txt" ]]; then
-        info_file="$target_dir/raw/info.txt"
-    elif [[ -f "$target_dir/raw/pockets/info.txt" ]]; then
-        info_file="$target_dir/raw/pockets/info.txt"
-    else
-        info_file=$(find "$target_dir/raw" -maxdepth 1 -type f -name "*info.txt" | head -n1 || true)
-    fi
-
-    summary_file=$(find "$target_dir/raw" -maxdepth 2 -type f -name "pocket_summary*.txt" | head -n1 || true)
-
-    local pockets_dir=""
-    if [[ -d "$target_dir/raw/pockets" ]]; then
-        pockets_dir="$target_dir/raw/pockets"
-    else
-        pockets_dir=$(find "$target_dir/raw" -maxdepth 3 -type d -name "pockets" | head -n1 || true)
-    fi
-
-    if [[ -z "$info_file" && -z "$summary_file" ]]; then
-        warn "fpocket output missing summary for $label (no info.txt or pocket_summary*.txt found)."
-        return 0
-    fi
-
-    if [[ -z "$pockets_dir" || ! -d "$pockets_dir" ]]; then
-        warn "fpocket output missing pockets directory for $label."
-        return 0
-    fi
-
-    local json_out="$target_dir/${label}_fpocket.json"
-
-    python3 - "${info_file:-}" "${summary_file:-}" "$pockets_dir" "$json_out" "$FPOCKET_TOP_N" "$FPOCKET_MIN_DRUG" "$FPOCKET_MIN_VOLUME" "$label" <<'PY'
-import json
-import math
-import os
-import sys
-from collections import defaultdict
-
-info_path = sys.argv[1].strip()
-summary_path = sys.argv[2].strip()
-pockets_dir, output_json, top_n, min_drug, min_vol, label = sys.argv[3:9]
-top_n = max(1, int(top_n))
-min_drug = float(min_drug)
-min_vol = float(min_vol)
-
-pockets = []
-current = None
-
-def flush_current():
-    global current
-    if current:
-        pockets.append(current.copy())
-        current = None
-
-def parse_classic(path):
-    global current
-    found = False
-    if not path or not os.path.isfile(path):
-        return False
-    with open(path, "r", encoding="utf-8", errors="ignore") as handle:
-        for raw_line in handle:
-            line = raw_line.strip()
-            if not line:
-                continue
-            if line.startswith("Pocket "):
-                flush_current()
-                head = line.split()[1]
-                try:
-                    pocket_id = int(head)
-                except Exception:
-                    pocket_id = len(pockets) + 1
-                current = {
-                    "id": pocket_id,
-                    "score": None,
-                    "druggability": None,
-                    "volume": None,
-                }
-                found = True
-                continue
-            if not found or current is None:
-                continue
-            if ":" not in line:
-                continue
-            key, value = line.split(":", 1)
-            key = key.strip().lower()
-            try:
-                number = float(value.strip().split()[0])
-            except Exception:
-                continue
-            if key.startswith("volume"):
-                current["volume"] = number
-            elif key.startswith("druggability"):
-                current["druggability"] = number
-            elif key.startswith("score"):
-                if current.get("score") is None:
-                    current["score"] = number
-    flush_current()
-    return found
-
-def parse_summary(path):
-    if not path or not os.path.isfile(path):
-        return False
-    local = []
-    with open(path, "r", encoding="utf-8", errors="ignore") as handle:
-        for raw_line in handle:
-            line = raw_line.strip()
-            if not line or line.startswith("#"):
-                continue
-            if ';' in line:
-                parts = [part.strip() for part in line.split(';')]
-            else:
-                parts = line.split()
-            if len(parts) < 4:
-                continue
-            file_name = parts[0]
-            try:
-                score = float(parts[1])
-            except Exception:
-                continue
-            try:
-                drug = float(parts[2])
-            except Exception:
-                drug = None
-            try:
-                volume = float(parts[3])
-            except Exception:
-                volume = None
-            pocket_id = ''.join(ch for ch in file_name if ch.isdigit())
-            if pocket_id:
-                try:
-                    pocket_id = int(pocket_id)
-                except Exception:
-                    pocket_id = len(local) + 1
-            else:
-                pocket_id = len(local) + 1
-            local.append({
-                "id": pocket_id,
-                "score": score,
-                "druggability": drug,
-                "volume": volume,
-                "file": file_name,
-            })
-    if not local:
-        return False
-    pockets.extend(local)
-    return True
-
-parsed = False
-if info_path:
-    parsed = parse_classic(info_path)
-if not parsed and summary_path:
-    parsed = parse_summary(summary_path)
-if not parsed and info_path:
-    parsed = parse_summary(info_path)
-
-if not pockets:
-    sys.exit(0)
-
-def confidence_for(entry):
-    val = entry.get("druggability")
-    if val is not None and not math.isnan(val):
-        return max(0.0, min(1.0, val))
-    score = entry.get("score")
-    if score is None or math.isnan(score):
-        return 0.0
-    return max(0.0, min(1.0, score / 100.0))
-
-filtered = [
-    p for p in pockets
-    if (p.get("volume") or 0.0) >= min_vol and (p.get("druggability") or 0.0) >= min_drug
-]
-if not filtered:
-    filtered = [p for p in pockets if (p.get("volume") or 0.0) >= min_vol]
-if not filtered:
-    filtered = pockets[:]
-
-filtered.sort(key=lambda p: (p.get("druggability") if p.get("druggability") is not None else p.get("score", 0.0)), reverse=True)
-selected = filtered[:top_n]
-
-entries = []
-for pocket in selected:
-    pocket_id = pocket.get("id")
-    pocket_file = pocket.get("file")
-    candidates = []
-    if pocket_file:
-        candidates.append(os.path.join(pockets_dir, pocket_file))
-        if not pocket_file.endswith("_atm.pdb"):
-            candidates.append(os.path.join(pockets_dir, f"{pocket_file}_atm.pdb"))
-    pdb_name = f"pocket{pocket_id}_atm.pdb"
-    candidates.append(os.path.join(pockets_dir, pdb_name))
-    candidates.append(os.path.join(pockets_dir, f"pocket{pocket_id}.pdb"))
-    pdb_path = None
-    for cand in candidates:
-        if os.path.isfile(cand):
-            pdb_path = cand
-            break
-    if not os.path.isfile(pdb_path):
-        continue
-    residues = set()
-    with open(pdb_path, "r", encoding="utf-8", errors="ignore") as handle:
-        for line in handle:
-            if not line.startswith(("ATOM", "HETATM")):
-                continue
-            chain = line[21].strip() or "_"
-            resid = line[22:26].strip()
-            residues.add((chain, resid))
-    if not residues:
-        continue
-    confidence = confidence_for(pocket)
-    score = pocket.get("druggability")
-    if score is None or math.isnan(score):
-        score = pocket.get("score")
-    entry = {
-        "pocket_id": pocket_id,
-        "confidence": confidence,
-        "score": score,
-        "volume": pocket.get("volume"),
-        "residues": [
-            {"chain": chain, "residue": resid, "confidence": confidence}
-            for chain, resid in sorted(residues)
-        ],
-    }
-    entries.append(entry)
-
-if not entries:
-    sys.exit(0)
-
-flat_entries = []
-for entry in entries:
-    pocket_id = entry["pocket_id"]
-    confidence = entry["confidence"]
-    score = entry["score"]
-    volume = entry["volume"]
-    for residue in entry["residues"]:
-        flat = {
-            "chain": residue["chain"],
-            "residue": residue["residue"],
-            "confidence": residue["confidence"],
-            "source": f"fpocket:pocket{pocket_id}",
-        }
-        if score is not None:
-            flat["score"] = score
-        if volume is not None:
-            flat["volume"] = volume
-        flat_entries.append(flat)
-
-with open(output_json, "w", encoding="utf-8") as handle:
-    json.dump({
-        "label": label,
-        "pockets": entries,
-        "residue_annotations": flat_entries,
-    }, handle, indent=2)
-PY
-
-    if [[ ! -s "$json_out" ]]; then
-        log "   Fpocket: no qualifying pockets retained for $label (thresholds may be too strict)."
-        rm -f "$json_out"
-        return 0
-    fi
-
-    log "   Fpocket: stored pockets for $label → $target_dir"
 }
 
 # Generate ambiguous and unambiguous restraints from computational/experimental data
@@ -1270,7 +1177,7 @@ with open(config_path, 'w', encoding='utf-8') as fh:
     fh.write("[topoaa]\n\n")
 
     fh.write("[rigidbody]\n")
-    fh.write("tolerance = 20\n")
+    fh.write("tolerance = 5\n")
     fh.write(f"sampling = {sampling}\n")
     # Only enable cmrest for ab initio docking (no ambig files)
     if not ambig_files:
@@ -1455,9 +1362,21 @@ while [[ $# -gt 0 ]]; do
             SKIP_RUN=true
             shift
             ;;
-        --use-fpocket)
-            USE_FPOCKET=true
+        --use-arctic3d)
+            USE_ARCTIC3D=true
             shift
+            ;;
+        --arctic3d-prob)
+            ARCTIC3D_PROB_THRESHOLD="$2"
+            shift 2
+            ;;
+        --arctic3d-blast-db)
+            ARCTIC3D_BLAST_DB="$2"
+            shift 2
+            ;;
+        --arctic3d-position-tolerance)
+            ARCTIC3D_POSITION_TOLERANCE="$2"
+            shift 2
             ;;
         --remove-hetatm)
             REMOVE_HETATM=true
@@ -1587,20 +1506,13 @@ mkdir -p "$PREP_DIR"
 log "Preparing partners in $PREP_DIR"
 log "  Partners: ${PARTNER_ORDER[*]}"
 log "  Mode: multi-chain files | Version: $VERSION | Force chains together: $FORCE_CHAINS_TOGETHER"
-if [[ "$USE_FPOCKET" == true ]]; then
-    log "  Fpocket: enabled (top $FPOCKET_TOP_N pockets, min drug score $FPOCKET_MIN_DRUG, min volume $FPOCKET_MIN_VOLUME Å³)"
+if [[ "$USE_ARCTIC3D" == true ]]; then
+    log "  ARCTIC3D: enabled (probability threshold: $ARCTIC3D_PROB_THRESHOLD)"
 fi
 
-idx=0
+    idx=0
 for label in "${PARTNER_ORDER[@]}"; do
     run_prepare_partner "$label" "$idx" "$PREP_DIR/$label"
-    
-    if [[ "$USE_FPOCKET" == true ]]; then
-        fpocket_target="$PREP_DIR/$label/computational_data"
-        mkdir -p "$fpocket_target"
-        generate_fpocket_predictions "$label" "${PARTNER_COMBINED[$label]}" "$fpocket_target"
-    fi
-
     (( idx += 1 ))
 done
 
@@ -1738,6 +1650,7 @@ skipped_count=0
 guided_count=0
 blind_count=0
 auto_restraints_count=0
+arctic3d_restraints_count=0
 
 pair_idx=0
 start_global=$(date +%s)
@@ -1746,6 +1659,19 @@ for pair in "${PAIR_LIST[@]}"; do
     pair_idx=$((pair_idx + 1))
     IFS='|' read -r lhs rhs <<< "$pair"
     pair_label="PAIR_${lhs}_vs_${rhs}"
+    
+    # ---------------------------------------------------------------------------
+    # Check chain count limit BEFORE creating directories
+    # ---------------------------------------------------------------------------
+    total_chains=$(check_pair_chain_limit "$lhs" "$rhs") || true
+    if (( total_chains >= MAX_CHAIN_LIMIT )); then
+        skip_reason="Combined chain count ($total_chains) exceeds maximum allowed ($MAX_CHAIN_LIMIT). Chain ID pool (A-Z, 0-9) would be exhausted."
+        warn "[$pair_idx/$TOTAL_PAIRS] SKIPPING $lhs vs $rhs: $skip_reason"
+        SKIPPED_PAIRS_INFO+=("${lhs}|${rhs}|${total_chains}|${skip_reason}")
+        skipped_count=$((skipped_count + 1))
+        continue
+    fi
+    
     PAIR_DIR="$RUN_DIR/$pair_label"
     pair_input_dir="$PAIR_DIR/input"
     pair_rest_dir="$PAIR_DIR/restraints"
@@ -1753,41 +1679,67 @@ for pair in "${PAIR_LIST[@]}"; do
     mkdir -p "$PAIR_DIR" "$pair_input_dir" "$pair_rest_dir" "$pair_meta_dir"
 
     log ""
-    log "[$pair_idx/$TOTAL_PAIRS] Preparing $lhs vs $rhs"
+    log "[$pair_idx/$TOTAL_PAIRS] Preparing $lhs vs $rhs (chains: $total_chains)"
 
     declare -a molecules=()
-    for partner_label in "$lhs" "$rhs"; do
-        mapfile -t split_files < <(printf '%s\n' "${PARTNER_SPLITFILES[$partner_label]}")
-        seq_idx=0
-        for file in "${split_files[@]}"; do
-            base="$(basename "$file")"
-            dest_rel="input/${partner_label}_${seq_idx}_${base}"
-            dest_path="$PAIR_DIR/$dest_rel"
-            mkdir -p "$(dirname "$dest_path")"
-            cp "$file" "$dest_path"
-            molecules+=("$dest_rel")
-            seq_idx=$((seq_idx + 1))
-        done
+    
+    # --- Process LHS ---
+    partner_label="$lhs"
+    mapfile -t split_files < <(printf '%s\n' "${PARTNER_SPLITFILES[$partner_label]}")
+    seq_idx=0
+    for file in "${split_files[@]}"; do
+        base="$(basename "$file")"
+        dest_rel="input/${partner_label}_${seq_idx}_${base}"
+        dest_path="$PAIR_DIR/$dest_rel"
+        mkdir -p "$(dirname "$dest_path")"
+        cp "$file" "$dest_path"
+        molecules+=("$dest_rel")
+        seq_idx=$((seq_idx + 1))
+    done
+    
+    mapping_lhs_src="${PARTNER_MAPPING[$lhs]}"
+    mapping_lhs_dest="$pair_meta_dir/${lhs}_mapping.json"
+    cp "$mapping_lhs_src" "$mapping_lhs_dest"
+
+    # Calculate LHS chain count to determine RHS start
+    lhs_chain_count=$(python3 -c "import json; print(len(json.load(open('$mapping_lhs_dest'))['chain_mapping']))")
+    chain_pool="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    rhs_start_char="${chain_pool:$lhs_chain_count:1}"
+
+    # --- Process RHS ---
+    partner_label="$rhs"
+    mapfile -t split_files < <(printf '%s\n' "${PARTNER_SPLITFILES[$partner_label]}")
+    seq_idx=0
+    rhs_pdb_files=()
+    for file in "${split_files[@]}"; do
+        base="$(basename "$file")"
+        dest_rel="input/${partner_label}_${seq_idx}_${base}"
+        dest_path="$PAIR_DIR/$dest_rel"
+        mkdir -p "$(dirname "$dest_path")"
+        cp "$file" "$dest_path"
+        molecules+=("$dest_rel")
+        rhs_pdb_files+=("$dest_path")
+        seq_idx=$((seq_idx + 1))
     done
 
-    mapping_lhs_src="${PARTNER_MAPPING[$lhs]}"
     mapping_rhs_src="${PARTNER_MAPPING[$rhs]}"
-    mapping_lhs_dest="$pair_meta_dir/${lhs}_mapping.json"
     mapping_rhs_dest="$pair_meta_dir/${rhs}_mapping.json"
-    cp "$mapping_lhs_src" "$mapping_lhs_dest"
     cp "$mapping_rhs_src" "$mapping_rhs_dest"
 
     pair_comput_dir="$PAIR_DIR/computational_data"
     mkdir -p "$pair_comput_dir"
     
-    if [[ "$USE_FPOCKET" == true ]]; then
-        if [[ -d "$PREP_DIR/$lhs/computational_data/$lhs/fpocket" ]]; then
+    if [[ "$USE_ARCTIC3D" == true ]]; then
+        # Copy LHS ARCTIC3D data (chains are unchanged)
+        if [[ -d "$PREP_DIR/$lhs/computational_data/$lhs/arctic3d" ]]; then
              mkdir -p "$pair_comput_dir/$lhs"
-             cp -r "$PREP_DIR/$lhs/computational_data/$lhs/fpocket" "$pair_comput_dir/$lhs/"
+             cp -r "$PREP_DIR/$lhs/computational_data/$lhs/arctic3d" "$pair_comput_dir/$lhs/"
         fi
-        if [[ -d "$PREP_DIR/$rhs/computational_data/$rhs/fpocket" ]]; then
+        
+        # Copy RHS ARCTIC3D data (will be renamed by rechain_partner)
+        if [[ -d "$PREP_DIR/$rhs/computational_data/$rhs/arctic3d" ]]; then
              mkdir -p "$pair_comput_dir/$rhs"
-             cp -r "$PREP_DIR/$rhs/computational_data/$rhs/fpocket" "$pair_comput_dir/$rhs/"
+             cp -r "$PREP_DIR/$rhs/computational_data/$rhs/arctic3d" "$pair_comput_dir/$rhs/"
         fi
     fi
 
@@ -1825,6 +1777,70 @@ for pair in "${PAIR_LIST[@]}"; do
         done
     fi
 
+    # Generate ARCTIC3D restraints if enabled
+    arctic3d_json=""
+    arctic3d_ambig=""
+    arctic3d_unambig=""
+    if [[ "$USE_ARCTIC3D" == true ]]; then
+        log "   Generating ARCTIC3D restraints for $lhs vs $rhs..."
+        arctic3d_json=$(generate_arctic3d_restraints_with_footprint "$pair_rest_dir" "$pair_label" \
+            "$lhs" "$rhs" "$PREP_DIR" \
+            "${PARTNER_COMBINED[$lhs]}" "${PARTNER_COMBINED[$rhs]}")
+        
+        if [[ -n "$arctic3d_json" ]]; then
+            arctic3d_ambig=$(python3 - "$arctic3d_json" <<'PY'
+import json, sys
+print(json.loads(sys.argv[1]).get("ambig", ""))
+PY
+)
+            arctic3d_unambig=$(python3 - "$arctic3d_json" <<'PY'
+import json, sys
+print(json.loads(sys.argv[1]).get("unambig", ""))
+PY
+)
+            if [[ -n "$arctic3d_ambig" && -f "$arctic3d_ambig" ]]; then
+                append_unique pair_ambig_files "$arctic3d_ambig"
+                log "   → ARCTIC3D ambiguous restraints added"
+                arctic3d_restraints_count=$((arctic3d_restraints_count + 1))
+            fi
+            if [[ -n "$arctic3d_unambig" && -f "$arctic3d_unambig" ]]; then
+                append_unique pair_unambig_files "$arctic3d_unambig"
+                log "   → ARCTIC3D unambiguous restraints added"
+                arctic3d_restraints_count=$((arctic3d_restraints_count + 1))
+            fi
+        fi
+    fi
+
+    # --- Rechain RHS (PDBs, JSON, and Arctic Folders) ---
+    rhs_arctic_dir=""
+    if [[ -d "$pair_comput_dir/$rhs/arctic3d" ]]; then
+        rhs_arctic_dir="$pair_comput_dir/$rhs/arctic3d"
+    fi
+    
+    rhs_chain_map=$(rechain_partner "$mapping_rhs_dest" "$rhs_start_char" "$rhs_arctic_dir" "${rhs_pdb_files[@]}")
+    
+    # --- Remap ARCTIC3D Restraints ---
+    if [[ -n "$rhs_chain_map" ]]; then
+        if [[ -n "${arctic3d_ambig:-}" && -f "$arctic3d_ambig" ]]; then
+            remap_tbl_chain "$arctic3d_ambig" "$rhs_chain_map"
+        fi
+        if [[ -n "${arctic3d_unambig:-}" && -f "$arctic3d_unambig" ]]; then
+            remap_tbl_chain "$arctic3d_unambig" "$rhs_chain_map"
+        fi
+        
+        # Remap Body Restraints for RHS
+        if [[ "$FORCE_CHAINS_TOGETHER" == true ]]; then
+             body_dest="$pair_rest_dir/${rhs}_restrain_bodies.tbl"
+             if [[ -f "$body_dest" ]]; then
+                 remap_tbl_chain "$body_dest" "$rhs_chain_map"
+             fi
+             group_dest="$pair_rest_dir/${rhs}_restrain_bodies_source.tbl"
+             if [[ -f "$group_dest" ]]; then
+                 remap_tbl_chain "$group_dest" "$rhs_chain_map"
+             fi
+        fi
+    fi
+
     auto_json=""
     if [[ "$VERSION" -ge 2 ]]; then
         declare -a compute_sources=()
@@ -1838,9 +1854,23 @@ for pair in "${PAIR_LIST[@]}"; do
         if (( ${#compute_sources[@]} )); then
             compute_arg=$(IFS=$':'; printf '%s' "${compute_sources[*]}")
         fi
+        # Prepare PDBs for auto restraints
+        lhs_pdb_auto="${PARTNER_COMBINED[$lhs]}"
+        rhs_pdb_auto="$PAIR_DIR/${rhs}_rechained_combined.pdb"
+        
+        # Combine RHS files (removing END lines except for the last one)
+        : > "$rhs_pdb_auto"
+        for ((i=0; i<${#rhs_pdb_files[@]}; i++)); do
+            if (( i < ${#rhs_pdb_files[@]} - 1 )); then
+                grep -v "^END" "${rhs_pdb_files[i]}" >> "$rhs_pdb_auto"
+            else
+                cat "${rhs_pdb_files[i]}" >> "$rhs_pdb_auto"
+            fi
+        done
+
         auto_json=$(generate_auto_restraints "$pair_rest_dir" "$pair_label" \
             "$mapping_lhs_dest" "$mapping_rhs_dest" \
-            "${PARTNER_COMBINED[$lhs]}" "${PARTNER_COMBINED[$rhs]}" \
+            "$lhs_pdb_auto" "$rhs_pdb_auto" \
             "$compute_arg" "$EXPERIMENTAL_DIR")
         if [[ -n "$auto_json" ]]; then
             auto_ambig=$(python3 - "$auto_json" <<'PY'
@@ -1961,6 +1991,46 @@ duration=$((end_global - start_global))
 hours=$((duration / 3600))
 mins=$(((duration % 3600) / 60))
 
+# ---------------------------------------------------------------------------
+# Generate Skipped Pairs Summary File
+# ---------------------------------------------------------------------------
+SKIPPED_SUMMARY_FILE="$RUN_DIR/skipped_pairs_summary.txt"
+if (( ${#SKIPPED_PAIRS_INFO[@]} > 0 )); then
+    {
+        echo "=============================================================================="
+        echo "SKIPPED PAIRS SUMMARY"
+        echo "Generated: $(date)"
+        echo "=============================================================================="
+        echo ""
+        echo "Total skipped pairs: ${#SKIPPED_PAIRS_INFO[@]}"
+        echo ""
+        echo "------------------------------------------------------------------------------"
+        printf "%-20s %-20s %-10s %s\n" "Partner A" "Partner B" "Chains" "Reason"
+        echo "------------------------------------------------------------------------------"
+        for entry in "${SKIPPED_PAIRS_INFO[@]}"; do
+            IFS='|' read -r skip_lhs skip_rhs skip_chains skip_reason <<< "$entry"
+            printf "%-20s %-20s %-10s %s\n" "$skip_lhs" "$skip_rhs" "$skip_chains" "$skip_reason"
+        done
+        echo "------------------------------------------------------------------------------"
+        echo ""
+        echo "NOTE: These pairs were skipped because the combined number of chains"
+        echo "      exceeds the maximum limit of $MAX_CHAIN_LIMIT chains (A-Z, 0-9)."
+        echo "      HADDOCK3 uses single-character chain identifiers, so pairs with"
+        echo "      more chains cannot be processed without chain ID collisions."
+        echo ""
+        echo "POSSIBLE SOLUTIONS:"
+        echo "  1. Split large partners into smaller subunits"
+        echo "  2. Process chains separately and combine results"
+        echo "  3. Use a different docking approach for very large complexes"
+    } > "$SKIPPED_SUMMARY_FILE"
+    log ""
+    log "WARNING: ${#SKIPPED_PAIRS_INFO[@]} pair(s) were skipped due to chain limit."
+    log "         See: $SKIPPED_SUMMARY_FILE"
+else
+    # Create empty summary file to indicate no pairs were skipped
+    echo "No pairs were skipped due to chain count limits." > "$SKIPPED_SUMMARY_FILE"
+fi
+
 log ""
 log "======================================"
 log "Workflow summary"
@@ -1969,13 +2039,17 @@ log "Total runtime: ${hours}h${mins}m"
 log "Pairs scheduled: $TOTAL_PAIRS"
 log "Successful runs: $success_count"
 log "Failed runs:     $failure_count"
+log "Skipped (chain limit): $skipped_count"
 if [[ "$SKIP_RUN" == true ]]; then
-    log "Dry-run only; $skipped_count configurations generated."
+    log "Dry-run only; configurations generated (not executed)."
 fi
 log "Guided docking:  $guided_count"
 log "Blind docking:   $blind_count"
 if [[ "$VERSION" -ge 2 ]]; then
     log "Auto restraints: $auto_restraints_count"
+fi
+if [[ "$USE_ARCTIC3D" == true ]]; then
+    log "ARCTIC3D restraints: $arctic3d_restraints_count"
 fi
 log "Results root:    $RUN_DIR"
 
@@ -1989,7 +2063,7 @@ log "  for dir in $RUN_DIR/PAIR_*; do"
 log "    (cd \$dir && haddock3 haddock3.cfg)"
 log "  done"
 log ""
-log "Option 2 (Recommended) - Run in parallel with GNU Parallel (5 jobs at a time):"
+log "Option 2 - Run in parallel with GNU Parallel (5 jobs at a time):"
 log "  find $RUN_DIR -name 'haddock3.cfg' | parallel -j 5 'cd {//} && haddock3 {/} > run.log 2>&1'"
 log ""
 log "Option 3 - Run a single pair manually:"
