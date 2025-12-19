@@ -25,7 +25,6 @@ SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 # ---------------------------------------------------------------------------
 # Global Configuration & Defaults
 # ---------------------------------------------------------------------------
-VERSION=3
 FORCE_CHAINS_TOGETHER=true
 
 # Partner & Grouping Data Structures
@@ -57,7 +56,7 @@ OUTPUT_ROOT="$PWD/result"
 PROJECT_NAME=""
 
 # Run Parameters
-NCORES=10
+NCORES="auto"                   # "auto" = detect system cores - 2, or user-specified integer
 SAMPLING_OVERRIDE=""
 CONF_THRESHOLD=0.6
 MAX_ACTIVE_RESIDUES=40
@@ -67,6 +66,7 @@ FORCE_RANAIR=false
 DRY_RUN=false
 SKIP_RUN=false
 REFERENCE_PDB=""
+VERSION=3  # Automatic mode
 
 # Run Mode Settings
 RUN_MODE="sequential"           # "sequential" (default, for local/weak computers) or "parallel" (for powerful/cloud)
@@ -107,9 +107,8 @@ Modes & presets:
   --keep-chains-separate          Don't force chains from the same PDB together during docking.
   --group-bodies <label>=<pdb|json>  Mapping for body restraints. Repeat per partner or provide a JSON file.
   --auto-partners <dir>       Discover partners automatically from PDBs inside <dir>.
-  --v, --version {1|2|3}       Select workflow generation (default: 3).
-  --abinitio                   Shortcut for version 1 with high sampling and ranair.
-  --ranair                     Force [rigidbody] ranair = true (applies to any version).
+  --abinitio                   Blind docking mode: high sampling, ranair, no restraint processing.
+  --ranair                     Force [rigidbody] ranair = true.
 
 Pair selection (optional):
   --pair <label1,label2>       Restrict docking to the specified labelled pair. Repeatable.
@@ -130,18 +129,15 @@ Restraints & data sources:
 Execution & I/O:
   --out <dir>                  Root directory for generated runs (default: $PWD/result).
   --project <name>             Name of the run folder inside --out (default: auto timestamp).
-  --ncores <int>               Number of cores passed to HADDOCK3 (default: 10).
+  --ncores <int|auto>          Number of cores passed to HADDOCK3 (default: auto).
+                               'auto' = system cores - 2 (minimum 1). Specify integer to override.
   --sampling <int>             Override rigid-body sampling value.
   --reference <pdb>            Native complex for CAPRI evaluation.
   --dry-run                    Prepare config/artifacts but skip haddock3 execution.
-  --no-run                     Alias for --dry-run but still write run assets.
   --remove-hetatm              Remove all HETATM records (default: keep all valid molecules).
   --run-mode <mode>            Execution mode: 'sequential' (default, for local/weak computers)
-                               or 'parallel' (for powerful computers/cloud). Only affects
-                               the run instructions shown at the end.
+                               or 'parallel' (for powerful computers/cloud). 
   --parallel-jobs <int>        Number of parallel jobs when using --run-mode parallel (default: 5).
-  --execute                    Automatically run HADDOCK3 jobs after generating configs.
-                               Uses the selected --run-mode (sequential or parallel).
   --help                       Print this message.
 
 Examples:
@@ -162,6 +158,44 @@ log() { printf '[%s] %s\n' "$(date '+%H:%M:%S')" "$*"; }
 warn() { log "WARN: $*"; }
 error() { log "ERROR: $*"; }
 die() { error "$*"; exit 1; }
+
+# Detect the number of CPU cores on the system
+get_system_cores() {
+    local cores=1
+    if [[ -f /proc/cpuinfo ]]; then
+        # Linux: count processor entries
+        cores=$(grep -c '^processor' /proc/cpuinfo 2>/dev/null || echo 1)
+    elif command -v nproc >/dev/null 2>&1; then
+        # Linux fallback: use nproc
+        cores=$(nproc 2>/dev/null || echo 1)
+    elif command -v sysctl >/dev/null 2>&1; then
+        # macOS: use sysctl
+        cores=$(sysctl -n hw.ncpu 2>/dev/null || echo 1)
+    elif [[ -n "${NUMBER_OF_PROCESSORS:-}" ]]; then
+        # Windows (Git Bash, WSL passthrough)
+        cores="$NUMBER_OF_PROCESSORS"
+    fi
+    # Ensure we return at least 1
+    [[ "$cores" -gt 0 ]] 2>/dev/null || cores=1
+    echo "$cores"
+}
+
+# Resolve NCORES: if "auto", set to system cores - 2 (minimum 1)
+resolve_ncores() {
+    local ncores_setting="$1"
+    if [[ "$ncores_setting" == "auto" ]]; then
+        local system_cores
+        system_cores=$(get_system_cores)
+        local resolved=$(( system_cores - 2 ))
+        # Ensure minimum of 1 core
+        [[ "$resolved" -lt 1 ]] && resolved=1
+        log "Auto-detected $system_cores CPU cores, using $resolved cores for HADDOCK3"
+        echo "$resolved"
+    else
+        # User specified explicit value
+        echo "$ncores_setting"
+    fi
+}
 
 # Check if a command exists in PATH
 require_command() {
@@ -866,7 +900,7 @@ generate_auto_restraints() {
     if ! result=$(
         AUT_MAX_ACTIVE="$MAX_ACTIVE_RESIDUES" \
         AUT_MAX_PAIRS="$MAX_RESTRAINT_PAIRS" \
-    python3 - "$VERSION" "$compute_paths" "$experimental_paths" "$CONF_THRESHOLD" \
+    python3 - "$compute_paths" "$experimental_paths" "$CONF_THRESHOLD" \
         "$mapping_a" "$mapping_b" "$ambig_path" "$unambig_path" "$combined_a" "$combined_b" <<'PY'
 import json
 import math
@@ -874,16 +908,15 @@ import os
 import sys
 from collections import defaultdict
 
-version = int(sys.argv[1])
-comput_dir = sys.argv[2].strip()
-exp_dir = sys.argv[3].strip()
-conf_threshold = float(sys.argv[4])
-map_a_path = sys.argv[5]
-map_b_path = sys.argv[6]
-ambig_out = sys.argv[7]
-unambig_out = sys.argv[8]
-combined_a = sys.argv[9]
-combined_b = sys.argv[10]
+comput_dir = sys.argv[1].strip()
+exp_dir = sys.argv[2].strip()
+conf_threshold = float(sys.argv[3])
+map_a_path = sys.argv[4]
+map_b_path = sys.argv[5]
+ambig_out = sys.argv[6]
+unambig_out = sys.argv[7]
+combined_a = sys.argv[8]
+combined_b = sys.argv[9]
 
 max_active = max(1, int(os.environ.get('AUT_MAX_ACTIVE', '40')))
 max_pairs = max(1, int(os.environ.get('AUT_MAX_PAIRS', '4000')))
@@ -897,7 +930,13 @@ path_sep = os.pathsep
 comput_paths = [p for p in comput_dir.split(path_sep) if p.strip()]
 exp_paths = [p for p in exp_dir.split(path_sep) if p.strip()]
 
-if version < 2 and not any(os.path.isdir(p) for p in comput_paths) and not any(os.path.isdir(p) for p in exp_paths):
+# Auto-detect: has_experimental determines if we treat exp data as unambiguous
+#              has_computational determines if we use randremoval
+has_computational = any(os.path.isdir(p) for p in comput_paths)
+has_experimental = any(os.path.isdir(p) for p in exp_paths)
+
+# If no data directories at all, skip restraint processing
+if not has_computational and not has_experimental:
     print(json.dumps({"ambig": "", "unambig": "", "status": "skip"}))
     sys.exit(0)
 
@@ -1039,8 +1078,8 @@ with open(map_a_path, 'r', encoding='utf-8') as handle:
 with open(map_b_path, 'r', encoding='utf-8') as handle:
     meta_b = json.load(handle)
 
-# Process experimental entries first for version 3
-if version == 3 and exp_entries:
+# Process experimental entries as unambiguous restraints (if present)
+if has_experimental and exp_entries:
     for path, pair, single, raw in exp_entries:
         if pair:
             mapped_a = build_map(meta_a, pair[0][0], pair[0][1])
@@ -1218,7 +1257,8 @@ with open(config_path, 'w', encoding='utf-8') as fh:
                 for path in ambig_files:
                     fh.write(f"  \"{path}\",\n")
                 fh.write("]\n")
-            if version >= 2:
+            # Enable randremoval when using computational predictions
+            if has_computational:
                 fh.write("randremoval = true\n")
         if unambig_files:
             if len(unambig_files) == 1:
@@ -1236,7 +1276,13 @@ with open(config_path, 'w', encoding='utf-8') as fh:
 
     if reference:
         fh.write("[caprieval]\n")
-        fh.write(f"reference_fname = \"{reference}\"\n")
+        fh.write(f"reference_fname = \"{reference}\"\n\n")
+
+    # Select top 1 conformation and calculate binding affinity
+    fh.write("[seletop]\n")
+    fh.write("select = 1\n\n")
+
+    fh.write("[prodigyprotein]\n")
 PY
 }
 
@@ -1313,11 +1359,6 @@ while [[ $# -gt 0 ]]; do
             EXPERIMENTAL_DIR=$(abs_path "$2")
             shift 2
             ;;
-        --v|--version)
-            [[ $# -lt 2 ]] && die "--version expects 1, 2 or 3"
-            VERSION="$2"
-            shift 2
-            ;;
         --out)
             [[ $# -lt 2 ]] && die "--out expects directory"
             OUTPUT_ROOT=$(abs_path "$2")
@@ -1360,7 +1401,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         --abinitio)
             ABINITIO_PRESET=true
-            VERSION=1
             FORCE_RANAIR=true
             shift
             ;;
@@ -1368,7 +1408,7 @@ while [[ $# -gt 0 ]]; do
             FORCE_RANAIR=true
             shift
             ;;
-        --dry-run|--no-run)
+        --dry-run)
             DRY_RUN=true
             SKIP_RUN=true
             shift
@@ -1409,10 +1449,6 @@ while [[ $# -gt 0 ]]; do
             [[ $# -lt 2 ]] && die "--parallel-jobs expects an integer"
             PARALLEL_JOBS="$2"
             shift 2
-            ;;
-        --execute)
-            EXECUTE_JOBS=true
-            shift
             ;;
         --help|-h)
             usage
@@ -1514,6 +1550,9 @@ fi
 # ---------------------------------------------------------------------------
 # Main Execution: Preparation & Configuration Generation
 # ---------------------------------------------------------------------------
+
+# Resolve NCORES (auto-detect or use user-specified value)
+NCORES=$(resolve_ncores "$NCORES")
 
 OUTPUT_ROOT=$(abs_path "$OUTPUT_ROOT")
 mkdir -p "$OUTPUT_ROOT"
@@ -2206,9 +2245,6 @@ else
         log "  haddock3 haddock3.cfg"
     fi
 
-    log ""
-    log "TIP: Use --execute to automatically run jobs after generating configs."
-    log "     Example: $SCRIPT_NAME ... --execute --run-mode parallel --parallel-jobs 10"
 fi
 
 log ""
