@@ -68,6 +68,11 @@ DRY_RUN=false
 SKIP_RUN=false
 REFERENCE_PDB=""
 
+# Run Mode Settings
+RUN_MODE="sequential"           # "sequential" (default, for local/weak computers) or "parallel" (for powerful/cloud)
+PARALLEL_JOBS=5                  # Number of parallel jobs when using parallel mode
+EXECUTE_JOBS=true                # If true, automatically execute HADDOCK3 jobs after generation (default: true)
+
 # ARCTIC3D Settings
 USE_ARCTIC3D=false
 ARCTIC3D_PROB_THRESHOLD=0.4
@@ -131,6 +136,12 @@ Execution & I/O:
   --dry-run                    Prepare config/artifacts but skip haddock3 execution.
   --no-run                     Alias for --dry-run but still write run assets.
   --remove-hetatm              Remove all HETATM records (default: keep all valid molecules).
+  --run-mode <mode>            Execution mode: 'sequential' (default, for local/weak computers)
+                               or 'parallel' (for powerful computers/cloud). Only affects
+                               the run instructions shown at the end.
+  --parallel-jobs <int>        Number of parallel jobs when using --run-mode parallel (default: 5).
+  --execute                    Automatically run HADDOCK3 jobs after generating configs.
+                               Uses the selected --run-mode (sequential or parallel).
   --help                       Print this message.
 
 Examples:
@@ -1382,6 +1393,27 @@ while [[ $# -gt 0 ]]; do
             REMOVE_HETATM=true
             shift
             ;;
+        --run-mode)
+            [[ $# -lt 2 ]] && die "--run-mode expects 'sequential' or 'parallel'"
+            case "$2" in
+                sequential|parallel)
+                    RUN_MODE="$2"
+                    ;;
+                *)
+                    die "--run-mode must be 'sequential' or 'parallel' (got '$2')"
+                    ;;
+            esac
+            shift 2
+            ;;
+        --parallel-jobs)
+            [[ $# -lt 2 ]] && die "--parallel-jobs expects an integer"
+            PARALLEL_JOBS="$2"
+            shift 2
+            ;;
+        --execute)
+            EXECUTE_JOBS=true
+            shift
+            ;;
         --help|-h)
             usage
             exit 0
@@ -1962,29 +1994,106 @@ PY
 
     log "  Config generated at $CONFIG_PATH"
     success_count=$((success_count + 1))
-    
-    # Skip actual execution to allow parallel run later
-    # pushd "$PAIR_DIR" >/dev/null
-    # log "  Running haddock3 --setup"
-    # if haddock3 --setup "$(basename "$CONFIG_PATH")" > setup.log 2>&1; then
-    #     log "  Setup completed"
-    # else
-    #     error "Setup failed for $pair_label. See $PAIR_DIR/setup.log"
-    #     popd >/dev/null
-    #     failure_count=$((failure_count + 1))
-    #     continue
-    # fi
-
-    # log "  Running haddock3 main workflow"
-    # if haddock3 --restart 0 "$(basename "$CONFIG_PATH")" > haddock3.log 2>&1; then
-    #     log "  Run finished. Outputs under $PAIR_DIR"
-    #     success_count=$((success_count + 1))
-    # else
-    #     error "HADDOCK3 execution failed for $pair_label. See $PAIR_DIR/haddock3.log"
-    #     failure_count=$((failure_count + 1))
-    # fi
-    # popd >/dev/null
 done
+
+# ---------------------------------------------------------------------------
+# Execute HADDOCK3 Jobs (if --execute is set)
+# ---------------------------------------------------------------------------
+
+if [[ "$EXECUTE_JOBS" == true && "$SKIP_RUN" != true ]]; then
+    log ""
+    log "======================================"
+    log "Executing HADDOCK3 jobs ($RUN_MODE mode)"
+    log "======================================"
+    
+    # Collect all config files
+    mapfile -t CONFIG_FILES < <(find "$RUN_DIR" -name 'haddock3.cfg' -type f | sort)
+    TOTAL_CONFIGS=${#CONFIG_FILES[@]}
+    
+    if (( TOTAL_CONFIGS == 0 )); then
+        warn "No config files found to execute."
+    else
+        log "Found $TOTAL_CONFIGS job(s) to execute."
+        log ""
+        
+        executed_count=0
+        exec_failure_count=0
+        
+        if [[ "$RUN_MODE" == "parallel" ]]; then
+            # Check if GNU Parallel is available
+            if ! command -v parallel >/dev/null 2>&1; then
+                warn "GNU Parallel not found. Falling back to sequential mode."
+                warn "Install with: apt install parallel (Linux) or brew install parallel (macOS)"
+                RUN_MODE="sequential"
+            fi
+        fi
+        
+        if [[ "$RUN_MODE" == "sequential" ]]; then
+            log "Running jobs sequentially (one at a time)..."
+            log ""
+            
+            job_num=0
+            for config in "${CONFIG_FILES[@]}"; do
+                job_num=$((job_num + 1))
+                pair_dir=$(dirname "$config")
+                pair_name=$(basename "$pair_dir")
+                
+                log "[$job_num/$TOTAL_CONFIGS] Running $pair_name..."
+                
+                pushd "$pair_dir" >/dev/null
+                if haddock3 "$(basename "$config")" > haddock3_run.log 2>&1; then
+                    log "  ✓ Completed successfully"
+                    executed_count=$((executed_count + 1))
+                else
+                    error "  ✗ Failed. See $pair_dir/haddock3_run.log"
+                    exec_failure_count=$((exec_failure_count + 1))
+                fi
+                popd >/dev/null
+            done
+        else
+            log "Running jobs in parallel ($PARALLEL_JOBS jobs at a time)..."
+            log "Progress will be logged to individual run.log files in each pair directory."
+            log ""
+            
+            # Create a temporary script for parallel execution
+            PARALLEL_SCRIPT="$RUN_DIR/.run_haddock3.sh"
+            cat > "$PARALLEL_SCRIPT" <<'PSCRIPT'
+#!/usr/bin/env bash
+config="$1"
+pair_dir=$(dirname "$config")
+cd "$pair_dir" || exit 1
+haddock3 "$(basename "$config")" > haddock3_run.log 2>&1
+exit_code=$?
+if [[ $exit_code -eq 0 ]]; then
+    echo "SUCCESS: $(basename "$pair_dir")"
+else
+    echo "FAILED: $(basename "$pair_dir") (see $pair_dir/haddock3_run.log)"
+fi
+exit $exit_code
+PSCRIPT
+            chmod +x "$PARALLEL_SCRIPT"
+            
+            # Run with GNU Parallel and capture results
+            parallel_output=$(printf '%s\n' "${CONFIG_FILES[@]}" | parallel -j "$PARALLEL_JOBS" --halt never "$PARALLEL_SCRIPT" {} 2>&1) || true
+            
+            # Parse results
+            while IFS= read -r line; do
+                if [[ "$line" == SUCCESS:* ]]; then
+                    log "  ✓ ${line#SUCCESS: }"
+                    executed_count=$((executed_count + 1))
+                elif [[ "$line" == FAILED:* ]]; then
+                    error "  ✗ ${line#FAILED: }"
+                    exec_failure_count=$((exec_failure_count + 1))
+                fi
+            done <<< "$parallel_output"
+            
+            rm -f "$PARALLEL_SCRIPT"
+        fi
+        
+        log ""
+        log "Execution complete: $executed_count succeeded, $exec_failure_count failed"
+    fi
+fi
 
 end_global=$(date +%s)
 duration=$((end_global - start_global))
@@ -2053,22 +2162,55 @@ if [[ "$USE_ARCTIC3D" == true ]]; then
 fi
 log "Results root:    $RUN_DIR"
 
-log ""
-log "====================================="
-log "How to run the generated jobs:"
-log "====================================="
-log ""
-log "Option 1 - Run sequentially:"
-log "  for dir in $RUN_DIR/PAIR_*; do"
-log "    (cd \$dir && haddock3 haddock3.cfg)"
-log "  done"
-log ""
-log "Option 2 - Run in parallel with GNU Parallel (5 jobs at a time):"
-log "  find $RUN_DIR -name 'haddock3.cfg' | parallel -j 5 'cd {//} && haddock3 {/} > run.log 2>&1'"
-log ""
-log "Option 3 - Run a single pair manually:"
-log "  cd $RUN_DIR/PAIR_<name>"
-log "  haddock3 haddock3.cfg"
+if [[ "$EXECUTE_JOBS" == true && "$SKIP_RUN" != true ]]; then
+    log ""
+    log "Jobs were executed automatically. Check individual pair directories for results."
+    log "To re-run a failed job:"
+    log "  cd $RUN_DIR/PAIR_<name>"
+    log "  haddock3 haddock3.cfg"
+else
+    log ""
+    log "====================================="
+    log "How to run the generated jobs:"
+    log "====================================="
+    log ""
+    log "Selected run mode: $RUN_MODE"
+    log ""
+
+    if [[ "$RUN_MODE" == "sequential" ]]; then
+        log "SEQUENTIAL MODE (recommended for local/weak computers):"
+        log "  This mode runs one job at a time, using fewer resources."
+        log ""
+        log "  Command to run all jobs:"
+        log "  for dir in $RUN_DIR/PAIR_*; do"
+        log "    echo \"Processing \$dir...\""
+        log "    (cd \$dir && haddock3 haddock3.cfg)"
+        log "  done"
+        log ""
+        log "  Or run a single pair:"
+        log "  cd $RUN_DIR/PAIR_<name>"
+        log "  haddock3 haddock3.cfg"
+    else
+        log "PARALLEL MODE (recommended for powerful computers/cloud):"
+        log "  This mode runs $PARALLEL_JOBS jobs simultaneously using GNU Parallel."
+        log "  Requires: GNU Parallel (install via 'apt install parallel' or 'brew install parallel')"
+        log ""
+        log "  Command to run all jobs in parallel:"
+        log "  find $RUN_DIR -name 'haddock3.cfg' | parallel -j $PARALLEL_JOBS 'cd {//} && haddock3 {/} > run.log 2>&1'"
+        log ""
+        log "  Monitor progress:"
+        log "  watch -n 30 'find $RUN_DIR -name \"run.log\" -exec tail -n 1 {} \\;'"
+        log ""
+        log "  Or run a single pair:"
+        log "  cd $RUN_DIR/PAIR_<name>"
+        log "  haddock3 haddock3.cfg"
+    fi
+
+    log ""
+    log "TIP: Use --execute to automatically run jobs after generating configs."
+    log "     Example: $SCRIPT_NAME ... --execute --run-mode parallel --parallel-jobs 10"
+fi
+
 log ""
 log "IMPORTANT: Always cd into the pair directory before running haddock3!"
 log ""

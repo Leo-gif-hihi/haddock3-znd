@@ -29,7 +29,8 @@ arctic3d -h #not error => install successfull
 + Extract uniprotID of each chain in each pdb file. 
 + Run arctic3d in each uniprotID. Note: Use --out_uniprot tag to ensure the tool not find internal binding site of the target pdb file by eliminate uniprotID of others chain of the same pdb file. And use --pdb_to_use tag to force the model to use the target pdb file in the working directory which is the file we used to docking.
 - Check all others step in the script.
-- Make parallel run and sequential run as an optional agruments.
+- Add a function to detect any pair with >= 36 chains and skip this pair. Notice user why this pair be skip. Create a txt file to summary all pair be skip and the reason
+- Make parallel run and sequential run as an optional agruments with the default is sequential run. Sequential run is used for local weak computer, parallel approach is used for powerful computer (maybe in loud)
 - Add a function to create a final excel file that list all pairs have run and their score. Sort it by score/rank. 
 - Add command line option to delete unrelated file, only keep the final output.
 
@@ -37,3 +38,4 @@ arctic3d -h #not error => install successfull
 ** Note: 
 - Currently, this repo can only work with X-Ray data not NMR data.
 - arctic3d have an utility to input pdb file. However, in 12/11/2025, while i have tested in several protein with several times, this function is not work. Therefore, i suggested a new function which extract the uniprot ID of each chain in the header of each pdb file. This approach face with the concern about the precision of annote data. However, it reduce the runtime and not rely on external sever (blast sever) which may be the bottleneck when the sever is busy.
+- Consider batch mode provided by haddock3 instead of writing "batch mode from scratch"
