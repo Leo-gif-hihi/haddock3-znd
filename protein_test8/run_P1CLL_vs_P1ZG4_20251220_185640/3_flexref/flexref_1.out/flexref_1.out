@@ -1,0 +1,1432 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3 at patch level U
+           Status: Special UU release with Rg, paramagnetic
+                   and Z-restraints (A. Bonvin, UU 2013)
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: hostname unknown (x86_64/Linux,64-bit)
+           Program started by: unknown
+           Program started at: 19:31:47 on 20-Dec-2025
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve> 
+ CNSsolve>! Parameters 
+ CNSsolve>eval ($ncores=8) 
+ EVALUATE: symbol $NCORES set to    8.00000     (real)
+ CNSsolve>eval ($max_cpus=true) 
+ EVALUATE: symbol $MAX_CPUS set to TRUE (logical)
+ CNSsolve>eval ($mode="local") 
+ EVALUATE: symbol $MODE set to "local" (string)
+ CNSsolve>eval ($batch_type="slurm") 
+ EVALUATE: symbol $BATCH_TYPE set to "slurm" (string)
+ CNSsolve>eval ($queue_limit=100) 
+ EVALUATE: symbol $QUEUE_LIMIT set to    100.000     (real)
+ CNSsolve>eval ($concat=1) 
+ EVALUATE: symbol $CONCAT set to    1.00000     (real)
+ CNSsolve>eval ($self_contained=false) 
+ EVALUATE: symbol $SELF_CONTAINED set to FALSE (logical)
+ CNSsolve>eval ($clean=true) 
+ EVALUATE: symbol $CLEAN set to TRUE (logical)
+ CNSsolve>eval ($offline=false) 
+ EVALUATE: symbol $OFFLINE set to FALSE (logical)
+ CNSsolve>eval ($debug=true) 
+ EVALUATE: symbol $DEBUG set to TRUE (logical)
+ CNSsolve>eval ($mol_fix_origin_1=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_1 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_1=false) 
+ EVALUATE: symbol $MOL_SHAPE_1 set to FALSE (logical)
+ CNSsolve>eval ($ambig_fname="") 
+ EVALUATE: symbol $AMBIG_FNAME set to "" (string)
+ CNSsolve>eval ($previous_ambig=false) 
+ EVALUATE: symbol $PREVIOUS_AMBIG set to FALSE (logical)
+ CNSsolve>eval ($unambig_fname="") 
+ EVALUATE: symbol $UNAMBIG_FNAME set to "" (string)
+ CNSsolve>eval ($hbond_fname="") 
+ EVALUATE: symbol $HBOND_FNAME set to "" (string)
+ CNSsolve>eval ($ambig_hot=10) 
+ EVALUATE: symbol $AMBIG_HOT set to    10.0000     (real)
+ CNSsolve>eval ($ambig_cool1=10) 
+ EVALUATE: symbol $AMBIG_COOL1 set to    10.0000     (real)
+ CNSsolve>eval ($ambig_cool2=50) 
+ EVALUATE: symbol $AMBIG_COOL2 set to    50.0000     (real)
+ CNSsolve>eval ($ambig_cool3=50) 
+ EVALUATE: symbol $AMBIG_COOL3 set to    50.0000     (real)
+ CNSsolve>eval ($unambig_hot=10) 
+ EVALUATE: symbol $UNAMBIG_HOT set to    10.0000     (real)
+ CNSsolve>eval ($unambig_cool1=10) 
+ EVALUATE: symbol $UNAMBIG_COOL1 set to    10.0000     (real)
+ CNSsolve>eval ($unambig_cool2=50) 
+ EVALUATE: symbol $UNAMBIG_COOL2 set to    50.0000     (real)
+ CNSsolve>eval ($unambig_cool3=50) 
+ EVALUATE: symbol $UNAMBIG_COOL3 set to    50.0000     (real)
+ CNSsolve>eval ($hbond_hot=10) 
+ EVALUATE: symbol $HBOND_HOT set to    10.0000     (real)
+ CNSsolve>eval ($hbond_cool1=10) 
+ EVALUATE: symbol $HBOND_COOL1 set to    10.0000     (real)
+ CNSsolve>eval ($hbond_cool2=50) 
+ EVALUATE: symbol $HBOND_COOL2 set to    50.0000     (real)
+ CNSsolve>eval ($hbond_cool3=50) 
+ EVALUATE: symbol $HBOND_COOL3 set to    50.0000     (real)
+ CNSsolve>eval ($randremoval=true) 
+ EVALUATE: symbol $RANDREMOVAL set to TRUE (logical)
+ CNSsolve>eval ($npart=2) 
+ EVALUATE: symbol $NPART set to    2.00000     (real)
+ CNSsolve>eval ($contactairs=false) 
+ EVALUATE: symbol $CONTACTAIRS set to FALSE (logical)
+ CNSsolve>eval ($kcont=1.0) 
+ EVALUATE: symbol $KCONT set to    1.00000     (real)
+ CNSsolve>eval ($cmrest=false) 
+ EVALUATE: symbol $CMREST set to FALSE (logical)
+ CNSsolve>eval ($cmtight=true) 
+ EVALUATE: symbol $CMTIGHT set to TRUE (logical)
+ CNSsolve>eval ($kcm=1.0) 
+ EVALUATE: symbol $KCM set to    1.00000     (real)
+ CNSsolve>eval ($dihe_fname="") 
+ EVALUATE: symbol $DIHE_FNAME set to "" (string)
+ CNSsolve>eval ($dihedrals_on=false) 
+ EVALUATE: symbol $DIHEDRALS_ON set to FALSE (logical)
+ CNSsolve>eval ($dihedrals_hot=5) 
+ EVALUATE: symbol $DIHEDRALS_HOT set to    5.00000     (real)
+ CNSsolve>eval ($dihedrals_cool1=5) 
+ EVALUATE: symbol $DIHEDRALS_COOL1 set to    5.00000     (real)
+ CNSsolve>eval ($dihedrals_cool2=50) 
+ EVALUATE: symbol $DIHEDRALS_COOL2 set to    50.0000     (real)
+ CNSsolve>eval ($dihedrals_cool3=200) 
+ EVALUATE: symbol $DIHEDRALS_COOL3 set to    200.000     (real)
+ CNSsolve>eval ($ssdihed="none") 
+ EVALUATE: symbol $SSDIHED set to "none" (string)
+ CNSsolve>eval ($error_dih=10) 
+ EVALUATE: symbol $ERROR_DIH set to    10.0000     (real)
+ CNSsolve>eval ($dnarest_on=false) 
+ EVALUATE: symbol $DNAREST_ON set to FALSE (logical)
+ CNSsolve>eval ($mrswi_hot=0.5) 
+ EVALUATE: symbol $MRSWI_HOT set to   0.500000     (real)
+ CNSsolve>eval ($mrswi_cool1=0.5) 
+ EVALUATE: symbol $MRSWI_COOL1 set to   0.500000     (real)
+ CNSsolve>eval ($mrswi_cool2=0.5) 
+ EVALUATE: symbol $MRSWI_COOL2 set to   0.500000     (real)
+ CNSsolve>eval ($mrswi_cool3=0.5) 
+ EVALUATE: symbol $MRSWI_COOL3 set to   0.500000     (real)
+ CNSsolve>eval ($rswi_hot=0.5) 
+ EVALUATE: symbol $RSWI_HOT set to   0.500000     (real)
+ CNSsolve>eval ($rswi_cool1=0.5) 
+ EVALUATE: symbol $RSWI_COOL1 set to   0.500000     (real)
+ CNSsolve>eval ($rswi_cool2=0.5) 
+ EVALUATE: symbol $RSWI_COOL2 set to   0.500000     (real)
+ CNSsolve>eval ($rswi_cool3=0.5) 
+ EVALUATE: symbol $RSWI_COOL3 set to   0.500000     (real)
+ CNSsolve>eval ($masy_hot=-1.0) 
+ EVALUATE: symbol $MASY_HOT set to   -1.00000     (real)
+ CNSsolve>eval ($masy_cool1=-1.0) 
+ EVALUATE: symbol $MASY_COOL1 set to   -1.00000     (real)
+ CNSsolve>eval ($masy_cool2=-0.1) 
+ EVALUATE: symbol $MASY_COOL2 set to  -0.100000     (real)
+ CNSsolve>eval ($masy_cool3=-0.1) 
+ EVALUATE: symbol $MASY_COOL3 set to  -0.100000     (real)
+ CNSsolve>eval ($asy_hot=1.0) 
+ EVALUATE: symbol $ASY_HOT set to    1.00000     (real)
+ CNSsolve>eval ($asy_cool1=1.0) 
+ EVALUATE: symbol $ASY_COOL1 set to    1.00000     (real)
+ CNSsolve>eval ($asy_cool2=0.1) 
+ EVALUATE: symbol $ASY_COOL2 set to   0.100000     (real)
+ CNSsolve>eval ($asy_cool3=0.1) 
+ EVALUATE: symbol $ASY_COOL3 set to   0.100000     (real)
+ CNSsolve>eval ($sym_on=false) 
+ EVALUATE: symbol $SYM_ON set to FALSE (logical)
+ CNSsolve>eval ($ksym=10.0) 
+ EVALUATE: symbol $KSYM set to    10.0000     (real)
+ CNSsolve>eval ($symtbl_fname="") 
+ EVALUATE: symbol $SYMTBL_FNAME set to "" (string)
+ CNSsolve>eval ($nc2sym=0) 
+ EVALUATE: symbol $NC2SYM set to    0.00000     (real)
+ CNSsolve>eval ($nc3sym=0) 
+ EVALUATE: symbol $NC3SYM set to    0.00000     (real)
+ CNSsolve>eval ($nc4sym=0) 
+ EVALUATE: symbol $NC4SYM set to    0.00000     (real)
+ CNSsolve>eval ($nc5sym=0) 
+ EVALUATE: symbol $NC5SYM set to    0.00000     (real)
+ CNSsolve>eval ($nc6sym=0) 
+ EVALUATE: symbol $NC6SYM set to    0.00000     (real)
+ CNSsolve>eval ($ns3sym=0) 
+ EVALUATE: symbol $NS3SYM set to    0.00000     (real)
+ CNSsolve>eval ($ncs_on=false) 
+ EVALUATE: symbol $NCS_ON set to FALSE (logical)
+ CNSsolve>eval ($kncs=1.0) 
+ EVALUATE: symbol $KNCS set to    1.00000     (real)
+ CNSsolve>eval ($nncs=0) 
+ EVALUATE: symbol $NNCS set to    0.00000     (real)
+ CNSsolve>eval ($w_air=0.1) 
+ EVALUATE: symbol $W_AIR set to   0.100000     (real)
+ CNSsolve>eval ($w_bsa=-0.01) 
+ EVALUATE: symbol $W_BSA set to  -0.100000E-01 (real)
+ CNSsolve>eval ($w_cdih=0.0) 
+ EVALUATE: symbol $W_CDIH set to    0.00000     (real)
+ CNSsolve>eval ($w_dani=0.1) 
+ EVALUATE: symbol $W_DANI set to   0.100000     (real)
+ CNSsolve>eval ($w_deint=0.0) 
+ EVALUATE: symbol $W_DEINT set to    0.00000     (real)
+ CNSsolve>eval ($w_desolv=1.0) 
+ EVALUATE: symbol $W_DESOLV set to    1.00000     (real)
+ CNSsolve>eval ($w_elec=1.0) 
+ EVALUATE: symbol $W_ELEC set to    1.00000     (real)
+ CNSsolve>eval ($w_lcc=-10000.0) 
+ EVALUATE: symbol $W_LCC set to   -10000.0     (real)
+ CNSsolve>eval ($w_rg=1.0) 
+ EVALUATE: symbol $W_RG set to    1.00000     (real)
+ CNSsolve>eval ($w_sani=0.1) 
+ EVALUATE: symbol $W_SANI set to   0.100000     (real)
+ CNSsolve>eval ($w_sym=0.1) 
+ EVALUATE: symbol $W_SYM set to   0.100000     (real)
+ CNSsolve>eval ($w_vdw=1.0) 
+ EVALUATE: symbol $W_VDW set to    1.00000     (real)
+ CNSsolve>eval ($w_vean=0.1) 
+ EVALUATE: symbol $W_VEAN set to   0.100000     (real)
+ CNSsolve>eval ($w_xpcs=0.1) 
+ EVALUATE: symbol $W_XPCS set to   0.100000     (real)
+ CNSsolve>eval ($w_xrdc=0.1) 
+ EVALUATE: symbol $W_XRDC set to   0.100000     (real)
+ CNSsolve>eval ($w_zres=0.1) 
+ EVALUATE: symbol $W_ZRES set to   0.100000     (real)
+ CNSsolve>eval ($ligand_param_fname="") 
+ EVALUATE: symbol $LIGAND_PARAM_FNAME set to "" (string)
+ CNSsolve>eval ($ligand_top_fname="") 
+ EVALUATE: symbol $LIGAND_TOP_FNAME set to "" (string)
+ CNSsolve>eval ($elecflag=true) 
+ EVALUATE: symbol $ELECFLAG set to TRUE (logical)
+ CNSsolve>eval ($dielec="rdie") 
+ EVALUATE: symbol $DIELEC set to "rdie" (string)
+ CNSsolve>eval ($epsilon=1.0) 
+ EVALUATE: symbol $EPSILON set to    1.00000     (real)
+ CNSsolve>eval ($dihedflag=true) 
+ EVALUATE: symbol $DIHEDFLAG set to TRUE (logical)
+ CNSsolve>eval ($sampling_factor=1) 
+ EVALUATE: symbol $SAMPLING_FACTOR set to    1.00000     (real)
+ CNSsolve>eval ($max_nmodels=10000) 
+ EVALUATE: symbol $MAX_NMODELS set to    10000.0     (real)
+ CNSsolve>eval ($nemsteps=200) 
+ EVALUATE: symbol $NEMSTEPS set to    200.000     (real)
+ CNSsolve>eval ($mdsteps_rigid=500) 
+ EVALUATE: symbol $MDSTEPS_RIGID set to    500.000     (real)
+ CNSsolve>eval ($mdsteps_cool1=500) 
+ EVALUATE: symbol $MDSTEPS_COOL1 set to    500.000     (real)
+ CNSsolve>eval ($mdsteps_cool2=1000) 
+ EVALUATE: symbol $MDSTEPS_COOL2 set to    1000.00     (real)
+ CNSsolve>eval ($mdsteps_cool3=1000) 
+ EVALUATE: symbol $MDSTEPS_COOL3 set to    1000.00     (real)
+ CNSsolve>eval ($randorien=false) 
+ EVALUATE: symbol $RANDORIEN set to FALSE (logical)
+ CNSsolve>eval ($timestep=0.002) 
+ EVALUATE: symbol $TIMESTEP set to   0.200000E-02 (real)
+ CNSsolve>eval ($tadfactor=8) 
+ EVALUATE: symbol $TADFACTOR set to    8.00000     (real)
+ CNSsolve>eval ($temp_high=2000) 
+ EVALUATE: symbol $TEMP_HIGH set to    2000.00     (real)
+ CNSsolve>eval ($temp_cool1_init=2000) 
+ EVALUATE: symbol $TEMP_COOL1_INIT set to    2000.00     (real)
+ CNSsolve>eval ($temp_cool1_final=500) 
+ EVALUATE: symbol $TEMP_COOL1_FINAL set to    500.000     (real)
+ CNSsolve>eval ($temp_cool2_init=1000) 
+ EVALUATE: symbol $TEMP_COOL2_INIT set to    1000.00     (real)
+ CNSsolve>eval ($temp_cool2_final=50) 
+ EVALUATE: symbol $TEMP_COOL2_FINAL set to    50.0000     (real)
+ CNSsolve>eval ($temp_cool3_init=1000) 
+ EVALUATE: symbol $TEMP_COOL3_INIT set to    1000.00     (real)
+ CNSsolve>eval ($temp_cool3_final=50) 
+ EVALUATE: symbol $TEMP_COOL3_FINAL set to    50.0000     (real)
+ CNSsolve>eval ($sinter_rigid_init=0.001) 
+ EVALUATE: symbol $SINTER_RIGID_INIT set to   0.100000E-02 (real)
+ CNSsolve>eval ($sinter_rigid_final=0.001) 
+ EVALUATE: symbol $SINTER_RIGID_FINAL set to   0.100000E-02 (real)
+ CNSsolve>eval ($sinter_cool2_init=0.001) 
+ EVALUATE: symbol $SINTER_COOL2_INIT set to   0.100000E-02 (real)
+ CNSsolve>eval ($sinter_cool2_final=1.0) 
+ EVALUATE: symbol $SINTER_COOL2_FINAL set to    1.00000     (real)
+ CNSsolve>eval ($sinter_cool3_init=0.05) 
+ EVALUATE: symbol $SINTER_COOL3_INIT set to   0.500000E-01 (real)
+ CNSsolve>eval ($sinter_cool3_final=1.0) 
+ EVALUATE: symbol $SINTER_COOL3_FINAL set to    1.00000     (real)
+ CNSsolve>eval ($iniseed=917) 
+ EVALUATE: symbol $INISEED set to    917.000     (real)
+ CNSsolve>eval ($keepwater=false) 
+ EVALUATE: symbol $KEEPWATER set to FALSE (logical)
+ CNSsolve>eval ($tolerance=5) 
+ EVALUATE: symbol $TOLERANCE set to    5.00000     (real)
+ CNSsolve>eval ($log_level="quiet") 
+ EVALUATE: symbol $LOG_LEVEL set to "quiet" (string)
+ CNSsolve>eval ($nseg1=-1) 
+ EVALUATE: symbol $NSEG1 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg2=-1) 
+ EVALUATE: symbol $NSEG2 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg3=-1) 
+ EVALUATE: symbol $NSEG3 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg4=-1) 
+ EVALUATE: symbol $NSEG4 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg5=-1) 
+ EVALUATE: symbol $NSEG5 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg6=-1) 
+ EVALUATE: symbol $NSEG6 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg7=-1) 
+ EVALUATE: symbol $NSEG7 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg8=-1) 
+ EVALUATE: symbol $NSEG8 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg9=-1) 
+ EVALUATE: symbol $NSEG9 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg10=-1) 
+ EVALUATE: symbol $NSEG10 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg11=-1) 
+ EVALUATE: symbol $NSEG11 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg12=-1) 
+ EVALUATE: symbol $NSEG12 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg13=-1) 
+ EVALUATE: symbol $NSEG13 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg14=-1) 
+ EVALUATE: symbol $NSEG14 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg15=-1) 
+ EVALUATE: symbol $NSEG15 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg16=-1) 
+ EVALUATE: symbol $NSEG16 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg17=-1) 
+ EVALUATE: symbol $NSEG17 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg18=-1) 
+ EVALUATE: symbol $NSEG18 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg19=-1) 
+ EVALUATE: symbol $NSEG19 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg20=-1) 
+ EVALUATE: symbol $NSEG20 set to   -1.00000     (real)
+ CNSsolve>eval ($nfle=0) 
+ EVALUATE: symbol $NFLE set to    0.00000     (real)
+ CNSsolve>eval ($fle_seg_1="none") 
+ EVALUATE: symbol $FLE_SEG_1 set to "none" (string)
+ CNSsolve>eval ($int_1_1=1.0) 
+ EVALUATE: symbol $INT_1_1 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_2=1.0) 
+ EVALUATE: symbol $INT_1_2 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_3=1.0) 
+ EVALUATE: symbol $INT_1_3 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_4=1.0) 
+ EVALUATE: symbol $INT_1_4 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_5=1.0) 
+ EVALUATE: symbol $INT_1_5 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_6=1.0) 
+ EVALUATE: symbol $INT_1_6 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_7=1.0) 
+ EVALUATE: symbol $INT_1_7 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_8=1.0) 
+ EVALUATE: symbol $INT_1_8 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_9=1.0) 
+ EVALUATE: symbol $INT_1_9 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_10=1.0) 
+ EVALUATE: symbol $INT_1_10 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_11=1.0) 
+ EVALUATE: symbol $INT_1_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_12=1.0) 
+ EVALUATE: symbol $INT_1_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_13=1.0) 
+ EVALUATE: symbol $INT_1_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_14=1.0) 
+ EVALUATE: symbol $INT_1_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_15=1.0) 
+ EVALUATE: symbol $INT_1_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_16=1.0) 
+ EVALUATE: symbol $INT_1_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_17=1.0) 
+ EVALUATE: symbol $INT_1_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_18=1.0) 
+ EVALUATE: symbol $INT_1_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_19=1.0) 
+ EVALUATE: symbol $INT_1_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_20=1.0) 
+ EVALUATE: symbol $INT_1_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_2=1.0) 
+ EVALUATE: symbol $INT_2_2 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_3=1.0) 
+ EVALUATE: symbol $INT_2_3 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_4=1.0) 
+ EVALUATE: symbol $INT_2_4 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_5=1.0) 
+ EVALUATE: symbol $INT_2_5 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_6=1.0) 
+ EVALUATE: symbol $INT_2_6 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_7=1.0) 
+ EVALUATE: symbol $INT_2_7 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_8=1.0) 
+ EVALUATE: symbol $INT_2_8 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_9=1.0) 
+ EVALUATE: symbol $INT_2_9 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_10=1.0) 
+ EVALUATE: symbol $INT_2_10 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_11=1.0) 
+ EVALUATE: symbol $INT_2_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_12=1.0) 
+ EVALUATE: symbol $INT_2_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_13=1.0) 
+ EVALUATE: symbol $INT_2_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_14=1.0) 
+ EVALUATE: symbol $INT_2_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_15=1.0) 
+ EVALUATE: symbol $INT_2_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_16=1.0) 
+ EVALUATE: symbol $INT_2_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_17=1.0) 
+ EVALUATE: symbol $INT_2_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_18=1.0) 
+ EVALUATE: symbol $INT_2_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_19=1.0) 
+ EVALUATE: symbol $INT_2_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_20=1.0) 
+ EVALUATE: symbol $INT_2_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_3=1.0) 
+ EVALUATE: symbol $INT_3_3 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_4=1.0) 
+ EVALUATE: symbol $INT_3_4 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_5=1.0) 
+ EVALUATE: symbol $INT_3_5 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_6=1.0) 
+ EVALUATE: symbol $INT_3_6 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_7=1.0) 
+ EVALUATE: symbol $INT_3_7 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_8=1.0) 
+ EVALUATE: symbol $INT_3_8 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_9=1.0) 
+ EVALUATE: symbol $INT_3_9 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_10=1.0) 
+ EVALUATE: symbol $INT_3_10 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_11=1.0) 
+ EVALUATE: symbol $INT_3_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_12=1.0) 
+ EVALUATE: symbol $INT_3_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_13=1.0) 
+ EVALUATE: symbol $INT_3_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_14=1.0) 
+ EVALUATE: symbol $INT_3_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_15=1.0) 
+ EVALUATE: symbol $INT_3_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_16=1.0) 
+ EVALUATE: symbol $INT_3_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_17=1.0) 
+ EVALUATE: symbol $INT_3_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_18=1.0) 
+ EVALUATE: symbol $INT_3_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_19=1.0) 
+ EVALUATE: symbol $INT_3_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_20=1.0) 
+ EVALUATE: symbol $INT_3_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_4=1.0) 
+ EVALUATE: symbol $INT_4_4 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_5=1.0) 
+ EVALUATE: symbol $INT_4_5 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_6=1.0) 
+ EVALUATE: symbol $INT_4_6 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_7=1.0) 
+ EVALUATE: symbol $INT_4_7 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_8=1.0) 
+ EVALUATE: symbol $INT_4_8 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_9=1.0) 
+ EVALUATE: symbol $INT_4_9 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_10=1.0) 
+ EVALUATE: symbol $INT_4_10 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_11=1.0) 
+ EVALUATE: symbol $INT_4_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_12=1.0) 
+ EVALUATE: symbol $INT_4_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_13=1.0) 
+ EVALUATE: symbol $INT_4_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_14=1.0) 
+ EVALUATE: symbol $INT_4_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_15=1.0) 
+ EVALUATE: symbol $INT_4_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_16=1.0) 
+ EVALUATE: symbol $INT_4_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_17=1.0) 
+ EVALUATE: symbol $INT_4_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_18=1.0) 
+ EVALUATE: symbol $INT_4_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_19=1.0) 
+ EVALUATE: symbol $INT_4_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_20=1.0) 
+ EVALUATE: symbol $INT_4_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_5=1.0) 
+ EVALUATE: symbol $INT_5_5 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_6=1.0) 
+ EVALUATE: symbol $INT_5_6 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_7=1.0) 
+ EVALUATE: symbol $INT_5_7 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_8=1.0) 
+ EVALUATE: symbol $INT_5_8 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_9=1.0) 
+ EVALUATE: symbol $INT_5_9 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_10=1.0) 
+ EVALUATE: symbol $INT_5_10 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_11=1.0) 
+ EVALUATE: symbol $INT_5_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_12=1.0) 
+ EVALUATE: symbol $INT_5_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_13=1.0) 
+ EVALUATE: symbol $INT_5_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_14=1.0) 
+ EVALUATE: symbol $INT_5_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_15=1.0) 
+ EVALUATE: symbol $INT_5_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_16=1.0) 
+ EVALUATE: symbol $INT_5_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_17=1.0) 
+ EVALUATE: symbol $INT_5_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_18=1.0) 
+ EVALUATE: symbol $INT_5_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_19=1.0) 
+ EVALUATE: symbol $INT_5_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_20=1.0) 
+ EVALUATE: symbol $INT_5_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_6=1.0) 
+ EVALUATE: symbol $INT_6_6 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_7=1.0) 
+ EVALUATE: symbol $INT_6_7 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_8=1.0) 
+ EVALUATE: symbol $INT_6_8 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_9=1.0) 
+ EVALUATE: symbol $INT_6_9 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_10=1.0) 
+ EVALUATE: symbol $INT_6_10 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_11=1.0) 
+ EVALUATE: symbol $INT_6_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_12=1.0) 
+ EVALUATE: symbol $INT_6_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_13=1.0) 
+ EVALUATE: symbol $INT_6_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_14=1.0) 
+ EVALUATE: symbol $INT_6_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_15=1.0) 
+ EVALUATE: symbol $INT_6_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_16=1.0) 
+ EVALUATE: symbol $INT_6_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_17=1.0) 
+ EVALUATE: symbol $INT_6_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_18=1.0) 
+ EVALUATE: symbol $INT_6_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_19=1.0) 
+ EVALUATE: symbol $INT_6_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_20=1.0) 
+ EVALUATE: symbol $INT_6_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_7=1.0) 
+ EVALUATE: symbol $INT_7_7 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_8=1.0) 
+ EVALUATE: symbol $INT_7_8 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_9=1.0) 
+ EVALUATE: symbol $INT_7_9 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_10=1.0) 
+ EVALUATE: symbol $INT_7_10 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_11=1.0) 
+ EVALUATE: symbol $INT_7_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_12=1.0) 
+ EVALUATE: symbol $INT_7_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_13=1.0) 
+ EVALUATE: symbol $INT_7_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_14=1.0) 
+ EVALUATE: symbol $INT_7_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_15=1.0) 
+ EVALUATE: symbol $INT_7_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_16=1.0) 
+ EVALUATE: symbol $INT_7_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_17=1.0) 
+ EVALUATE: symbol $INT_7_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_18=1.0) 
+ EVALUATE: symbol $INT_7_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_19=1.0) 
+ EVALUATE: symbol $INT_7_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_8=1.0) 
+ EVALUATE: symbol $INT_8_8 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_9=1.0) 
+ EVALUATE: symbol $INT_8_9 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_20=1.0) 
+ EVALUATE: symbol $INT_7_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_10=1.0) 
+ EVALUATE: symbol $INT_8_10 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_11=1.0) 
+ EVALUATE: symbol $INT_8_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_12=1.0) 
+ EVALUATE: symbol $INT_8_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_13=1.0) 
+ EVALUATE: symbol $INT_8_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_14=1.0) 
+ EVALUATE: symbol $INT_8_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_15=1.0) 
+ EVALUATE: symbol $INT_8_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_16=1.0) 
+ EVALUATE: symbol $INT_8_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_17=1.0) 
+ EVALUATE: symbol $INT_8_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_18=1.0) 
+ EVALUATE: symbol $INT_8_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_19=1.0) 
+ EVALUATE: symbol $INT_8_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_20=1.0) 
+ EVALUATE: symbol $INT_8_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_11=1.0) 
+ EVALUATE: symbol $INT_9_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_12=1.0) 
+ EVALUATE: symbol $INT_9_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_13=1.0) 
+ EVALUATE: symbol $INT_9_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_14=1.0) 
+ EVALUATE: symbol $INT_9_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_15=1.0) 
+ EVALUATE: symbol $INT_9_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_16=1.0) 
+ EVALUATE: symbol $INT_9_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_17=1.0) 
+ EVALUATE: symbol $INT_9_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_18=1.0) 
+ EVALUATE: symbol $INT_9_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_19=1.0) 
+ EVALUATE: symbol $INT_9_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_20=1.0) 
+ EVALUATE: symbol $INT_9_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_9=1.0) 
+ EVALUATE: symbol $INT_9_9 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_10=1.0) 
+ EVALUATE: symbol $INT_9_10 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_10=1.0) 
+ EVALUATE: symbol $INT_10_10 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_11=1.0) 
+ EVALUATE: symbol $INT_10_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_12=1.0) 
+ EVALUATE: symbol $INT_10_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_13=1.0) 
+ EVALUATE: symbol $INT_10_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_14=1.0) 
+ EVALUATE: symbol $INT_10_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_15=1.0) 
+ EVALUATE: symbol $INT_10_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_16=1.0) 
+ EVALUATE: symbol $INT_10_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_17=1.0) 
+ EVALUATE: symbol $INT_10_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_18=1.0) 
+ EVALUATE: symbol $INT_10_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_19=1.0) 
+ EVALUATE: symbol $INT_10_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_20=1.0) 
+ EVALUATE: symbol $INT_10_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_11_11=1.0) 
+ EVALUATE: symbol $INT_11_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_11_12=1.0) 
+ EVALUATE: symbol $INT_11_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_11_13=1.0) 
+ EVALUATE: symbol $INT_11_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_11_14=1.0) 
+ EVALUATE: symbol $INT_11_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_11_15=1.0) 
+ EVALUATE: symbol $INT_11_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_11_16=1.0) 
+ EVALUATE: symbol $INT_11_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_11_17=1.0) 
+ EVALUATE: symbol $INT_11_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_11_18=1.0) 
+ EVALUATE: symbol $INT_11_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_11_19=1.0) 
+ EVALUATE: symbol $INT_11_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_11_20=1.0) 
+ EVALUATE: symbol $INT_11_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_12_12=1.0) 
+ EVALUATE: symbol $INT_12_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_12_13=1.0) 
+ EVALUATE: symbol $INT_12_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_12_14=1.0) 
+ EVALUATE: symbol $INT_12_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_12_15=1.0) 
+ EVALUATE: symbol $INT_12_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_12_16=1.0) 
+ EVALUATE: symbol $INT_12_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_12_17=1.0) 
+ EVALUATE: symbol $INT_12_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_12_18=1.0) 
+ EVALUATE: symbol $INT_12_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_12_19=1.0) 
+ EVALUATE: symbol $INT_12_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_12_20=1.0) 
+ EVALUATE: symbol $INT_12_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_13_13=1.0) 
+ EVALUATE: symbol $INT_13_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_13_14=1.0) 
+ EVALUATE: symbol $INT_13_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_13_15=1.0) 
+ EVALUATE: symbol $INT_13_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_13_16=1.0) 
+ EVALUATE: symbol $INT_13_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_13_17=1.0) 
+ EVALUATE: symbol $INT_13_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_13_18=1.0) 
+ EVALUATE: symbol $INT_13_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_13_19=1.0) 
+ EVALUATE: symbol $INT_13_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_13_20=1.0) 
+ EVALUATE: symbol $INT_13_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_14_14=1.0) 
+ EVALUATE: symbol $INT_14_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_14_15=1.0) 
+ EVALUATE: symbol $INT_14_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_14_16=1.0) 
+ EVALUATE: symbol $INT_14_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_14_17=1.0) 
+ EVALUATE: symbol $INT_14_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_14_18=1.0) 
+ EVALUATE: symbol $INT_14_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_14_19=1.0) 
+ EVALUATE: symbol $INT_14_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_14_20=1.0) 
+ EVALUATE: symbol $INT_14_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_15_15=1.0) 
+ EVALUATE: symbol $INT_15_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_15_16=1.0) 
+ EVALUATE: symbol $INT_15_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_15_17=1.0) 
+ EVALUATE: symbol $INT_15_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_15_18=1.0) 
+ EVALUATE: symbol $INT_15_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_15_19=1.0) 
+ EVALUATE: symbol $INT_15_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_15_20=1.0) 
+ EVALUATE: symbol $INT_15_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_16_16=1.0) 
+ EVALUATE: symbol $INT_16_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_16_17=1.0) 
+ EVALUATE: symbol $INT_16_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_16_18=1.0) 
+ EVALUATE: symbol $INT_16_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_16_19=1.0) 
+ EVALUATE: symbol $INT_16_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_16_20=1.0) 
+ EVALUATE: symbol $INT_16_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_17_17=1.0) 
+ EVALUATE: symbol $INT_17_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_17_18=1.0) 
+ EVALUATE: symbol $INT_17_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_17_19=1.0) 
+ EVALUATE: symbol $INT_17_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_17_20=1.0) 
+ EVALUATE: symbol $INT_17_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_18_18=1.0) 
+ EVALUATE: symbol $INT_18_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_18_19=1.0) 
+ EVALUATE: symbol $INT_18_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_18_20=1.0) 
+ EVALUATE: symbol $INT_18_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_19_19=1.0) 
+ EVALUATE: symbol $INT_19_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_19_20=1.0) 
+ EVALUATE: symbol $INT_19_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_20_20=1.0) 
+ EVALUATE: symbol $INT_20_20 set to    1.00000     (real)
+ CNSsolve>eval ($mol_fix_origin_2=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_2 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_2=false) 
+ EVALUATE: symbol $MOL_SHAPE_2 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_3=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_3 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_4=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_4 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_5=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_5 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_6=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_6 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_7=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_7 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_8=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_8 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_9=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_9 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_10=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_10 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_11=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_11 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_12=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_12 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_13=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_13 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_14=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_14 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_15=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_15 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_16=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_16 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_17=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_17 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_18=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_18 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_19=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_19 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_20=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_20 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_21=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_21 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_22=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_22 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_23=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_23 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_24=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_24 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_25=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_25 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_26=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_26 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_27=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_27 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_28=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_28 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_29=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_29 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_30=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_30 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_31=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_31 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_32=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_32 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_33=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_33 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_34=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_34 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_35=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_35 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_36=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_36 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_37=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_37 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_38=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_38 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_39=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_39 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_40=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_40 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_41=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_41 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_42=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_42 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_43=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_43 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_44=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_44 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_45=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_45 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_46=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_46 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_47=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_47 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_48=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_48 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_49=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_49 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_50=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_50 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_3=false) 
+ EVALUATE: symbol $MOL_SHAPE_3 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_4=false) 
+ EVALUATE: symbol $MOL_SHAPE_4 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_5=false) 
+ EVALUATE: symbol $MOL_SHAPE_5 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_6=false) 
+ EVALUATE: symbol $MOL_SHAPE_6 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_7=false) 
+ EVALUATE: symbol $MOL_SHAPE_7 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_8=false) 
+ EVALUATE: symbol $MOL_SHAPE_8 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_9=false) 
+ EVALUATE: symbol $MOL_SHAPE_9 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_10=false) 
+ EVALUATE: symbol $MOL_SHAPE_10 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_11=false) 
+ EVALUATE: symbol $MOL_SHAPE_11 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_12=false) 
+ EVALUATE: symbol $MOL_SHAPE_12 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_13=false) 
+ EVALUATE: symbol $MOL_SHAPE_13 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_14=false) 
+ EVALUATE: symbol $MOL_SHAPE_14 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_15=false) 
+ EVALUATE: symbol $MOL_SHAPE_15 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_16=false) 
+ EVALUATE: symbol $MOL_SHAPE_16 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_17=false) 
+ EVALUATE: symbol $MOL_SHAPE_17 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_18=false) 
+ EVALUATE: symbol $MOL_SHAPE_18 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_19=false) 
+ EVALUATE: symbol $MOL_SHAPE_19 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_20=false) 
+ EVALUATE: symbol $MOL_SHAPE_20 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_21=false) 
+ EVALUATE: symbol $MOL_SHAPE_21 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_22=false) 
+ EVALUATE: symbol $MOL_SHAPE_22 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_23=false) 
+ EVALUATE: symbol $MOL_SHAPE_23 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_24=false) 
+ EVALUATE: symbol $MOL_SHAPE_24 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_25=false) 
+ EVALUATE: symbol $MOL_SHAPE_25 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_26=false) 
+ EVALUATE: symbol $MOL_SHAPE_26 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_27=false) 
+ EVALUATE: symbol $MOL_SHAPE_27 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_28=false) 
+ EVALUATE: symbol $MOL_SHAPE_28 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_29=false) 
+ EVALUATE: symbol $MOL_SHAPE_29 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_30=false) 
+ EVALUATE: symbol $MOL_SHAPE_30 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_31=false) 
+ EVALUATE: symbol $MOL_SHAPE_31 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_32=false) 
+ EVALUATE: symbol $MOL_SHAPE_32 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_33=false) 
+ EVALUATE: symbol $MOL_SHAPE_33 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_34=false) 
+ EVALUATE: symbol $MOL_SHAPE_34 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_35=false) 
+ EVALUATE: symbol $MOL_SHAPE_35 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_36=false) 
+ EVALUATE: symbol $MOL_SHAPE_36 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_37=false) 
+ EVALUATE: symbol $MOL_SHAPE_37 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_38=false) 
+ EVALUATE: symbol $MOL_SHAPE_38 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_39=false) 
+ EVALUATE: symbol $MOL_SHAPE_39 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_40=false) 
+ EVALUATE: symbol $MOL_SHAPE_40 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_41=false) 
+ EVALUATE: symbol $MOL_SHAPE_41 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_42=false) 
+ EVALUATE: symbol $MOL_SHAPE_42 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_43=false) 
+ EVALUATE: symbol $MOL_SHAPE_43 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_44=false) 
+ EVALUATE: symbol $MOL_SHAPE_44 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_45=false) 
+ EVALUATE: symbol $MOL_SHAPE_45 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_46=false) 
+ EVALUATE: symbol $MOL_SHAPE_46 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_47=false) 
+ EVALUATE: symbol $MOL_SHAPE_47 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_48=false) 
+ EVALUATE: symbol $MOL_SHAPE_48 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_49=false) 
+ EVALUATE: symbol $MOL_SHAPE_49 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_50=false) 
+ EVALUATE: symbol $MOL_SHAPE_50 set to FALSE (logical)
+ CNSsolve>eval ($ambig_fname="") 
+ EVALUATE: symbol $AMBIG_FNAME set to "" (string)
+ CNSsolve> 
+ CNSsolve>! Input structure 
+ CNSsolve>structure 
+ STRUcture>  @@../0_topoaa/P1CLL_0_P1CLL_chain_A_haddock.psf 
+ ASSFIL: file P1CLL_0_P1CLL_chain_A_haddock.psf opened.
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="P1CLL_0_P1CLL_chain_A_haddock.psf"
+ REMARKS Patching histidine 104 to HISD
+ REMARKS DATE:20-Dec-2025  19:30:26       created by user: unknown
+ REMARKS VERSION:1.3U
+ Status of internal molecular topology database:
+ -> NATOM=       1372(MAXA=     1000000)  NBOND=       1380(MAXB=     1000000)
+ -> NTHETA=      1965(MAXT=     2000000)  NGRP=         148(MAXGRP=   1000000)
+ -> NPHI=        3500(MAXP=     2000000)  NIMPHI=       651(MAXIMP=   1000000)
+ -> NNB=           60(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve>structure 
+ STRUcture>  @@../0_topoaa/P1ZG4_0_P1ZG4_chain_A_haddock.psf 
+ ASSFIL: file P1ZG4_0_P1ZG4_chain_A_haddock.psf opened.
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="P1ZG4_0_P1ZG4_chain_A_haddock.psf"
+ REMARKS disulphide added: from B    52   to B    98
+ REMARKS Patching histidine 128 to HISD
+ REMARKS Patching histidine 133 to HISD
+ REMARKS Patching histidine 1 to HISE
+ REMARKS Patching histidine 71 to HISE
+ REMARKS Patching histidine 262 to HISE
+ REMARKS DATE:20-Dec-2025  19:30:27       created by user: unknown
+ REMARKS VERSION:1.3U
+ Status of internal molecular topology database:
+ -> NATOM=       3857(MAXA=     1000000)  NBOND=       3900(MAXB=     1000000)
+ -> NTHETA=      5581(MAXT=     2000000)  NGRP=         413(MAXGRP=   1000000)
+ -> NPHI=        9750(MAXP=     2000000)  NIMPHI=      1896(MAXIMP=   1000000)
+ -> NNB=          138(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve>coor @@../1_rigidbody/rigidbody_68.pdb 
+ ASSFIL: file rigidbody_68.pdb opened.
+ COOR>REMARK FILENAME="rigidbody_68.pdb" 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK HADDOCK stats for rigidbody_68.pdb 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK HADDOCK score: -14.028 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK initial structure 1 - ../0_topoaa/P1CLL_0_P1CLL_chain_A_haddock.pdb 
+ COOR>REMARK initial structure 2 - ../0_topoaa/P1ZG4_0_P1ZG4_chain_A_haddock.pdb 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK            total,bonds,angles,improper,dihe,vdw,elec,air,cdih,coup,rdcs,vean,dani,xpcs,rg 
+ COOR>REMARK energies: -14.214, 435.683, 4736.97, 1113.7, 2283.09, -32.9813, -7.86391, 26.6312, 0, 0, 0, 0, 0, 0, 0 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK            bonds,angles,impropers,dihe,air,cdih,coup,rdcs,vean,dani,xpcs 
+ COOR>REMARK rms-dev.: 1.056947E-02,2.36065,1.96383,43.0913,9.45214,0,0, 0, 0, 0, 0 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK               air,cdih,coup,rdcs,vean,dani,xpcs 
+ COOR>REMARK               >0.3,>5,>1,>0,>5,>0.2,>0.2 
+ COOR>REMARK violations.: 1, 0, 0, 0, 0, 0, 0 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK                        CVpartition#,violations,rms 
+ COOR>REMARK AIRs cross-validation: 0, 0, 0 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK NCS energy: 0 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK Symmetry energy: 0 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK Membrane restraining energy: 0 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK Local cross-correlation:  0.0000 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK Desolvation energy: 6.31999 
+ COOR>REMARK Internal energy free molecules: 6728.22 
+ COOR>REMARK Internal energy complex: 6728.22 
+ COOR>REMARK Binding energy: -34.5252 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK buried surface area: 1242.06 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK water - chain_1: 0 0 0 
+ COOR>REMARK water - chain_2: 0 0 0 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK water - water: 0 0 0 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK DATE:20-Dec-2025  19:30:45       created by user: unknown 
+ COOR>REMARK VERSION:1.3U 
+ COOR>ATOM      1  N   LEU A   1      11.228 -22.058   0.991  1.00 15.00      A    N 
+ COOR>ATOM      2  HN  LEU A   1      11.037 -22.969   1.299  1.00 15.00      A    H 
+ CNSsolve>eval ($input_pdb_filename_1="../1_rigidbody/rigidbody_68.pdb") 
+ EVALUATE: symbol $INPUT_PDB_FILENAME_1 set to "../1_rigidbody/rigidbody_68.pdb" (string)
+ CNSsolve>eval ($ncomponents=2) 
+ EVALUATE: symbol $NCOMPONENTS set to    2.00000     (real)
+ CNSsolve>eval ($seed=985) 
+ EVALUATE: symbol $SEED set to    985.000     (real)
+ CNSsolve> 
+ CNSsolve>! Output structure 
+ CNSsolve>eval ($output_pdb_filename="flexref_1.pdb") 
+ EVALUATE: symbol $OUTPUT_PDB_FILENAME set to "flexref_1.pdb" (string)
+ CNSsolve>eval ($count=1) 
+ EVALUATE: symbol $COUNT set to    1.00000     (real)
+ CNSsolve>eval ($prot_segid_1="A") 
+ EVALUATE: symbol $PROT_SEGID_1 set to "A" (string)
+ CNSsolve>eval ($prot_segid_2="B") 
+ EVALUATE: symbol $PROT_SEGID_2 set to "B" (string)
+ CNSsolve>! flexref.cns 
+ CNSsolve>!    The HADDOCK semi-flexible refinement in torsion angle space 
+ CNSsolve>!    This version supports only distance and symmetry/ncs restraints 
+ CNSsolve>! 
+ CNSsolve>! *********************************************************************** 
+ CNSsolve>! * Copyright 2003-2022 Alexandre Bonvin, Utrecht University.           * 
+ CNSsolve>! * All rights reserved.                                                * 
+ CNSsolve>! * This code is part of the HADDOCK software and governed by its       * 
+ CNSsolve>! * license. Please see the LICENSE file that should have been included * 
+ CNSsolve>! * as part of this package.                                            * 
+ CNSsolve>! *********************************************************************** 
+ CNSsolve> 
+ CNSsolve>if ( $log_level = "verbose" ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    set message=normal echo=on end 
+ CNSsolve>elseif ( $log_level = "normal" ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    set message=normal echo=off end 
+ CNSsolve>else 
+ CNSsolve>    set message=off echo=off end 
+ %PARRDR-info: duplication of bond CH1E OAS 
+ %PARRDR-info: duplication of angle CH2E C    NH1 
+ %PARRDR-info: duplication of nonbonded entry H   
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HC  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry OP1 
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HN  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry OA3H
+ %PARRDR-info: duplication of bond CH1E OAS 
+ %PARRDR-info: duplication of angle CH2E C    NH1 
+ %PARRDR-info: duplication of nonbonded entry H   
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HC  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry OP1 
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HN  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry OA3H
+ %PARRDR-info: duplication of bond CH1E OAS 
+ %PARRDR-info: duplication of angle CH2E C    NH1 
+ %PARRDR-info: duplication of nonbonded entry H   
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HC  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry OP1 
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HN  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry OA3H
+ %PARRDR-info: duplication of bond CH1E OAS 
+ %PARRDR-info: duplication of angle CH2E C    NH1 
+ %PARRDR-info: duplication of nonbonded entry H   
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HC  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry OP1 
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HN  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry OA3H
+ -----nonbonded-list-options-------------------------------
+ | CUTNb=   9.500 TOLErance=   0.500 WMIN=   0.500 ATOM   |
+ | INHIbit=   0.250                                       |
+ -----electrostatic options--------------------------------
+ | EPS=   1.000 E14Fac=   0.400 RDIElectric POTEN SWITch  |
+ -----van der Waals options--------------------------------
+ | VSWItch                                                |
+ -----switching /shifting parameters-----------------------
+ | CTONNB=   6.500 CTOFNB=   8.500                        |
+ -----exclusion list options-------------------------------
+ | NBXMOD=   5                                            |
+ ----------------------------------------------------------
+ %PARRDR-info: duplication of bond CH1E OAS 
+ %PARRDR-info: duplication of angle CH2E C    NH1 
+ %PARRDR-info: duplication of nonbonded entry H   
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HC  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry OP1 
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HN  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry OA3H
+ CNSsolve>inline @MODULE:read_data.cns 
+ ASSFIL: file read_data.cns opened.
+ CNSsolve>! read_data.cns 
+ CNSsolve>!    Read the various restraints data 
+ CNSsolve>!    (distances and dihedral angles only in this version) 
+ CNSsolve>! 
+ CNSsolve>! *********************************************************************** 
+ CNSsolve>! * Copyright 2003-2022 Alexandre Bonvin, Utrecht University.           * 
+ CNSsolve>! * All rights reserved.                                                * 
+ CNSsolve>! * This code is part of the HADDOCK software and governed by its       * 
+ CNSsolve>! * license. Please see the LICENSE file that should have been included * 
+ CNSsolve>! * as part of this package.                                            * 
+ CNSsolve>! *********************************************************************** 
+ CNSsolve>! 
+ CNSsolve>! Ambiguous and unambiguous distance restraints, hbonds 
+ CNSsolve>noe 
+ NOE>    reset 
+ NOE>    nrestraints = 12000000     ! allocate space for NOEs 
+ NOE: allocating space for ******* restraints.
+ NOE>    ceiling 1000 
+ NOE>end 
+ CNSsolve> 
+ CNSsolve>evaluate ($filenam0 = $ambig_fname + "_" + encode($count)) 
+ EVALUATE: symbol $FILENAM0 set to "_1" (string)
+ CNSsolve>fileexist $filenam0 end 
+ MISCOM: file does not exist
+ CNSsolve>if ($result eq false) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    evaluate ($filenam0 = $ambig_fname) 
+ EVALUATE: symbol $FILENAM0 set to "" (string)
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>if ($filenam0 # "") then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    fileexist $filenam0 end 
+ CNSsolve>    if ($result eq true) then 
+ CNSsolve>        noe class ambi @@$filenam0 end 
+ CNSsolve>    end if 
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>if ($Data.randremoval eq true) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    noe part $Data.npart end 
+ Data are not partitioned or partitioning removed.
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>if ($unambig_fname # "") then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    fileexist $unambig_fname end 
+ CNSsolve>    if ($result eq true) then 
+ CNSsolve>        noe class dist @@$unambig_fname end 
+ CNSsolve>    end if 
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>if ($hbond_fname # "") then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    fileexist $hbond_fname end 
+ CNSsolve>    if ($result eq true) then 
+ CNSsolve>        noe class hbon @@$hbond_fname end 
+ CNSsolve>    end if 
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>noe 
+ NOE>    averaging  * sum 
+ NOE>    potential  * soft 
+ NOE>    scale      * 1.0 
+ NOE>    sqconstant * 1.0 
+ NOE>    sqexponent * 2 
+ NOE>    soexponent * 1 
+ NOE>    rswitch    * 1.0 
+ NOE>    sqoffset   * 0.0 
+ NOE>    asymptote  * 2.0 
+ NOE>    msoexponent * 1 
+ NOE>    masymptote  * -0.1 
+ NOE>    mrswitch    * 1.0 
+ NOE>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>!dihedral restraints: 
+ CNSsolve>restraints dihedral 
+ DIHEDRAL>    reset 
+ DIHEDRAL>    nassign 50000 
+ RSTDIH: allocating space for   50000 assignments.
+ DIHEDRAL>end 
+ CNSsolve>if ($dihe_fname # "") then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    fileexist $dihe_fname end 
+ CNSsolve>    if ($result eq true) then 
+ CNSsolve>        restraints dihedral 
+ CNSsolve>            @@$dihe_fname 
+ CNSsolve>        end 
+ CNSsolve>    end if 
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>restraints dihedral ? end 
+ Total number of dihedral angle restraints=     0
+  overall scale =    1.0000
+ Number of dihedral angle restraints=    0
+ RMS deviation=   0.000
+ CNSsolve> 
+ CNSsolve>! random removal of restaints 
+ CNSsolve>if ($Data.randremoval eq true) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    noe cv $npart ? end 
+ NOE: total number of restraints:     0 partitioned into      1 classes
+ NOE: ceiling=    1000.000 current allocation=12000000
+ NOE: data are partitioned into working set and test set.
+ NOE: test set number=     2
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>if ( $log_level = "verbose" ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    set message=normal echo=on end 
+ CNSsolve>elseif ( $log_level = "normal" ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    set message=normal echo=off end 
+ CNSsolve>else 
+ CNSsolve>    set message=off echo=off end 
+ NOE: total number of restraints:     0 partitioned into      1 classes
+ NOE: ceiling=    1000.000 current allocation=12000000
+ NOE: data are partitioned into working set and test set.
+ NOE: test set number=     2
+ MISCOM: file does not exist
+ Data are not partitioned or partitioning removed.
+ MISCOM: file does not exist
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found   9550 exclusions and   6868 interactions(1-4)
+ NBONDS: found   267619 intra-atom interactions
+ --------------- cycle=     1 --------------------------------------------------
+ | Etotal =-3.779     grad(E)=59.918     E(BOND)=435.477    E(ANGL)=4738.912   |
+ | E(DIHE)=2283.019   E(IMPR)=1113.303   E(VDW )=-1138.515  E(ELEC)=-7435.975  |
+ | E(NOE )=0.000                                                               |
+ -------------------------------------------------------------------------------
+AUTOMATIC DEFINITION OF FLEXIBLE SEGMENTS BASED ON INTERMOLECULAR PROXIMITY FOR MOLECULE 1
+THE FOLLOWING RESIDUES HAVE BEEN DEFINED AS FLEXIBLE for molecule 1
+AUTOMATICALLY SELECTED SEGMENT: ARG,34,A
+AUTOMATICALLY SELECTED SEGMENT: SER,35,A
+AUTOMATICALLY SELECTED SEGMENT: LEU,36,A
+AUTOMATICALLY SELECTED SEGMENT: GLY,37,A
+AUTOMATICALLY SELECTED SEGMENT: GLN,38,A
+AUTOMATICALLY SELECTED SEGMENT: ASN,39,A
+AUTOMATICALLY SELECTED SEGMENT: ASP,75,A
+AUTOMATICALLY SELECTED SEGMENT: THR,76,A
+AUTOMATICALLY SELECTED SEGMENT: GLU,79,A
+AUTOMATICALLY SELECTED SEGMENT: GLU,80,A
+AUTOMATICALLY SELECTED SEGMENT: ILE,82,A
+AUTOMATICALLY SELECTED SEGMENT: ARG,83,A
+AUTOMATICALLY SELECTED SEGMENT: PHE,86,A
+AUTOMATICALLY SELECTED SEGMENT: ARG,87,A
+AUTOMATICALLY SELECTED SEGMENT: PHE,89,A
+AUTOMATICALLY SELECTED SEGMENT: ASP,90,A
+AUTOMATICALLY SELECTED SEGMENT: LYS,91,A
+AUTOMATICALLY SELECTED SEGMENT: ASP,92,A
+AUTOMATICALLY SELECTED SEGMENT: GLY,93,A
+AUTOMATICALLY SELECTED SEGMENT: ASN,94,A
+AUTOMATICALLY SELECTED SEGMENT: GLY,95,A
+AUTOMATICALLY SELECTED SEGMENT: TYR,96,A
+AUTOMATICALLY SELECTED SEGMENT: ILE,127,A
+AUTOMATICALLY SELECTED SEGMENT: ASP,128,A
+AUTOMATICALLY SELECTED SEGMENT: GLY,129,A
+AUTOMATICALLY SELECTED SEGMENT: ASP,130,A
+AUTOMATICALLY SELECTED SEGMENT: GLY,131,A
+AUTOMATICALLY SELECTED SEGMENT: GLN,132,A
+AUTOMATIC DEFINITION OF FLEXIBLE SEGMENTS BASED ON INTERMOLECULAR PROXIMITY FOR MOLECULE 2
+THE FOLLOWING RESIDUES HAVE BEEN DEFINED AS FLEXIBLE for molecule 2
+AUTOMATICALLY SELECTED SEGMENT: LEU,24,B
+AUTOMATICALLY SELECTED SEGMENT: ASP,25,B
+AUTOMATICALLY SELECTED SEGMENT: LEU,26,B
+AUTOMATICALLY SELECTED SEGMENT: ASN,27,B
+AUTOMATICALLY SELECTED SEGMENT: LYS,86,B
+AUTOMATICALLY SELECTED SEGMENT: HIS,87,B
+AUTOMATICALLY SELECTED SEGMENT: VAL,94,B
+AUTOMATICALLY SELECTED SEGMENT: ARG,95,B
+AUTOMATICALLY SELECTED SEGMENT: GLU,96,B
+AUTOMATICALLY SELECTED SEGMENT: CYS,98,B
+AUTOMATICALLY SELECTED SEGMENT: SER,99,B
+AUTOMATICALLY SELECTED SEGMENT: ILE,102,B
+AUTOMATICALLY SELECTED SEGMENT: THR,103,B
+AUTOMATICALLY SELECTED SEGMENT: MET,104,B
+AUTOMATICALLY SELECTED SEGMENT: GLN,180,B
+AUTOMATICALLY SELECTED SEGMENT: GLN,181,B
+AUTOMATICALLY SELECTED SEGMENT: ASP,184,B
+AUTOMATICALLY SELECTED SEGMENT: TRP,185,B
+AUTOMATICALLY SELECTED SEGMENT: MET,186,B
+AUTOMATICALLY SELECTED SEGMENT: GLU,187,B
+AUTOMATICALLY SELECTED SEGMENT: ALA,188,B
+AUTOMATICALLY SELECTED SEGMENT: ASP,189,B
+AUTOMATICALLY SELECTED SEGMENT: LYS,190,B
+AUTOMATICALLY SELECTED SEGMENT: LEU,196,B
+AUTOMATICALLY SELECTED SEGMENT: ARG,197,B
+AUTOMATICALLY SELECTED SEGMENT: PRO,201,B
+AUTOMATICALLY SELECTED SEGMENT: ALA,202,B
+AUTOMATICALLY SELECTED SEGMENT: GLY,203,B
+AUTOMATICALLY SELECTED SEGMENT: GLY,225,B
+AUTOMATICALLY SELECTED SEGMENT: PRO,226,B
+AUTOMATICALLY SELECTED SEGMENT: ASP,227,B
+AUTOMATICALLY SELECTED SEGMENT: GLY,228,B
+AUTOMATICALLY SELECTED SEGMENT: LYS,229,B
+AUTOMATICALLY SELECTED SEGMENT: PRO,230,B
+AUTOMATICALLY SELECTED SEGMENT: SER,231,B
+AUTOMATICALLY SELECTED SEGMENT: ARG,232,B
+AUTOMATICALLY SELECTED SEGMENT: HIS,262,B
+AUTOMATICALLY SELECTED SEGMENT: TRP,263,B
+NO FLEXIBLE SEGMENTS for all molecule at this stage
+NO FULLY FLEXIBLE SEGMENTS
+ POWELL: number of degrees of freedom=  3666
+ --------------- cycle=    25 ------ stepsize=    0.0001 -----------------------
+ | Etotal =-907.016   grad(E)=55.384     E(BOND)=399.010    E(ANGL)=4217.695   |
+ | E(DIHE)=2288.145   E(IMPR)=1037.894   E(VDW )=-1294.497  E(ELEC)=-7555.262  |
+ | E(NOE )=0.000                                                               |
+ -------------------------------------------------------------------------------
+ NBONDS: found   267611 intra-atom interactions
+ --------------- cycle=    50 ------ stepsize=    0.0000 -----------------------
+ | Etotal =-1128.863  grad(E)=55.052     E(BOND)=387.470    E(ANGL)=4182.981   |
+ | E(DIHE)=2290.932   E(IMPR)=1003.476   E(VDW )=-1343.225  E(ELEC)=-7650.496  |
+ | E(NOE )=0.000                                                               |
+ -------------------------------------------------------------------------------
+ NBONDS: found   267549 intra-atom interactions
+ NBONDS: found   267511 intra-atom interactions
+ --------------- cycle=    75 ------ stepsize=    0.0002 -----------------------
+ | Etotal =-1273.214  grad(E)=55.028     E(BOND)=386.084    E(ANGL)=4161.698   |
+ | E(DIHE)=2290.556   E(IMPR)=1006.344   E(VDW )=-1342.893  E(ELEC)=-7775.003  |
+ | E(NOE )=0.000                                                               |
+ -------------------------------------------------------------------------------
+ NBONDS: found   267457 intra-atom interactions
+ --------------- cycle=   100 ------ stepsize=   -0.0000 -----------------------
+ | Etotal =-1383.176  grad(E)=54.995     E(BOND)=390.501    E(ANGL)=4148.734   |
+ | E(DIHE)=2285.893   E(IMPR)=998.302    E(VDW )=-1327.892  E(ELEC)=-7878.715  |
+ | E(NOE )=0.000                                                               |
+ -------------------------------------------------------------------------------
+ NBONDS: found   267428 intra-atom interactions
+ --------------- cycle=   125 ------ stepsize=    0.0001 -----------------------
+ | Etotal =-1488.031  grad(E)=54.977     E(BOND)=390.231    E(ANGL)=4138.326   |
+ | E(DIHE)=2278.168   E(IMPR)=994.586    E(VDW )=-1316.606  E(ELEC)=-7972.735  |
+ | E(NOE )=0.000                                                               |
+ -------------------------------------------------------------------------------
+ NBONDS: found   267400 intra-atom interactions
+ --------------- cycle=   150 ------ stepsize=    0.0000 -----------------------
+ | Etotal =-1557.475  grad(E)=54.953     E(BOND)=384.559    E(ANGL)=4130.430   |
+ | E(DIHE)=2276.597   E(IMPR)=995.148    E(VDW )=-1323.884  E(ELEC)=-8020.325  |
+ | E(NOE )=0.000                                                               |
+ -------------------------------------------------------------------------------
+ NBONDS: found   267369 intra-atom interactions
+ --------------- cycle=   175 ------ stepsize=    0.0001 -----------------------
+ | Etotal =-1610.539  grad(E)=54.936     E(BOND)=381.810    E(ANGL)=4126.769   |
+ | E(DIHE)=2278.832   E(IMPR)=990.941    E(VDW )=-1330.744  E(ELEC)=-8058.148  |
+ | E(NOE )=0.000                                                               |
+ -------------------------------------------------------------------------------
+ NBONDS: found   267330 intra-atom interactions
+ --------------- cycle=   200 ------ stepsize=   -0.0000 -----------------------
+ | Etotal =-1657.930  grad(E)=54.931     E(BOND)=383.672    E(ANGL)=4125.093   |
+ | E(DIHE)=2276.860   E(IMPR)=988.360    E(VDW )=-1340.587  E(ELEC)=-8091.328  |
+ | E(NOE )=0.000                                                               |
+ -------------------------------------------------------------------------------
+ POWELL: STEP number limit. Normal termination
+ POWELL: Current coordinates set to last minimum
+ --------------- cycle=     2 --------------------------------------------------
+ | Etotal =-1657.930  grad(E)=54.931     E(BOND)=383.672    E(ANGL)=4125.093   |
+ | E(DIHE)=2276.860   E(IMPR)=988.360    E(VDW )=-1340.587  E(ELEC)=-8091.328  |
+ | E(NOE )=0.000                                                               |
+ -------------------------------------------------------------------------------
+NO FLEXIBLE SEGMENTS for all molecule at this stage
+NO FULLY FLEXIBLE SEGMENTS
+NUMTREES set to 303
+ DTOREST2: total number of groups          6
+ DTOREST2: total number of joints          0
+ DTOREST2: total number of closed loops          0
+ DTOREST2: total number of distinct bodies          6
+ DTOREST2: total number of chains          0
+ DTOREST2: maximum number of chains (per distinct body)          0
+ DTOREST2: maximum unbranched chain length          0
+ DTOREST2: adj. max. number of chains (per distinct body)          2
+ DTOREST2: adj. maximum unbranched chain length          2
+ -------------------------- Torsion Topology -----------------------------------
+   ERROR: A single-group tree does not have an
+            acceptable base.
+   There are certain limitations with the current
+   implementation of torsion angle dynamics.
+
+   The problem is caused by isolated
+   (not covalently bonded) atoms.
+
+   We have made every effort to capture these
+   situations automatically.  However, in some
+   cases you may still encounter this problem.
+
+   In order to fix this problem
+   (a) fix (fix atom selection) the offending
+       atoms
+   (b) if everything fails, use the Cartesian
+       dynamics option.
+
+ %TORSION:TOPOLOGY error encountered: Fatal Topology Error
+   (CNS is in mode: SET ABORT=NORMal END)
+ *****************************************************
+ ABORT mode will terminate program execution. 
+ *****************************************************
+ Program will stop immediately.
+          ============================================================
+           Maximum dynamic memory allocation:  2998247896 bytes
+           Maximum dynamic memory overhead:          3936 bytes
+           Program started at: 19:31:47 on 20-Dec-2025
+           Program stopped at: 19:31:49 on 20-Dec-2025
+           CPU time used:       2.4572 seconds
+          ============================================================

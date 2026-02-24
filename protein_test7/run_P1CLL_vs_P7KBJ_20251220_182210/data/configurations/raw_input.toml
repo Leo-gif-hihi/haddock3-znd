@@ -1,0 +1,39 @@
+run_dir = "run_P1CLL_vs_P7KBJ_20251220_182210"
+mode = "local"
+ncores = 8
+debug = true
+molecules = [
+  "input/P1CLL_0_P1CLL_chain_A.pdb",
+  "input/P7KBJ_0_P7KBJ_chain_A.pdb",
+  "input/P7KBJ_1_P7KBJ_chain_B.pdb",
+  "input/P7KBJ_2_P7KBJ_chain_C.pdb",
+  "input/P7KBJ_3_P7KBJ_chain_D.pdb",
+  "input/P7KBJ_4_P7KBJ_chain_E.pdb",
+  "input/P7KBJ_5_P7KBJ_chain_F.pdb",
+  "input/P7KBJ_6_P7KBJ_chain_G.pdb",
+  "input/P7KBJ_7_P7KBJ_chain_H.pdb",
+]
+
+[topoaa]
+
+[rigidbody]
+tolerance = 5
+sampling = 5
+cmrest = true
+unambig_fname = "restraints/P7KBJ_restrain_bodies.tbl"
+
+[seletop]
+select = 50
+
+[flexref]
+tolerance = 5
+unambig_fname = "restraints/P7KBJ_restrain_bodies.tbl"
+
+[emref]
+tolerance = 5
+unambig_fname = "restraints/P7KBJ_restrain_bodies.tbl"
+
+[seletop]
+select = 1
+
+[prodigyprotein]

@@ -1,0 +1,2324 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3 at patch level U
+           Status: Special UU release with Rg, paramagnetic
+                   and Z-restraints (A. Bonvin, UU 2013)
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: hostname unknown (x86_64/Linux,64-bit)
+           Program started by: unknown
+           Program started at: 18:42:11 on 20-Dec-2025
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve> 
+ CNSsolve>! Parameters 
+ CNSsolve>eval ($ncores=8) 
+ EVALUATE: symbol $NCORES set to    8.00000     (real)
+ CNSsolve>eval ($max_cpus=true) 
+ EVALUATE: symbol $MAX_CPUS set to TRUE (logical)
+ CNSsolve>eval ($mode="local") 
+ EVALUATE: symbol $MODE set to "local" (string)
+ CNSsolve>eval ($batch_type="slurm") 
+ EVALUATE: symbol $BATCH_TYPE set to "slurm" (string)
+ CNSsolve>eval ($queue_limit=100) 
+ EVALUATE: symbol $QUEUE_LIMIT set to    100.000     (real)
+ CNSsolve>eval ($concat=1) 
+ EVALUATE: symbol $CONCAT set to    1.00000     (real)
+ CNSsolve>eval ($self_contained=false) 
+ EVALUATE: symbol $SELF_CONTAINED set to FALSE (logical)
+ CNSsolve>eval ($clean=true) 
+ EVALUATE: symbol $CLEAN set to TRUE (logical)
+ CNSsolve>eval ($offline=false) 
+ EVALUATE: symbol $OFFLINE set to FALSE (logical)
+ CNSsolve>eval ($debug=true) 
+ EVALUATE: symbol $DEBUG set to TRUE (logical)
+ CNSsolve>eval ($autohis=true) 
+ EVALUATE: symbol $AUTOHIS set to TRUE (logical)
+ CNSsolve>eval ($delenph=true) 
+ EVALUATE: symbol $DELENPH set to TRUE (logical)
+ CNSsolve>eval ($log_level="quiet") 
+ EVALUATE: symbol $LOG_LEVEL set to "quiet" (string)
+ CNSsolve>eval ($iniseed=917) 
+ EVALUATE: symbol $INISEED set to    917.000     (real)
+ CNSsolve>eval ($ligand_param_fname="") 
+ EVALUATE: symbol $LIGAND_PARAM_FNAME set to "" (string)
+ CNSsolve>eval ($ligand_top_fname="") 
+ EVALUATE: symbol $LIGAND_TOP_FNAME set to "" (string)
+ CNSsolve>eval ($limit=true) 
+ EVALUATE: symbol $LIMIT set to TRUE (logical)
+ CNSsolve>eval ($set_bfactor=true) 
+ EVALUATE: symbol $SET_BFACTOR set to TRUE (logical)
+ CNSsolve>eval ($tolerance=0) 
+ EVALUATE: symbol $TOLERANCE set to    0.00000     (real)
+ CNSsolve>eval ($cyclicpept_dist=2.0) 
+ EVALUATE: symbol $CYCLICPEPT_DIST set to    2.00000     (real)
+ CNSsolve>eval ($disulphide_dist=2.2) 
+ EVALUATE: symbol $DISULPHIDE_DIST set to    2.20000     (real)
+ CNSsolve>eval ($cyclicpept=false) 
+ EVALUATE: symbol $CYCLICPEPT set to FALSE (logical)
+ CNSsolve>eval ($nhisd=0) 
+ EVALUATE: symbol $NHISD set to    0.00000     (real)
+ CNSsolve>eval ($nhise=0) 
+ EVALUATE: symbol $NHISE set to    0.00000     (real)
+ CNSsolve>eval ($prot_link_infile="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/protein-allhdg5-4-noter.link") 
+ EVALUATE: symbol $PROT_LINK_INFILE set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/protein-allhdg5-4-noter.link" (string)
+ CNSsolve>eval ($nucl_link_infile="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/dna-rna-1.3.link") 
+ EVALUATE: symbol $NUCL_LINK_INFILE set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/dna-rna-1.3.link" (string)
+ CNSsolve> 
+ CNSsolve>! Input structure 
+ CNSsolve>eval ($file="../data/0_topoaa/P7KBJ_0_P7KBJ_chain_A.pdb") 
+ EVALUATE: symbol $FILE set to "../data/0_topoaa/P7KBJ_0_P7KBJ_chain_A.pdb" (string)
+ CNSsolve>eval ($ncomponents=1) 
+ EVALUATE: symbol $NCOMPONENTS set to    1.00000     (real)
+ CNSsolve>eval ($prot_segid_1="B") 
+ EVALUATE: symbol $PROT_SEGID_1 set to "B" (string)
+ CNSsolve>eval ($seed=68962) 
+ EVALUATE: symbol $SEED set to    68962.0     (real)
+ CNSsolve> 
+ CNSsolve>! Output structure 
+ CNSsolve>eval ($output_pdb_filename="P7KBJ_0_P7KBJ_chain_A_haddock.pdb") 
+ EVALUATE: symbol $OUTPUT_PDB_FILENAME set to "P7KBJ_0_P7KBJ_chain_A_haddock.pdb" (string)
+ CNSsolve>eval ($output_psf_filename="P7KBJ_0_P7KBJ_chain_A_haddock.psf") 
+ EVALUATE: symbol $OUTPUT_PSF_FILENAME set to "P7KBJ_0_P7KBJ_chain_A_haddock.psf" (string)
+ CNSsolve> 
+ CNSsolve>! Translation vectors 
+ CNSsolve>eval ($trans_vector_0="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_0") 
+ EVALUATE: symbol $TRANS_VECTOR_0 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_0" (string)
+ CNSsolve>eval ($trans_vector_1="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_1") 
+ EVALUATE: symbol $TRANS_VECTOR_1 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_1" (string)
+ CNSsolve>eval ($trans_vector_2="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_2") 
+ EVALUATE: symbol $TRANS_VECTOR_2 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_2" (string)
+ CNSsolve>eval ($trans_vector_3="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_3") 
+ EVALUATE: symbol $TRANS_VECTOR_3 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_3" (string)
+ CNSsolve>eval ($trans_vector_4="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_4") 
+ EVALUATE: symbol $TRANS_VECTOR_4 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_4" (string)
+ CNSsolve>eval ($trans_vector_5="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_5") 
+ EVALUATE: symbol $TRANS_VECTOR_5 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_5" (string)
+ CNSsolve>eval ($trans_vector_6="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_6") 
+ EVALUATE: symbol $TRANS_VECTOR_6 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_6" (string)
+ CNSsolve>eval ($trans_vector_7="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_7") 
+ EVALUATE: symbol $TRANS_VECTOR_7 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_7" (string)
+ CNSsolve>eval ($trans_vector_8="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_8") 
+ EVALUATE: symbol $TRANS_VECTOR_8 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_8" (string)
+ CNSsolve>eval ($trans_vector_9="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_9") 
+ EVALUATE: symbol $TRANS_VECTOR_9 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_9" (string)
+ CNSsolve>eval ($trans_vector_10="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_10") 
+ EVALUATE: symbol $TRANS_VECTOR_10 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_10" (string)
+ CNSsolve>eval ($trans_vector_11="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_11") 
+ EVALUATE: symbol $TRANS_VECTOR_11 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_11" (string)
+ CNSsolve>eval ($trans_vector_12="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_12") 
+ EVALUATE: symbol $TRANS_VECTOR_12 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_12" (string)
+ CNSsolve>eval ($trans_vector_13="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_13") 
+ EVALUATE: symbol $TRANS_VECTOR_13 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_13" (string)
+ CNSsolve>eval ($trans_vector_14="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_14") 
+ EVALUATE: symbol $TRANS_VECTOR_14 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_14" (string)
+ CNSsolve>eval ($trans_vector_15="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_15") 
+ EVALUATE: symbol $TRANS_VECTOR_15 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_15" (string)
+ CNSsolve>eval ($trans_vector_16="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_16") 
+ EVALUATE: symbol $TRANS_VECTOR_16 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_16" (string)
+ CNSsolve>eval ($trans_vector_17="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_17") 
+ EVALUATE: symbol $TRANS_VECTOR_17 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_17" (string)
+ CNSsolve>eval ($trans_vector_18="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_18") 
+ EVALUATE: symbol $TRANS_VECTOR_18 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_18" (string)
+ CNSsolve>eval ($trans_vector_19="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_19") 
+ EVALUATE: symbol $TRANS_VECTOR_19 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_19" (string)
+ CNSsolve>eval ($trans_vector_20="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_20") 
+ EVALUATE: symbol $TRANS_VECTOR_20 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_20" (string)
+ CNSsolve>eval ($trans_vector_21="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_21") 
+ EVALUATE: symbol $TRANS_VECTOR_21 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_21" (string)
+ CNSsolve>eval ($trans_vector_22="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_22") 
+ EVALUATE: symbol $TRANS_VECTOR_22 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_22" (string)
+ CNSsolve>eval ($trans_vector_23="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_23") 
+ EVALUATE: symbol $TRANS_VECTOR_23 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_23" (string)
+ CNSsolve>eval ($trans_vector_24="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_24") 
+ EVALUATE: symbol $TRANS_VECTOR_24 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_24" (string)
+ CNSsolve>eval ($trans_vector_25="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_25") 
+ EVALUATE: symbol $TRANS_VECTOR_25 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_25" (string)
+ CNSsolve>eval ($trans_vector_26="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_26") 
+ EVALUATE: symbol $TRANS_VECTOR_26 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_26" (string)
+ CNSsolve>eval ($trans_vector_27="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_27") 
+ EVALUATE: symbol $TRANS_VECTOR_27 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_27" (string)
+ CNSsolve>eval ($trans_vector_28="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_28") 
+ EVALUATE: symbol $TRANS_VECTOR_28 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_28" (string)
+ CNSsolve>eval ($trans_vector_29="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_29") 
+ EVALUATE: symbol $TRANS_VECTOR_29 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_29" (string)
+ CNSsolve>eval ($trans_vector_30="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_30") 
+ EVALUATE: symbol $TRANS_VECTOR_30 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_30" (string)
+ CNSsolve>eval ($trans_vector_31="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_31") 
+ EVALUATE: symbol $TRANS_VECTOR_31 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_31" (string)
+ CNSsolve>eval ($trans_vector_32="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_32") 
+ EVALUATE: symbol $TRANS_VECTOR_32 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_32" (string)
+ CNSsolve>eval ($trans_vector_33="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_33") 
+ EVALUATE: symbol $TRANS_VECTOR_33 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_33" (string)
+ CNSsolve>eval ($trans_vector_34="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_34") 
+ EVALUATE: symbol $TRANS_VECTOR_34 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_34" (string)
+ CNSsolve>eval ($trans_vector_35="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_35") 
+ EVALUATE: symbol $TRANS_VECTOR_35 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_35" (string)
+ CNSsolve>eval ($trans_vector_36="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_36") 
+ EVALUATE: symbol $TRANS_VECTOR_36 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_36" (string)
+ CNSsolve>eval ($trans_vector_37="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_37") 
+ EVALUATE: symbol $TRANS_VECTOR_37 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_37" (string)
+ CNSsolve>eval ($trans_vector_38="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_38") 
+ EVALUATE: symbol $TRANS_VECTOR_38 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_38" (string)
+ CNSsolve>eval ($trans_vector_39="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_39") 
+ EVALUATE: symbol $TRANS_VECTOR_39 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_39" (string)
+ CNSsolve>eval ($trans_vector_40="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_40") 
+ EVALUATE: symbol $TRANS_VECTOR_40 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_40" (string)
+ CNSsolve>eval ($trans_vector_41="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_41") 
+ EVALUATE: symbol $TRANS_VECTOR_41 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_41" (string)
+ CNSsolve>eval ($trans_vector_42="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_42") 
+ EVALUATE: symbol $TRANS_VECTOR_42 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_42" (string)
+ CNSsolve>eval ($trans_vector_43="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_43") 
+ EVALUATE: symbol $TRANS_VECTOR_43 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_43" (string)
+ CNSsolve>eval ($trans_vector_44="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_44") 
+ EVALUATE: symbol $TRANS_VECTOR_44 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_44" (string)
+ CNSsolve>eval ($trans_vector_45="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_45") 
+ EVALUATE: symbol $TRANS_VECTOR_45 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_45" (string)
+ CNSsolve>eval ($trans_vector_46="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_46") 
+ EVALUATE: symbol $TRANS_VECTOR_46 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_46" (string)
+ CNSsolve>eval ($trans_vector_47="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_47") 
+ EVALUATE: symbol $TRANS_VECTOR_47 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_47" (string)
+ CNSsolve>eval ($trans_vector_48="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_48") 
+ EVALUATE: symbol $TRANS_VECTOR_48 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_48" (string)
+ CNSsolve>eval ($trans_vector_49="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_49") 
+ EVALUATE: symbol $TRANS_VECTOR_49 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_49" (string)
+ CNSsolve>eval ($trans_vector_50="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_50") 
+ EVALUATE: symbol $TRANS_VECTOR_50 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/initial_positions/trans_vector_50" (string)
+ CNSsolve> 
+ CNSsolve>! Tensors 
+ CNSsolve>eval ($tensor_psf="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/tensor.psf") 
+ EVALUATE: symbol $TENSOR_PSF set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/tensor.psf" (string)
+ CNSsolve>eval ($tensor_pdb="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/tensor.pdb") 
+ EVALUATE: symbol $TENSOR_PDB set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/tensor.pdb" (string)
+ CNSsolve>eval ($tensor_para_psf="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/tensor_para.psf") 
+ EVALUATE: symbol $TENSOR_PARA_PSF set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/tensor_para.psf" (string)
+ CNSsolve>eval ($tensor_para_pdb="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/tensor_para.pdb") 
+ EVALUATE: symbol $TENSOR_PARA_PDB set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/tensor_para.pdb" (string)
+ CNSsolve>eval ($tensor_dani_psf="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/tensor_dani.psf") 
+ EVALUATE: symbol $TENSOR_DANI_PSF set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/tensor_dani.psf" (string)
+ CNSsolve>eval ($tensor_dani_pdb="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/tensor_dani.pdb") 
+ EVALUATE: symbol $TENSOR_DANI_PDB set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/tensor_dani.pdb" (string)
+ CNSsolve> 
+ CNSsolve>! Scatter lib 
+ CNSsolve>eval ($scatter_lib="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/scatter.lib") 
+ EVALUATE: symbol $SCATTER_LIB set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/scatter.lib" (string)
+ CNSsolve> 
+ CNSsolve>! Axis 
+ CNSsolve>eval ($top_axis="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/top_axis.pro") 
+ EVALUATE: symbol $TOP_AXIS set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/top_axis.pro" (string)
+ CNSsolve>eval ($par_axis="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/par_axis.pro") 
+ EVALUATE: symbol $PAR_AXIS set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/par_axis.pro" (string)
+ CNSsolve>eval ($top_axis_dani="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/top_axis_dani.pro") 
+ EVALUATE: symbol $TOP_AXIS_DANI set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/top_axis_dani.pro" (string)
+ CNSsolve> 
+ CNSsolve>! Water box 
+ CNSsolve>eval ($boxtyp20="/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/boxtyp20.pdb") 
+ EVALUATE: symbol $BOXTYP20 set to "/home/phucdao/miniconda3/envs/haddock3/lib/python3.9/site-packages/haddock/cns/toppar/boxtyp20.pdb" (string)
+ CNSsolve>! generate-topology.inp 
+ CNSsolve>!     Generates missing coordinates and topology 
+ CNSsolve>! 
+ CNSsolve>! *********************************************************************** 
+ CNSsolve>! * Copyright 2003-2022 Alexandre Bonvin, Utrecht University.           * 
+ CNSsolve>! * Originally adapted from Aria 1.2 from Nilges and Linge, EMBL.       * 
+ CNSsolve>! * and from the CNS distriution of Brunger and Adams                   * 
+ CNSsolve>! * All rights reserved.                                                * 
+ CNSsolve>! * This code is part of the HADDOCK software and governed by its       * 
+ CNSsolve>! * license. Please see the LICENSE file that should have been included * 
+ CNSsolve>! * as part of this package.                                            * 
+ CNSsolve>! *********************************************************************** 
+ CNSsolve> 
+ CNSsolve>define( 
+ DEFINE> 
+ DEFINE>{============================== important =================================} 
+ DEFINE> 
+ DEFINE>{* Different chains in the structure must have either unique segid or 
+ DEFINE>   chainid records. If this is no the case, the end of a chain must 
+ DEFINE>   be delimited by a TER card. *} 
+ DEFINE> 
+ DEFINE>{* A break in a chain can be detected automatically or should be delimited 
+ DEFINE>   by a BREAK card. In this case no patch (head, tail or link) will be 
+ DEFINE>   applied between the residues that bound the chain break. *} 
+ DEFINE> 
+ DEFINE>{* NB. The input PDB file must finish with an END statement *} 
+ DEFINE> 
+ DEFINE>{* convert chainid to segid if chainid is non-blank *} 
+ DEFINE>{+ choice: true false +} 
+ DEFINE>{===>} convert=true; 
+ DEFINE> 
+ DEFINE>{* separate chains by segid - a new segid starts a new chain *} 
+ DEFINE>{+ choice: true false +} 
+ DEFINE>{===>} separate=true; 
+ DEFINE>{============================ renaming atoms ===============================} 
+ DEFINE> 
+ DEFINE>{* some atoms may need to be renamed in the topology database to conform 
+ DEFINE>   to what is present in the coordinate file *} 
+ DEFINE> 
+ DEFINE>{* delta carbon in isoleucine is named CD in CNS 
+ DEFINE>   what is it currently called in the coordinate file? *} 
+ DEFINE>{* this will not be changed if left blank *} 
+ DEFINE>{===>} ile_CD_becomes="CD1"; 
+ DEFINE> 
+ DEFINE>{* terminal oxygens are named OT1 and OT2 in CNS 
+ DEFINE>   what are they currently called in the coordinate file? *} 
+ DEFINE>{* these will not be changed if left blank *} 
+ DEFINE>{===>} OT1_becomes="O"; 
+ DEFINE>{===>} OT2_becomes="OXT"; 
+ DEFINE> 
+ DEFINE>{======================= automatic mainchain breaks ========================} 
+ DEFINE> 
+ DEFINE>{* automatically detect mainchain breaks in proteins based on distance *} 
+ DEFINE>{* the peptide link at break points will be removed *} 
+ DEFINE>{+ choice: true false +} 
+ DEFINE>{===>} auto_break=true; 
+ DEFINE> 
+ DEFINE>{* cutoff distance in Angstroms for identification of breaks *} 
+ DEFINE>{* the default of 2.5A for peptide bonds should be reasonable for most cases. If the input 
+ DEFINE>   structure has bad geometry it may be necessary to increase this distance *} 
+ DEFINE>{===>} pbreak_cutoff=3.5; 
+ DEFINE>{===>} pcgbreak_cutoff=8.0; 
+ DEFINE>{* the default of 2.5A for nucleic acid linkages should be reasonable for most cases. If the input 
+ DEFINE>   structure has bad geometry it may be necessary to increase this distance *} 
+ DEFINE>{===>} dbreak_cutoff=4.5; 
+ DEFINE> 
+ DEFINE>{* file containing patches to delete nucleic acid links *} 
+ DEFINE>{===>} dna_break_infile="TOPPAR:dna_break.top"; 
+ DEFINE> 
+ DEFINE>{======================= automatic disulphide bonds ========================} 
+ DEFINE> 
+ DEFINE>{* cutoff distance in Angstroms for identification of disulphides *} 
+ DEFINE>{* the default of 3.0A should be reasonable for most cases. If the input 
+ DEFINE>   structure has bad geometry it may be necessary to increase this distance *} 
+ DEFINE>{===>} disulphide_dist=3.0; 
+ DEFINE> 
+ DEFINE>{======================= automatic cyclic peptidic bond ====================} 
+ DEFINE> 
+ DEFINE>{* cutoff distance in Angstroms for identification of cyclic peptide*} 
+ DEFINE>{* the default of 2.0A should be reasonable for most cases. If the input 
+ DEFINE>   structure has bad geometry it may be necessary to increase this distance *} 
+ DEFINE>{===>} cyclicpept_dist=2.0; 
+ DEFINE> 
+ DEFINE>{======================= automatic iron cluster bonds ======================} 
+ DEFINE> 
+ DEFINE>{* cutoff distance in Angstroms for identification of iron cluster bonds *} 
+ DEFINE>{* the default of 8.0A should be reasonable for most cases. If the input 
+ DEFINE>   structure has bad geometry it may be necessary to increase this distance *} 
+ DEFINE>{===>} iron1cluster_dist=5.0; 
+ DEFINE>{===>} iron2cluster_dist=8.0; 
+ DEFINE> 
+ DEFINE>{======================= automatic cis peptide bonds =======================} 
+ DEFINE> 
+ DEFINE>{* select atoms to be included in calculation of omega angles *} 
+ DEFINE>{* to define cis peptides*} 
+ DEFINE>{===>} atom_select=(known and not hydrogen); 
+ DEFINE> 
+ DEFINE>{========================= generate parameters =============================} 
+ DEFINE> 
+ DEFINE>{* hydrogen flag - determines whether hydrogens will be output *} 
+ DEFINE>{* must be true for NMR, atomic resolution X-ray crystallography 
+ DEFINE>   or modelling.  Set to false for most X-ray crystallographic 
+ DEFINE>   applications at resolution > 1A *} 
+ DEFINE>{+ choice: true false +} 
+ DEFINE>{===>} hydrogen_flag=true; 
+ DEFINE> 
+ DEFINE>{* which hydrogens to build *} 
+ DEFINE>{+ choice: "all" "unknown" +} 
+ DEFINE>{===>} hydrogen_build="all"; 
+ DEFINE> 
+ DEFINE>{* selection of atoms other than hydrogens for which coordinates 
+ DEFINE>   will be generated *} 
+ DEFINE>{* to generate coordinates for all unknown atoms use: (not(known)) *} 
+ DEFINE>{===>} atom_build=(not(known)); 
+ DEFINE> 
+ DEFINE>{* selection of atoms to be deleted *} 
+ DEFINE>{* to delete no atoms use: (none) *} 
+ DEFINE>{===>} atom_delete=(none); 
+ DEFINE> 
+ DEFINE>{* set bfactor value *} 
+ DEFINE>{===>} bfactor=15.0; 
+ DEFINE> 
+ DEFINE>{* set occupancy flag *} 
+ DEFINE>{+ choice: true false +} 
+ DEFINE>{===>} set_occupancy=false; 
+ DEFINE> 
+ DEFINE>{* set occupancy value *} 
+ DEFINE>{===>} occupancy=1.0; 
+ DEFINE> 
+ DEFINE>{================== protein topology and parameter files ===================} 
+ DEFINE> 
+ DEFINE>{* protein topology file *} 
+ DEFINE>{===>} prot_topology_infile="TOPPAR:protein-allhdg5-4.top"; 
+ DEFINE> 
+ DEFINE>{* protein parameter file *} 
+ DEFINE>{===>} prot_parameter_infile="TOPPAR:protein-allhdg5-4.param"; 
+ DEFINE> 
+ DEFINE>{================ nucleic acid topology and parameter files =================} 
+ DEFINE> 
+ DEFINE>{* nucleic acid topology file *} 
+ DEFINE>{===>} nucl_topology_infile="TOPPAR:dna-rna-allatom-hj-opls-1.3.top"; 
+ DEFINE> 
+ DEFINE>{* nucleic acid parameter file *} 
+ DEFINE>{===>} nucl_parameter_infile="TOPPAR:dna-rna-allatom-hj-opls-1.3.param"; 
+ DEFINE> 
+ DEFINE>{================= carbohydrate topology and parameter files ===============} 
+ DEFINE> 
+ DEFINE>{* carbohydrate topology file *} 
+ DEFINE>{===>} carbo_topology_infile="TOPPAR:carbohydrate.top"; 
+ DEFINE> 
+ DEFINE>{* carbohydrate parameter file *} 
+ DEFINE>{===>} carbo_parameter_infile="TOPPAR:carbohydrate.param"; 
+ DEFINE> 
+ DEFINE>{================= solvent topology and parameter files ====================} 
+ DEFINE> 
+ DEFINE>{* solvent topology file *} 
+ DEFINE>{===>} solv_topology_infile="TOPPAR:solvent-allhdg5-4.top"; 
+ DEFINE> 
+ DEFINE>{* solvent parameter file *} 
+ DEFINE>{===>} solv_parameter_infile="TOPPAR:solvent-allhdg5-4.param"; 
+ DEFINE> 
+ DEFINE>{================= cofactor topology and parameter files ===================} 
+ DEFINE> 
+ DEFINE>{* co-factor topology file *} 
+ DEFINE>{===>} cofactors_topology_infile="TOPPAR:cofactors.top"; 
+ DEFINE> 
+ DEFINE>{* co-factor parameter file *} 
+ DEFINE>{===>} cofactors_parameter_infile="TOPPAR:cofactors.param"; 
+ DEFINE> 
+ DEFINE> 
+ DEFINE>{================= known ligands topology and parameter files ==============} 
+ DEFINE> 
+ DEFINE>{* ligands topology file *} 
+ DEFINE>{===>} ligands_topology_infile="TOPPAR:fragment_probes.top"; 
+ DEFINE> 
+ DEFINE>{* ligands parameter file *} 
+ DEFINE>{===>} ligands_parameter_infile="TOPPAR:fragment_probes.param"; 
+ DEFINE> 
+ DEFINE>{===================== ion topology and parameter files ====================} 
+ DEFINE> 
+ DEFINE>{* ion topology file *} 
+ DEFINE>{===>} ion_topology_infile="TOPPAR:ion.top"; 
+ DEFINE> 
+ DEFINE>{* ion parameter file *} 
+ DEFINE>{===>} ion_parameter_infile="TOPPAR:ion.param"; 
+ DEFINE> 
+ DEFINE>{===================== heme topology and parameter files ==================} 
+ DEFINE> 
+ DEFINE>{* heme topology file *} 
+ DEFINE>{===>} heme_topology_infile="TOPPAR:hemes-allhdg.top"; 
+ DEFINE> 
+ DEFINE>{* heme parameter file *} 
+ DEFINE>{===>} heme_parameter_infile="TOPPAR:hemes-allhdg.param"; 
+ DEFINE> 
+ DEFINE>{================= shape topology and parameter files =====================} 
+ DEFINE> 
+ DEFINE>{* shape topology file *} 
+ DEFINE>{===>} shape_topology_infile="TOPPAR:shape.top"; 
+ DEFINE> 
+ DEFINE>{* shape parameter file *} 
+ DEFINE>{===>} shape_parameter_infile="TOPPAR:shape.param"; 
+ DEFINE> 
+ DEFINE>{===================== default number of histidines for patching ===========} 
+ DEFINE> 
+ DEFINE> ) {- end block parameter definition -} 
+ CNSsolve> 
+ CNSsolve>evaluate ($chain = 1) 
+ EVALUATE: symbol $CHAIN set to    1.00000     (real)
+ CNSsolve>evaluate($coor_infile= $file) 
+ EVALUATE: symbol $COOR_INFILE set to "../data/0_topoaa/P7KBJ_0_P7KBJ_chain_A.pdb" (string)
+ CNSsolve> 
+ CNSsolve>topology 
+ RTFRDR>    if ( &BLANK%prot_topology_infile = false ) then 
+ NEXTCD: condition evaluated as true
+ RTFRDR>        @@&prot_topology_infile 
+ ASSFIL: file protein-allhdg5-4.top opened.
+ RTFRDR>remarks file toppar/protein-allhdg5-4.top 
+ RTFRDR>remarks 
+ RTFRDR>remarks   file topallhdg.pro  version 5.4  date 07-July-10 
+ RTFRDR>remarks      for file parallhdg.pro version 5.4 date 07-July-10 or later 
+ RTFRDR>remarks   Geometric energy function parameters for distance geometry and 
+ RTFRDR>remarks      simulated annealing. 
+ RTFRDR>remarks   Author: Michael Nilges, EMBL Heidelberg; Institut Pasteur, Paris 
+ RTFRDR>remarks   This file contains modifications from M. Williams, UCL London 
+ RTFRDR>remarks   and multiple modifications for HADDOCK from A. Bonvin, Utrecht University 
+ RTFRDR>remarks   Last modification 24-09-2014 
+ RTFRDR> 
+ RTFRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ RTFRDR>set message=off echo=off end 
+ RTFRDR>    end if 
+ RTFRDR>    if ( &BLANK%cofactors_topology_infile = false ) then 
+ NEXTCD: condition evaluated as true
+ RTFRDR>        @@&cofactors_topology_infile 
+ ASSFIL: file cofactors.top opened.
+ RTFRDR>REMARKS file toppar/cofactors.top 
+ RTFRDR>REMARKS Victor Reys - 19/03/2025 
+ RTFRDR>REMARKS Topologies added for common co-factors 
+ RTFRDR>REMARKS ADN-ADP-AMP-ATP-CIT-FAD-FLC-GDP-GMP-GTP-NAD-NAP-NDP 
+ RTFRDR> 
+ RTFRDR>! History: 
+ RTFRDR>! Victor Reys - 19/03/2025 
+ RTFRDR>! - Topology taken from PRODRG version 070118.0614 
+ RTFRDR>! - AtomType midfix for ADN: A0 
+ RTFRDR>! - AtomType midfix for ADP: A2 
+ RTFRDR>! - AtomType midfix for AMP: A1 
+ RTFRDR>! - AtomType midfix for ATP: A3 
+ RTFRDR>! - AtomType midfix for CIT: CI 
+ RTFRDR>! - AtomType midfix for FAD: F2 
+ RTFRDR>! - AtomType midfix for FLC: CT 
+ RTFRDR>! - AtomType midfix for GDP: G2 
+ RTFRDR>! - AtomType midfix for GMP: G1 
+ RTFRDR>! - AtomType midfix for GTP: G3 
+ RTFRDR>! - AtomType midfix for NAD: N2 
+ RTFRDR>! - AtomType midfix for NAP: N3 
+ RTFRDR>! - AtomType midfix for NDP: NP 
+ RTFRDR> 
+ RTFRDR> 
+ RTFRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ RTFRDR>set message=off echo=off end 
+ RTFRDR>    end if 
+ RTFRDR>    if ( &BLANK%ion_topology_infile = false ) then 
+ NEXTCD: condition evaluated as true
+ RTFRDR>        @@&ion_topology_infile 
+ ASSFIL: file ion.top opened.
+ RTFRDR>remarks file toppar/ion.top 
+ RTFRDR>remarks topology and masses for common ions 
+ RTFRDR>remarks Dingle atom ion residues are given the name of the element. 
+ RTFRDR>remarks By default the atom will be uncharged (eg. the residue MG will 
+ RTFRDR>remarks contain the atom called MG with zero charge). 
+ RTFRDR>remarks To use the charged species the charge state is appended to 
+ RTFRDR>remarks the atom name (eg to use MG2+ the residue name is MG2, and the 
+ RTFRDR>remarks atom name is MG+2 and has charge +2.0). 
+ RTFRDR>remarks NOTE: not all ionic species are represented 
+ RTFRDR>remarks PDA 02/09/99 
+ RTFRDR> 
+ RTFRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ RTFRDR>set message=off echo=off end 
+ RTFRDR>    end if 
+ RTFRDR>    if ( &BLANK%nucl_topology_infile = false ) then 
+ NEXTCD: condition evaluated as true
+ RTFRDR>        @@&nucl_topology_infile 
+ ASSFIL: file dna-rna-allatom-hj-opls-1.3.top opened.
+ RTFRDR>remarks file toppar/dna-rna-allatom-hj-opls-1.3 
+ RTFRDR>remarks  all-hydrogen dna/rna topology using the OPLS force field 
+ RTFRDR> 
+ RTFRDR>!RNA TOPOLOGY FILE 'FRAMEWORK' FROM TOPALLHDG.DNA AND ATOM NAMES 
+ RTFRDR>!  FROM DNA-RNA.PARAM 
+ RTFRDR>!INCLUDES ALL NONEXCHANGEABLE HYDROGENS AND TERMS FOR BOND, ANGLE, AND 
+ RTFRDR>!IMPROPERS. NONEXCHANGEABLE HYDROGEN CHARGES WERE ASSIGNED 0.035. 
+ RTFRDR>!CARBON CHARGES WERE REDUCED 0.035 FOR EACH ATTACHED HYDROGEN. 
+ RTFRDR>!CREATED 2/24/96-- JASON P. RIFE AND PETER B. MOORE 
+ RTFRDR>!CHANGED TO OPLSX CHARGES 6/2/07 -- HENRY JONKER 
+ RTFRDR>!ADAPTED/CLEANED FOR HADDOCK - ALEXANDRE BONVIN 
+ RTFRDR> 
+ RTFRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ RTFRDR>set message=off echo=off end 
+ RTFRDR> 
+ RTFRDR> 
+ RTFRDR>    end if 
+ RTFRDR>    if ( &BLANK%carbo_topology_infile = false ) then 
+ NEXTCD: condition evaluated as true
+ RTFRDR>        @@&carbo_topology_infile 
+ ASSFIL: file carbohydrate.top opened.
+ RTFRDR>REMARKS toppar/carbohydrate.top 
+ RTFRDR>REMARKS for use with carbohydrate.param for N-linked glycans 
+ RTFRDR>REMARKS ========================================================== 
+ RTFRDR>REMARKS Joao Rodrigues 11-June-2020 
+ RTFRDR>REMARKS Topologies updated to Feng, PLoS One, 2017 
+ RTFRDR>REMARKS PMC 5726640 
+ RTFRDR>REMARKS Alexandre Bonvin July-2020 
+ RTFRDR>REMARKS Patches added for GAL-SIA 2-3 and 2.6 linkages 
+ RTFRDR>REMARKS Marco Giulini November-2024 
+ RTFRDR>REMARKS Topologies added for BDP-MMA-XYS-ABE 
+ RTFRDR>REMARKS ---------------------------------------------------------- 
+ RTFRDR>REMARKS Currently supported carbohydrates and their anomers: 
+ RTFRDR>REMARK (codes in parenthesis are commonly used alternatives - currently not recognized by CNS): 
+ RTFRDR>REMARKS GLC:       alpha-D-glucopyranose 
+ RTFRDR>REMARKS BGC:       beta -D-glucopyranose 
+ RTFRDR>REMARKS GLA:       alpha-D-galactopyranose 
+ RTFRDR>REMARKS GAL (GLB): beta- D-galactopyranose 
+ RTFRDR>REMARKS MAN:       alpha-D-mannopyranose 
+ RTFRDR>REMARKS BMA:       beta -D-mannopyronose 
+ RTFRDR>REMARKS NDG:       2-N-acetyl-alpha-D-glucopyranose 
+ RTFRDR>REMARKS A2G:       2-N-acetyl-alpha-D-glucopyranose, different stereochemistry at C4 
+ RTFRDR>REMARKS NAG:       2-N-acetyl-beta-D-glucopyranose 
+ RTFRDR>REMARKS NGA:       2-N-acetyl-beta-D-galactopyranose 
+ RTFRDR>REMARKS FUC:       alpha-L-fucopyranose 
+ RTFRDR>REMARKS FUL:       beta -L-fucopyranose 
+ RTFRDR>REMARKS FCA:       alpha-D-fucopyranose 
+ RTFRDR>REMARKS FCB:       beta -D-fucopyranose 
+ RTFRDR>REMARKS SIA:       alpha-N-acetyl neuraminic acid 
+ RTFRDR>REMARKS SIB:       beta-N-acetyl neuraminic acid - A. Bonvin 
+ RTFRDR>REMARKS XYP:       beta-D-xylopyranose 
+ RTFRDR>REMARKS BDP:       beta-D-glucoronic acid 
+ RTFRDR>REMARKS MMA:       methyl alpha-D-mannopyranoside 
+ RTFRDR>REMARKS XYS:       alpha-D-xylopyranose 
+ RTFRDR>REMARKS ABE:       alpha-D-Abequopyranose 
+ RTFRDR>REMARKS ---------------------------------------------------------- 
+ RTFRDR>REMARKS Links 
+ RTFRDR>REMARKS B1N: N-linked glycan beta link from NAG and NDG to ASN (asparagine) 
+ RTFRDR>!            note: PDB files with unusual NDG to ASN links are likely incorrect assignments 
+ RTFRDR>!            they will be forced into the beta anomer by the B1N link. 
+ RTFRDR>REMARKS B12: beta(1,2)  link from BGC, GAL, BMA, NAG, FCB, XYP to any 
+ RTFRDR>REMARKS B14: beta(1,4)  link from BGC, GAL, BMA, NAG, FCB, XYP to any 
+ RTFRDR>REMARKS A12: alpha(1,2) link from GLC, GLA, MAN, NDG, A2G, FCA to any 
+ RTFRDR>REMARKS A13: alpha(1,3) link from GLC, GLA, MAN, NDG, A2G, FCA to any 
+ RTFRDR>REMARKS A14: alpha(1,4) link from GLC, GLA, MAN, NDG, A2G, FCA to any 
+ RTFRDR>REMARKS A16: alpha(1,6) link from GLC, GLA, MAN, NDG, A2G, FCA to any 
+ RTFRDR>REMARKS B12L: beta(1,2)  link from FUL to any 
+ RTFRDR>REMARKS B14L: beta(1,4)  link from FUL to any 
+ RTFRDR>REMARKS A12L: alpha(1,2) link from FUC to any 
+ RTFRDR>REMARKS A13L: alpha(1,3) link from FUC to any 
+ RTFRDR>REMARKS A14L: alpha(1,4) link from FUC to any 
+ RTFRDR>REMARKS A16L: alpha(1,6) link from FUC to any 
+ RTFRDR>REMARKS A23: alpha(2,3) link from GAL to SIA, SIB 
+ RTFRDR>REMARKS A23S: alpha(2,3) link from SIA to GAL 
+ RTFRDR>REMARKS A26: alpha(2,6) link from GAL to SIA, SIB 
+ RTFRDR>REMARKS A26S: alpha(2,6)  link from SIA, SIB to GAL 
+ RTFRDR>REMARKS A28S: alpha(2,8)  link from SIA, SIB to SIA, SIB 
+ RTFRDR>REMARKS RAM: alpha-L-rhamnose 
+ RTFRDR>REMARKS GXL: alpha-L-galactopyranose 
+ RTFRDR>REMARKS B13: beta(1,3)  link from beta-D-sugar to any 
+ RTFRDR>REMARKS B13L: beta(1,3)  link from beta-L-sugar to any 
+ RTFRDR>REMARKS B16: beta(1,6)  link from beta-D-sugar to any 
+ RTFRDR>REMARKS B16L: beta(1,6)  link from beta-L-sugar to any 
+ RTFRDR>REMARKS B1S: beta link from C1(D-) to Ser OG. 
+ RTFRDR>REMARKS A1S: alpha link from C1(D-) to Ser OG. 
+ RTFRDR>REMARKS B1T: beta link from C1(D-) to Thr OG1. 
+ RTFRDR>REMARKS A1T: alpha link from C1(D-) to Thr OG1. 
+ RTFRDR>REMARKS B1C: beta link from C1(D-) to Cys SG. 
+ RTFRDR>REMARKS A1C: alpha link from C1(D-) to Cys SG. 
+ RTFRDR>REMARKS B1SL: beta link from C1(L-) to Ser OG. 
+ RTFRDR>REMARKS A1SL: alpha link from C1(L-) to Ser OG. 
+ RTFRDR>REMARKS B1TL: beta link from C1(L-) to Thr OG1. 
+ RTFRDR>REMARKS A1TL: alpha link from C1(L-) to Thr OG1. 
+ RTFRDR>REMARKS B1CL: beta link from C1(L-) to Cys SG. 
+ RTFRDR>REMARKS A1CL: alpha link from C1(L-) to Cys SG. 
+ RTFRDR> 
+ RTFRDR>! History: 
+ RTFRDR>! Bill Weis 10-July-1988: 
+ RTFRDR>! Charges taken from John Brady's glucose topology file for ring, 
+ RTFRDR>!   others from protein parameter file. 
+ RTFRDR>! Idealized values for impropers at ring carbons to allow simple 
+ RTFRDR>!   construction of various anomers/epimers. 
+ RTFRDR>! Any other hexose or link can be easily constructed by analogy to these. 
+ RTFRDR> 
+ RTFRDR>! Additions 6-March-1992 Bill Weis for use with PARAM2.CHO 
+ RTFRDR>! New atom types CCA, CCE,  OA for the C1 & O1 positions to account 
+ RTFRDR>! for different bond and angle values due to the anomeric effect. 
+ RTFRDR>! More accurate equilibrium values for bond angle around this oxygen 
+ RTFRDR>! in glycosidic linkages.  CCE for equatorial O1, CCA for 
+ RTFRDR>! axial O1.   For free sugar, keep OH1 as O1 atomtype; changed to OA 
+ RTFRDR>! for linkages. 
+ RTFRDR>! References: G.A. Jeffrey (1990) Acta Cryst B46, 89-103; 
+ RTFRDR>! K. Hirotsu & A.Shimada, (1974) Bull. Chem. Soc. Japan, 47, 1872-1879. 
+ RTFRDR>! 
+ RTFRDR>! Additional CC6 atomtype for exocyclic carbon 5/11/92 
+ RTFRDR>! New nomenclature, pairs of anomers for each pyranose sugar, generic links, ATB 12-Dec-2009 
+ RTFRDR>! 
+ RTFRDR>! added impropers that define anomers using non-hydrogen atoms, ATB 12/06/09 
+ RTFRDR>! 
+ RTFRDR>! added additional residues: FCA, FCB, A2G, ATB 12/07/09 
+ RTFRDR> 
+ RTFRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ RTFRDR>set message=off echo=off end 
+ RTFRDR>    end if 
+ RTFRDR>    if ( &BLANK%solv_topology_infile = false ) then 
+ NEXTCD: condition evaluated as true
+ RTFRDR>        @@&solv_topology_infile 
+ ASSFIL: file solvent-allhdg5-4.top opened.
+ RTFRDR>remarks file toppar/water-allhdg5-4.top 
+ RTFRDR>remarks 
+ RTFRDR>remarks  TOPH19.SOL 
+ RTFRDR>remarks  ========== 
+ RTFRDR>remarks  topology file for solvent molecules 
+ RTFRDR>remarks  water models available: TIP3P model 
+ RTFRDR> 
+ RTFRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ RTFRDR>set message=off echo=off end 
+ RTFRDR> 
+ RTFRDR>    end if 
+ RTFRDR>    if ( &BLANK%heme_topology_infile = false ) then 
+ NEXTCD: condition evaluated as true
+ RTFRDR>        @@&heme_topology_infile 
+ ASSFIL: file hemes-allhdg.top opened.
+ RTFRDR>remark file topallhdg.hemes 
+ RTFRDR> 
+ RTFRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ RTFRDR>set message=off echo=off end 
+ RTFRDR>    end if 
+ RTFRDR>    if ( &BLANK%shape_topology_infile = false ) then 
+ NEXTCD: condition evaluated as true
+ RTFRDR>        @@&shape_topology_infile 
+ ASSFIL: file shape.top opened.
+ RTFRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ RTFRDR>set message=off echo=off end 
+ RTFRDR>    end if 
+ RTFRDR>    if ( &BLANK%dna_break_infile = false ) then 
+ NEXTCD: condition evaluated as true
+ RTFRDR>        @@&dna_break_infile 
+ ASSFIL: file dna_break.top opened.
+ RTFRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ RTFRDR>set message=off echo=off end 
+ RTFRDR>    end if 
+ RTFRDR>    if ($ligand_top_fname # "") then 
+ NEXTCD: condition evaluated as false
+ RTFRDR>        fileexist $ligand_top_fname end 
+ RTFRDR>        if ($result eq true) then 
+ RTFRDR>            @@$ligand_top_fname 
+ RTFRDR>        end if 
+ RTFRDR>    end if 
+ RTFRDR>end 
+ CNSsolve> 
+ CNSsolve>parameter 
+ PARRDR>    if ( &BLANK%prot_parameter_infile = false ) then 
+ NEXTCD: condition evaluated as true
+ PARRDR>        @@&prot_parameter_infile 
+ ASSFIL: file protein-allhdg5-4.param opened.
+ PARRDR>remarks file toppar/protein-allhdg5-4.param 
+ PARRDR>remark 
+ PARRDR>remark   for file protein-allhdg-ucl.top  version UCL  date 14-MAR-00 
+ PARRDR>remark   for file protein-allhdg-dih-ucl.top  version UCL  date 07-JUL-01 
+ PARRDR>remark   Geometric energy function parameters for distance geometry and 
+ PARRDR>remark   simulated annealing. 
+ PARRDR>remark   Original author: Michael Nilges, EMBL Heidelberg 
+ PARRDR>remark   Modifications: Mark A. Williams, UCL London 
+ PARRDR>remark   Several modifications for HADDOCK: Alexandre Bonvin, Utrecht Uni 
+ PARRDR>remark   Last modification 06-02-2021 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR> 
+ PARRDR> 
+ PARRDR>    end if 
+ PARRDR>    if ( &BLANK%cofactors_parameter_infile = false ) then 
+ NEXTCD: condition evaluated as true
+ PARRDR>        @@&cofactors_parameter_infile 
+ ASSFIL: file cofactors.param opened.
+ PARRDR>REMARKS file toppar/cofactors.param 
+ PARRDR>REMARKS Victor Reys - 19/03/2025 
+ PARRDR>REMARKS Parameters added for common co-factors 
+ PARRDR>REMARKS ADN-ADP-AMP-ATP-CIT-FAD-FLC-GDP-GMP-GTP-NAD-NAP-NDP 
+ PARRDR> 
+ PARRDR>! History: 
+ PARRDR>! Victor Reys - 19/03/2025 
+ PARRDR>! - Parameters taken from PRODRG version 070118.0614 
+ PARRDR>! - AtomType midfix for ADN: A0 
+ PARRDR>! - AtomType midfix for ADP: A2 
+ PARRDR>! - AtomType midfix for AMP: A1 
+ PARRDR>! - AtomType midfix for ATP: A3 
+ PARRDR>! - AtomType midfix for CIT: CI 
+ PARRDR>! - AtomType midfix for FAD: F2 
+ PARRDR>! - AtomType midfix for FLC: CT 
+ PARRDR>! - AtomType midfix for GDP: G2 
+ PARRDR>! - AtomType midfix for GMP: G1 
+ PARRDR>! - AtomType midfix for GTP: G3 
+ PARRDR>! - AtomType midfix for NAD: N2 
+ PARRDR>! - AtomType midfix for NAP: N3 
+ PARRDR>! - AtomType midfix for NDP: NP 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR>    end if 
+ PARRDR>    if ( &BLANK%ion_parameter_infile = false ) then 
+ NEXTCD: condition evaluated as true
+ PARRDR>        @@&ion_parameter_infile 
+ ASSFIL: file ion.param opened.
+ PARRDR>remarks file toppar/ion.param 
+ PARRDR>remarks nonbonded parameters for common ions 
+ PARRDR>remarks new parameters derived from literature for single atom species 
+ PARRDR>remarks PDA 02/09/99 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR>    end if 
+ PARRDR>    if ( &BLANK%nucl_parameter_infile = false ) then 
+ NEXTCD: condition evaluated as true
+ PARRDR>        @@&nucl_parameter_infile 
+ ASSFIL: file dna-rna-allatom-hj-opls-1.3.param opened.
+ PARRDR>remarks file toppar/dna-rna-allatom.top 
+ PARRDR>remarks  dna-rna-allatom-hj-opls-1.3.param 
+ PARRDR>remarks  all-hydrogen dna/rna parameters using the OPLS force field 
+ PARRDR> 
+ PARRDR>!RNA PARAMETER FILE 'FRAMEWORK' FROM PARALLHDG.DNA AND ATOM NAMES 
+ PARRDR>! AND HEAVY ATOM PARAMETERS FROM DNA-RNA.PARAM 
+ PARRDR>!INCLUDES ALL NONEXCHANGEABLE HYDROGEN TERMS FOR BOND, ANGLE, AND 
+ PARRDR>!IMPROPERS WITH ENERGY CONSTANT VARIABLES: $kchbond, $kchangle, AND $kchimpr. 
+ PARRDR>!BOND, ANGLE, AND IMPROPERS WERE ESTIMATED FROM VALUES FROM THE STANDARD 
+ PARRDR>!NUCLEOTIDES OF INSIGHTII 95.0 (BIOSYM/MOLECULAR SIMULATIONS). 
+ PARRDR>!CREATED 2/24/96 -- JASON P. RIFE AND PETER B. MOORE 
+ PARRDR>!ADDED OPLSX SECTION 6/2/07 -- HENRY JONKER 
+ PARRDR>!ADAPTED/CLEANED FOR HADDOCK -- ALEXANDRE BONVIN 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR> 
+ PARRDR>    end if 
+ PARRDR>    if ( &BLANK%carbo_parameter_infile = false ) then 
+ NEXTCD: condition evaluated as true
+ PARRDR>        @@&carbo_parameter_infile 
+ ASSFIL: file carbohydrate.param opened.
+ PARRDR>remarks file toppar/carbohydrate.param 
+ PARRDR>REMARKS Parameter file for pyranose sugars 
+ PARRDR>REMARKS Alexandre Bonvin - adapted to use unique atom types for sugar-specific atoms 
+ PARRDR>REMARKS Joao Rodrigues 11-June-2020 
+ PARRDR>REMARKS Parameters updated to Feng, PLoS One, 2017 
+ PARRDR>REMARKS PMC 5726640 
+ PARRDR> 
+ PARRDR>REMARKS Bill Weis 10-July-1988 
+ PARRDR>REMARKS Additions for atom type combinations not covered in PARAM19X.PRO. 
+ PARRDR>REMARKS Needed additions are for ether oxygen and aliphatic carbon in all-atom 
+ PARRDR>REMARKS representation used for sugars (type CC).  Ditto for type HA. 
+ PARRDR>REMARKS Values from J. Brady glucose parameters unless noted. 
+ PARRDR>REMARKS These should be sufficient for refinement. 
+ PARRDR> 
+ PARRDR>REMARKS Additions 6-March-1992 Bill Weis 
+ PARRDR>REMARKS New atom types CCA, CCE,  OASfor the C1 & O1 positions to account 
+ PARRDR>REMARKS for different BOND and ANGLe values due to the anomeric effect. 
+ PARRDR>REMARKS More accurate equilibrium values for BOND ANGLe around this oxygen 
+ PARRDR>REMARKS in glycosidic linkages.  CCE for equatorial O1, CCA for 
+ PARRDR>REMAKRS axial O1.   For free sugar, keep OH1 as O1 atomtype; changed to OA 
+ PARRDR>REMARKS for linkages. 
+ PARRDR>REMARKS References: G.A. Jeffrey (1990) Acta Cryst B46, 89-103; 
+ PARRDR>REMARKS K. Hirotsu & A.Shimada, (1974) Bull. Chem. Soc. Japan, 47, 1872-1879. 
+ PARRDR> 
+ PARRDR>REMARKS  This set has been modified to be roughly consistent with 
+ PARRDR>REMARKS  the csd-derived protein parameters of Engh and Huber. 
+ PARRDR>REMARKS  New atom type CC6 for exocyclic 6 carbon 
+ PARRDR>REMARKS  Bill Weis 5/11/92 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR> 
+ PARRDR> 
+ PARRDR>    end if 
+ PARRDR>    if ( &BLANK%solv_parameter_infile = false ) then 
+ NEXTCD: condition evaluated as true
+ PARRDR>        @@&solv_parameter_infile 
+ ASSFIL: file solvent-allhdg5-4.param opened.
+ PARRDR>remarks file toppar/water-allhdg5-4.param 
+ PARRDR>remarks 
+ PARRDR>remarks   PARAM19.SOL (solvent parameters) 
+ PARRDR>remarks   =========== 
+ PARRDR>remarks   available: TIPS3P and DMSO model 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR>    end if 
+ PARRDR>    if ( &BLANK%heme_parameter_infile = false ) then 
+ NEXTCD: condition evaluated as true
+ PARRDR>        @@&heme_parameter_infile 
+ ASSFIL: file hemes-allhdg.param opened.
+ PARRDR>remark  file parallhdg.hemes 
+ PARRDR> 
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR>    end if 
+ PARRDR>    if ( &BLANK%shape_parameter_infile = false ) then 
+ NEXTCD: condition evaluated as true
+ PARRDR>        @@&shape_parameter_infile 
+ ASSFIL: file shape.param opened.
+ PARRDR>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ PARRDR>set message=off echo=off end 
+ PARRDR>    end if 
+ PARRDR>    if ($ligand_param_fname # "") then 
+ NEXTCD: condition evaluated as false
+ PARRDR>        fileexist $ligand_param_fname end 
+ PARRDR>        if ($result eq true) then 
+ PARRDR>            @@$ligand_param_fname 
+ PARRDR>        end if 
+ PARRDR>    end if 
+ PARRDR>end 
+ %PARRDR-info: duplication of bond CH1E OAS 
+ %PARRDR-info: duplication of angle CH2E C    NH1 
+ %PARRDR-info: duplication of nonbonded entry OA3H
+ %PARRDR-info: duplication of nonbonded entry H   
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HC  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry OP1 
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HN  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ CNSsolve> 
+ CNSsolve>segment 
+ SEGMENT>    chain 
+ CHAIN>        if ( &convert = true ) then 
+ NEXTCD: condition evaluated as true
+ CHAIN>            convert=true 
+ CHAIN>        end if 
+ CHAIN>        if ( &separate = true ) then 
+ NEXTCD: condition evaluated as true
+ CHAIN>            separate=true 
+ CHAIN>        end if 
+ CHAIN>        @@$prot_link_infile 
+ ASSFIL: file protein-allhdg5-4-noter.link opened.
+ CHAIN>remarks file toppar/protein-allhdg5-4.link 
+ CHAIN>remarks 
+ CHAIN>remarks this is a macro to define standard protein peptide bonds 
+ CHAIN>remarks and termini to generate a protein sequence. 
+ CHAIN> 
+ CHAIN>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ CHAIN>set message=off echo=off end 
+ CHAIN>        @@$nucl_link_infile 
+ ASSFIL: file dna-rna-1.3.link opened.
+ CHAIN>remarks file toppar/dna-rna.link 
+ CHAIN>remarks macro to define standard nucleic acid links and termini 
+ CHAIN>remarks this file has both 3' and 5' terminii without phosphate groups 
+ CHAIN>remarks 
+ CHAIN> 
+ CHAIN>set message ? end eval ($old_message=$result) set echo ? end eval ($old_echo=$result) 
+ MESSage=NORM
+ EVALUATE: symbol $OLD_MESSAGE set to "NORM" (string)
+ ECHO=TRUE {ON}
+ EVALUATE: symbol $OLD_ECHO set to TRUE (logical)
+ CHAIN>set message=off echo=off end 
+ CHAIN>        if ( &BLANK%carbo_link_infile = false ) then 
+ NEXTCD: condition evaluated as false
+ CHAIN>            @@&carbo_link_infile 
+ CHAIN>        end if 
+ CHAIN>        coordinates @@$coor_infile 
+ ASSFIL: file P7KBJ_0_P7KBJ_chain_A.pdb opened.
+ COOR>ATOM      1  N   VAL B   1      -5.064  28.839  26.273  1.00 92.10         B N 
+ SEGMNT-info: auto chain termination due to unavailable link.   152 residues were inserted into segid "B   "
+ SEGMNT-info: chain termination due to END keyword.     1 residues were inserted into segid "B   "
+ CHAIN>    end 
+ SEGMENT>end 
+ Status of internal molecular topology database:
+ -> NATOM=       2469(MAXA=     1000000)  NBOND=       2488(MAXB=     1000000)
+ -> NTHETA=      4521(MAXT=     2000000)  NGRP=         153(MAXGRP=   1000000)
+ -> NPHI=        3779(MAXP=     2000000)  NIMPHI=      1317(MAXIMP=   1000000)
+ -> NNB=         1086(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>coordinates @@$coor_infile 
+ ASSFIL: file P7KBJ_0_P7KBJ_chain_A.pdb opened.
+ COOR>ATOM      1  N   VAL B   1      -5.064  28.839  26.273  1.00 92.10         B N 
+ COOR>ATOM      2  CA  VAL B   1      -5.884  28.463  27.419  1.00 77.43         B C 
+ %READC-WRN: still   1255 missing coordinates (in selected subset)
+ CNSsolve> 
+ CNSsolve>! next line to remove the MAP atom defined in the DUM residue 
+ CNSsolve>! in case of use of dummy particles 
+ CNSsolve>delete sele=(name MAP) end 
+ SELRPN:      0 atoms have been selected out of   2469
+ Status of internal molecular topology database:
+ -> NATOM=       2469(MAXA=     1000000)  NBOND=       2488(MAXB=     1000000)
+ -> NTHETA=      4521(MAXT=     2000000)  NGRP=         153(MAXGRP=   1000000)
+ -> NPHI=        3779(MAXP=     2000000)  NIMPHI=      1317(MAXIMP=   1000000)
+ -> NNB=         1086(MAXNB=    1000000) 
+ CNSsolve> 
+ CNSsolve>if ( &BLANK%ile_CD_becomes = false ) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    do (name=&ile_CD_becomes) (resn ILE and name CD) 
+ SELRPN:      0 atoms have been selected out of   2469
+ CNSsolve>end if 
+ CNSsolve>if ( &BLANK%OT1_becomes = false ) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    do (name=&OT1_becomes) (name OT1) 
+ SELRPN:      0 atoms have been selected out of   2469
+ CNSsolve>end if 
+ CNSsolve>if ( &BLANK%OT2_becomes = false ) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    do (name=&OT2_becomes) (name OT2) 
+ SELRPN:      0 atoms have been selected out of   2469
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>!for the histidine patches: 
+ CNSsolve>if ($autohis = false) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    evaluate($hisd_counter=1) 
+ CNSsolve>    while ($hisd_counter le $nhisd) loop hisd 
+ CNSsolve>        show (resn) (tag and resid $hisd_$hisd_counter) 
+ CNSsolve>        if ($result eq "HIS") then 
+ CNSsolve>            patch hisd reference=nil=(resid $hisd_$hisd_counter) end 
+ CNSsolve>        end if 
+ CNSsolve>        evaluate($hisd_counter=$hisd_counter + 1) 
+ CNSsolve>    end loop hisd 
+ CNSsolve> 
+ CNSsolve>    evaluate($hise_counter=1) 
+ CNSsolve>    while ($hise_counter le $nhise) loop hise 
+ CNSsolve>        show (resn) (tag and resid $hise_$hise_counter) 
+ CNSsolve>        if ($result eq "HIS") then 
+ CNSsolve>            patch hise reference=nil=(resid $hise_$hise_counter) end 
+ CNSsolve>        end if 
+ CNSsolve>        evaluate($hise_counter=$hise_counter + 1) 
+ CNSsolve>    end loop hise 
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>! The following patches would define covalent bond between a CA+2 and oxygen ligands 
+ CNSsolve>! from Asp and Glu (first selection is amino-acid, second is ion) 
+ CNSsolve>! patch dca2 refe=1=(resid 25) refe=2=(resid 83) end 
+ CNSsolve>! patch dca2 refe=1=(resid 29) refe=2=(resid 83) end 
+ CNSsolve>! patch dca2 refe=1=(resid 35) refe=2=(resid 83) end 
+ CNSsolve>! patch eca2 refe=1=(resid 36) refe=2=(resid 83) end 
+ CNSsolve>! 
+ CNSsolve>! following patch is to attach a heme (resid YY) CAB atom to a cys (resid XX) 
+ CNSsolve>! patch phcb refe=1=(resid XX) refe=2=(resid YY) end 
+ CNSsolve>! following patch is to attach a heme (resid YY) CAC atom to a cys (resid XX) 
+ CNSsolve>! patch phcc refe=1=(resid XX) refe=2=(resid YY) end 
+ CNSsolve>! 
+ CNSsolve>! following patch is to define an isopeptide bond between a Cter and a Lys side-chain 
+ CNSsolve>! patch clys refe=1=(resid 72) refe=2=(resid 148) end 
+ CNSsolve>! 
+ CNSsolve>! following patch is to define an isopeptide bond between a Cter and a Lys side-chain 
+ CNSsolve>! patch clys refe=1=(resid 72) refe=2=(resid 148) end 
+ CNSsolve> 
+ CNSsolve>! N-linked glycosylation patches 
+ CNSsolve>inline @MODULE:bondglycans.cns 
+ ASSFIL: file bondglycans.cns opened.
+ CNSsolve>! 
+ CNSsolve>! Patches covalent bonds involving N-linked carbohydrates. 
+ CNSsolve>! 
+ CNSsolve>! Adapted from CNS 1.3 
+ CNSsolve>!   modules/xtal/mtfautogenerate 
+ CNSsolve>! 
+ CNSsolve>! *********************************************************************** 
+ CNSsolve>! * Copyright 2020      Alexandre Bonvin, Utrecht University.           * 
+ CNSsolve>! * All rights reserved.                                                * 
+ CNSsolve>! * This code is part of the HADDOCK software and governed by its       * 
+ CNSsolve>! * license. Please see the LICENSE file that should have been included * 
+ CNSsolve>! * as part of this package.                                            * 
+ CNSsolve>! *********************************************************************** 
+ CNSsolve>! 
+ CNSsolve> 
+ CNSsolve>checkversion 1.3 
+ Program version= 1.3 File version= 1.3
+ CNSsolve> 
+ CNSsolve>display 
+
+ CNSsolve>display  autogenerating linkages involving N-linked carbohydrates 
+ autogenerating linkages involving N-linked carbohydrates
+ CNSsolve>display 
+
+ CNSsolve> 
+ CNSsolve>define 
+ DEFINE>( 
+ DEFINE>  {- define all alpha anomer carbo residues for the links below -} 
+ DEFINE>  alpha=   ( resname GLC or resname GLA or resname MAN or resname NDG or resname A2G or resname FUC or resname FCA or resname NDG 
+ ALPHA=          or resname MMA or resname XYS or resname RAM or resname ABE); 
+ DEFINE> 
+ DEFINE>  {- define all beta anomer carbo residues for the links below -} 
+ DEFINE>  beta=    ( resname BGC or resname GAL or resname BMA or resname NAG or resname NGA or resname FUL or resname FCB or resname XYP 
+ BETA=          or resname NAG or resname NGA or resname BDP); 
+ DEFINE> 
+ DEFINE>  {- Maximum distance between linkable atoms -} 
+ DEFINE>  carbo_dist= 2.0; 
+ DEFINE>) 
+ CNSsolve> 
+ CNSsolve>{- this is OK here after reading the coordinates since the various -} 
+ CNSsolve>{- patches used here do not create or rename atoms -} 
+ CNSsolve> 
+ CNSsolve>{- first we build a data structure for the patches, and then apply the patches later -} 
+ CNSsolve>{- the reason we do it this way is that patch may delete or add atoms which will currently 
+ CNSsolve>   reset the STORE and loop arrays -} 
+ CNSsolve> 
+ CNSsolve>eval ($npatch=0) 
+ EVALUATE: symbol $NPATCH set to    0.00000     (real)
+ CNSsolve> 
+ CNSsolve>{- NAG-C1 or NGA-C1 or NDG-C1 or BGC-C1 to ASN-ND2 -} 
+ CNSsolve>for $id1 in id ( (resname NAG or resname NGA or resname NDG or resname BGC) and name C1 and known ) loop B1Na 
+ SELRPN:      0 atoms have been selected out of   2469
+ CNSsolve> 
+ CNSsolve>  show (segid) (id $id1) 
+ CNSsolve>  evaluate ($segid1=$result) 
+ CNSsolve>  show (resid) (id $id1) 
+ CNSsolve>  evaluate ($resid1=$result) 
+ CNSsolve>  show (resname) (id $id1) 
+ CNSsolve>  evaluate ($resname1=$result) 
+ CNSsolve> 
+ CNSsolve>  for $id2 in id ( resname ASN and name ND2 and known ) loop B1Nb 
+ CNSsolve> 
+ CNSsolve>    show (segid) (id $id2) 
+ CNSsolve>    evaluate ($segid2=$result) 
+ CNSsolve>    show (resid) (id $id2) 
+ CNSsolve>    evaluate ($resid2=$result) 
+ CNSsolve> 
+ CNSsolve>    show (x) ( id $id1 ) evaluate ($x1=$result) 
+ CNSsolve>    show (y) ( id $id1 ) evaluate ($y1=$result) 
+ CNSsolve>    show (z) ( id $id1 ) evaluate ($z1=$result) 
+ CNSsolve>    show (x) ( id $id2 ) evaluate ($x2=$result) 
+ CNSsolve>    show (y) ( id $id2 ) evaluate ($y2=$result) 
+ CNSsolve>    show (z) ( id $id2 ) evaluate ($z2=$result) 
+ CNSsolve>    evaluate ($distance=sqrt( ($x1-$x2)^2 + ($y1-$y2)^2 + ($z1-$z2)^2 )) 
+ CNSsolve> 
+ CNSsolve>    if ( $distance <= &carbo_dist ) then 
+ CNSsolve>       evaluate ($npatch=$npatch+1) 
+ CNSsolve>       evaluate ($seg1.$npatch=$segid1) 
+ CNSsolve>       evaluate ($seg2.$npatch=$segid2) 
+ CNSsolve>       evaluate ($res1.$npatch=$resid1) 
+ CNSsolve>       evaluate ($res2.$npatch=$resid2) 
+ CNSsolve>       if ($resname1="NDG") then 
+ CNSsolve>          evaluate ($pres.$npatch="B1N")  ! force to beta anomer, ATB 02/03/2010 
+ CNSsolve>          display   warning: unusual NDG to ASN patch for NDG segid= $segid1 resid= $resid1 - forced to beta anomer 
+ CNSsolve>       else 
+ CNSsolve>          evaluate ($pres.$npatch="B1N") 
+ CNSsolve>          buffer message 
+ CNSsolve>              display ASN-glycosylation detected for $resid2 of chain $segid2 
+ CNSsolve>          end 
+ CNSsolve> 
+ CNSsolve>       end if 
+ CNSsolve>   end if 
+ CNSsolve> 
+ CNSsolve>  end loop B1Nb 
+ CNSsolve> 
+ CNSsolve>end loop B1Na 
+ CNSsolve> 
+ CNSsolve>{- NAG-C1 or NGA-C1 or NDG-C1 or BGC-C1 to THR-OG1 -} 
+ CNSsolve>for $id1 in id ( (resname NAG or resname NGA or resname NDG or resname BGC) and name C1 and known ) loop B1Ta 
+ SELRPN:      0 atoms have been selected out of   2469
+ CNSsolve> 
+ CNSsolve>  show (segid) (id $id1) 
+ CNSsolve>  evaluate ($segid1=$result) 
+ CNSsolve>  show (resid) (id $id1) 
+ CNSsolve>  evaluate ($resid1=$result) 
+ CNSsolve>  show (resname) (id $id1) 
+ CNSsolve>  evaluate ($resname1=$result) 
+ CNSsolve> 
+ CNSsolve>  for $id2 in id ( resname THR and name OG1 and known ) loop B1Tb 
+ CNSsolve> 
+ CNSsolve>    show (segid) (id $id2) 
+ CNSsolve>    evaluate ($segid2=$result) 
+ CNSsolve>    show (resid) (id $id2) 
+ CNSsolve>    evaluate ($resid2=$result) 
+ CNSsolve> 
+ CNSsolve>    show (x) ( id $id1 ) evaluate ($x1=$result) 
+ CNSsolve>    show (y) ( id $id1 ) evaluate ($y1=$result) 
+ CNSsolve>    show (z) ( id $id1 ) evaluate ($z1=$result) 
+ CNSsolve>    show (x) ( id $id2 ) evaluate ($x2=$result) 
+ CNSsolve>    show (y) ( id $id2 ) evaluate ($y2=$result) 
+ CNSsolve>    show (z) ( id $id2 ) evaluate ($z2=$result) 
+ CNSsolve>    evaluate ($distance=sqrt( ($x1-$x2)^2 + ($y1-$y2)^2 + ($z1-$z2)^2 )) 
+ CNSsolve> 
+ CNSsolve>    if ( $distance <= &carbo_dist ) then 
+ CNSsolve>       evaluate ($npatch=$npatch+1) 
+ CNSsolve>       evaluate ($seg1.$npatch=$segid1) 
+ CNSsolve>       evaluate ($seg2.$npatch=$segid2) 
+ CNSsolve>       evaluate ($res1.$npatch=$resid1) 
+ CNSsolve>       evaluate ($res2.$npatch=$resid2) 
+ CNSsolve>       if ($resname1="NDG") then 
+ CNSsolve>          evaluate ($pres.$npatch="B1T")  ! force to beta anomer, ATB 02/03/2010 
+ CNSsolve>          display   warning: unusual NDG to THR patch for NDG segid= $segid1 resid= $resid1 - forced to beta anomer 
+ CNSsolve>       else 
+ CNSsolve>          evaluate ($pres.$npatch="B1T") 
+ CNSsolve>          buffer message 
+ CNSsolve>              display THR-glycosylation detected for $resid2 of chain $segid2 
+ CNSsolve>          end 
+ CNSsolve> 
+ CNSsolve>       end if 
+ CNSsolve>   end if 
+ CNSsolve> 
+ CNSsolve>  end loop B1Tb 
+ CNSsolve> 
+ CNSsolve>end loop B1Ta 
+ CNSsolve> 
+ CNSsolve>{- A11: GLC to GLC -} 
+ CNSsolve>for $id1 in id ( (resname GLC) and name C1 and known ) loop A11a 
+ SELRPN:      0 atoms have been selected out of   2469
+ CNSsolve> 
+ CNSsolve>  show (segid) (id $id1) 
+ CNSsolve>  evaluate ($segid1=$result) 
+ CNSsolve>  show (resid) (id $id1) 
+ CNSsolve>  evaluate ($resid1=$result) 
+ CNSsolve> 
+ CNSsolve>  for $id2 in id ( (resname GLC) and name O1 and known ) loop A11b 
+ CNSsolve> 
+ CNSsolve>    show (segid) (id $id2) 
+ CNSsolve>    evaluate ($segid2=$result) 
+ CNSsolve>    show (resid) (id $id2) 
+ CNSsolve>    evaluate ($resid2=$result) 
+ CNSsolve> 
+ CNSsolve>    show (x) ( id $id1 ) evaluate ($x1=$result) 
+ CNSsolve>    show (y) ( id $id1 ) evaluate ($y1=$result) 
+ CNSsolve>    show (z) ( id $id1 ) evaluate ($z1=$result) 
+ CNSsolve>    show (x) ( id $id2 ) evaluate ($x2=$result) 
+ CNSsolve>    show (y) ( id $id2 ) evaluate ($y2=$result) 
+ CNSsolve>    show (z) ( id $id2 ) evaluate ($z2=$result) 
+ CNSsolve>    evaluate ($distance=sqrt( ($x1-$x2)^2 + ($y1-$y2)^2 + ($z1-$z2)^2 )) 
+ CNSsolve> 
+ CNSsolve>    if ( $distance <= &carbo_dist ) then 
+ CNSsolve>       evaluate ($npatch=$npatch+1) 
+ CNSsolve>       evaluate ($seg1.$npatch=$segid1) 
+ CNSsolve>       evaluate ($seg2.$npatch=$segid2) 
+ CNSsolve>       evaluate ($res1.$npatch=$resid1) 
+ CNSsolve>       evaluate ($res2.$npatch=$resid2) 
+ CNSsolve>       evaluate ($pres.$npatch="A11") 
+ CNSsolve>   end if 
+ CNSsolve> 
+ CNSsolve>  end loop A11b 
+ CNSsolve> 
+ CNSsolve>end loop A11a 
+ CNSsolve> 
+ CNSsolve>{- A23: GAL, NGA to SIA, SIB -} 
+ CNSsolve>for $id1 in id ( (resname GAL or resname NGA) and name C2 and known ) loop A23a 
+ SELRPN:      0 atoms have been selected out of   2469
+ CNSsolve> 
+ CNSsolve>  show (segid) (id $id1) 
+ CNSsolve>  evaluate ($segid1=$result) 
+ CNSsolve>  show (resid) (id $id1) 
+ CNSsolve>  evaluate ($resid1=$result) 
+ CNSsolve> 
+ CNSsolve>  for $id2 in id ( (resname SIA or resname SIB) and name O3 and known ) loop A23b 
+ CNSsolve> 
+ CNSsolve>    show (segid) (id $id2) 
+ CNSsolve>    evaluate ($segid2=$result) 
+ CNSsolve>    show (resid) (id $id2) 
+ CNSsolve>    evaluate ($resid2=$result) 
+ CNSsolve> 
+ CNSsolve>    show (x) ( id $id1 ) evaluate ($x1=$result) 
+ CNSsolve>    show (y) ( id $id1 ) evaluate ($y1=$result) 
+ CNSsolve>    show (z) ( id $id1 ) evaluate ($z1=$result) 
+ CNSsolve>    show (x) ( id $id2 ) evaluate ($x2=$result) 
+ CNSsolve>    show (y) ( id $id2 ) evaluate ($y2=$result) 
+ CNSsolve>    show (z) ( id $id2 ) evaluate ($z2=$result) 
+ CNSsolve>    evaluate ($distance=sqrt( ($x1-$x2)^2 + ($y1-$y2)^2 + ($z1-$z2)^2 )) 
+ CNSsolve> 
+ CNSsolve>    if ( $distance <= &carbo_dist ) then 
+ CNSsolve>       evaluate ($npatch=$npatch+1) 
+ CNSsolve>       evaluate ($seg1.$npatch=$segid1) 
+ CNSsolve>       evaluate ($seg2.$npatch=$segid2) 
+ CNSsolve>       evaluate ($res1.$npatch=$resid1) 
+ CNSsolve>       evaluate ($res2.$npatch=$resid2) 
+ CNSsolve>       evaluate ($pres.$npatch="A23") 
+ CNSsolve>   end if 
+ CNSsolve> 
+ CNSsolve>  end loop A23b 
+ CNSsolve> 
+ CNSsolve>end loop A23a 
+ CNSsolve> 
+ CNSsolve>{- A23: SIA,SIB to GAL,NGA -} 
+ CNSsolve>for $id1 in id ( (resname SIA or resname SIB) and name C2 and known ) loop A23c 
+ SELRPN:      0 atoms have been selected out of   2469
+ CNSsolve> 
+ CNSsolve>  show (segid) (id $id1) 
+ CNSsolve>  evaluate ($segid1=$result) 
+ CNSsolve>  show (resid) (id $id1) 
+ CNSsolve>  evaluate ($resid1=$result) 
+ CNSsolve> 
+ CNSsolve>  for $id2 in id ( (resname GAL or resname NGA) and name O3 and known ) loop A23d 
+ CNSsolve> 
+ CNSsolve>    show (segid) (id $id2) 
+ CNSsolve>    evaluate ($segid2=$result) 
+ CNSsolve>    show (resid) (id $id2) 
+ CNSsolve>    evaluate ($resid2=$result) 
+ CNSsolve> 
+ CNSsolve>    show (x) ( id $id1 ) evaluate ($x1=$result) 
+ CNSsolve>    show (y) ( id $id1 ) evaluate ($y1=$result) 
+ CNSsolve>    show (z) ( id $id1 ) evaluate ($z1=$result) 
+ CNSsolve>    show (x) ( id $id2 ) evaluate ($x2=$result) 
+ CNSsolve>    show (y) ( id $id2 ) evaluate ($y2=$result) 
+ CNSsolve>    show (z) ( id $id2 ) evaluate ($z2=$result) 
+ CNSsolve>    evaluate ($distance=sqrt( ($x1-$x2)^2 + ($y1-$y2)^2 + ($z1-$z2)^2 )) 
+ CNSsolve> 
+ CNSsolve>    if ( $distance <= &carbo_dist ) then 
+ CNSsolve>       evaluate ($npatch=$npatch+1) 
+ CNSsolve>       evaluate ($seg1.$npatch=$segid1) 
+ CNSsolve>       evaluate ($seg2.$npatch=$segid2) 
+ CNSsolve>       evaluate ($res1.$npatch=$resid1) 
+ CNSsolve>       evaluate ($res2.$npatch=$resid2) 
+ CNSsolve>       evaluate ($pres.$npatch="A23") 
+ CNSsolve>   end if 
+ CNSsolve> 
+ CNSsolve>  end loop A23d 
+ CNSsolve> 
+ CNSsolve>end loop A23c 
+ CNSsolve> 
+ CNSsolve>{- A26: GAL,NGA to SIA,SIB -} 
+ CNSsolve>for $id1 in id ( (resname GAL or resname NGA) and name C2 and known ) loop A26a 
+ SELRPN:      0 atoms have been selected out of   2469
+ CNSsolve> 
+ CNSsolve>  show (segid) (id $id1) 
+ CNSsolve>  evaluate ($segid1=$result) 
+ CNSsolve>  show (resid) (id $id1) 
+ CNSsolve>  evaluate ($resid1=$result) 
+ CNSsolve> 
+ CNSsolve>  for $id2 in id ( (resname SIA or resname SIB) and name O6 and known ) loop A26b 
+ CNSsolve> 
+ CNSsolve>    show (segid) (id $id2) 
+ CNSsolve>    evaluate ($segid2=$result) 
+ CNSsolve>    show (resid) (id $id2) 
+ CNSsolve>    evaluate ($resid2=$result) 
+ CNSsolve> 
+ CNSsolve>    show (x) ( id $id1 ) evaluate ($x1=$result) 
+ CNSsolve>    show (y) ( id $id1 ) evaluate ($y1=$result) 
+ CNSsolve>    show (z) ( id $id1 ) evaluate ($z1=$result) 
+ CNSsolve>    show (x) ( id $id2 ) evaluate ($x2=$result) 
+ CNSsolve>    show (y) ( id $id2 ) evaluate ($y2=$result) 
+ CNSsolve>    show (z) ( id $id2 ) evaluate ($z2=$result) 
+ CNSsolve>    evaluate ($distance=sqrt( ($x1-$x2)^2 + ($y1-$y2)^2 + ($z1-$z2)^2 )) 
+ CNSsolve> 
+ CNSsolve>    if ( $distance <= &carbo_dist ) then 
+ CNSsolve>       evaluate ($npatch=$npatch+1) 
+ CNSsolve>       evaluate ($seg1.$npatch=$segid1) 
+ CNSsolve>       evaluate ($seg2.$npatch=$segid2) 
+ CNSsolve>       evaluate ($res1.$npatch=$resid1) 
+ CNSsolve>       evaluate ($res2.$npatch=$resid2) 
+ CNSsolve>       evaluate ($pres.$npatch="A26") 
+ CNSsolve>   end if 
+ CNSsolve> 
+ CNSsolve>  end loop A26b 
+ CNSsolve> 
+ CNSsolve>end loop A26a 
+ CNSsolve> 
+ CNSsolve>{- A26: SIA,SIB to GAL,NGA -} 
+ CNSsolve>for $id1 in id ( (resname SIA or resname SIB) and name C2 and known ) loop A26c 
+ SELRPN:      0 atoms have been selected out of   2469
+ CNSsolve> 
+ CNSsolve>  show (segid) (id $id1) 
+ CNSsolve>  evaluate ($segid1=$result) 
+ CNSsolve>  show (resid) (id $id1) 
+ CNSsolve>  evaluate ($resid1=$result) 
+ CNSsolve> 
+ CNSsolve>  for $id2 in id ( (resname GAL or resname NGA) and name O6 and known ) loop A26d 
+ CNSsolve> 
+ CNSsolve>    show (segid) (id $id2) 
+ CNSsolve>    evaluate ($segid2=$result) 
+ CNSsolve>    show (resid) (id $id2) 
+ CNSsolve>    evaluate ($resid2=$result) 
+ CNSsolve> 
+ CNSsolve>    show (x) ( id $id1 ) evaluate ($x1=$result) 
+ CNSsolve>    show (y) ( id $id1 ) evaluate ($y1=$result) 
+ CNSsolve>    show (z) ( id $id1 ) evaluate ($z1=$result) 
+ CNSsolve>    show (x) ( id $id2 ) evaluate ($x2=$result) 
+ CNSsolve>    show (y) ( id $id2 ) evaluate ($y2=$result) 
+ CNSsolve>    show (z) ( id $id2 ) evaluate ($z2=$result) 
+ CNSsolve>    evaluate ($distance=sqrt( ($x1-$x2)^2 + ($y1-$y2)^2 + ($z1-$z2)^2 )) 
+ CNSsolve> 
+ CNSsolve>    if ( $distance <= &carbo_dist ) then 
+ CNSsolve>       evaluate ($npatch=$npatch+1) 
+ CNSsolve>       evaluate ($seg1.$npatch=$segid1) 
+ CNSsolve>       evaluate ($seg2.$npatch=$segid2) 
+ CNSsolve>       evaluate ($res1.$npatch=$resid1) 
+ CNSsolve>       evaluate ($res2.$npatch=$resid2) 
+ CNSsolve>       evaluate ($pres.$npatch="A26S") 
+ CNSsolve>   end if 
+ CNSsolve> 
+ CNSsolve>  end loop A26d 
+ CNSsolve> 
+ CNSsolve>end loop A26c 
+ CNSsolve> 
+ CNSsolve>{- A28: SIA,SIB to SIA,SIB -} 
+ CNSsolve>for $id1 in id ( (resname SIA or resname SIB) and name C2 and known ) loop A28a 
+ SELRPN:      0 atoms have been selected out of   2469
+ CNSsolve> 
+ CNSsolve>  show (segid) (id $id1) 
+ CNSsolve>  evaluate ($segid1=$result) 
+ CNSsolve>  show (resid) (id $id1) 
+ CNSsolve>  evaluate ($resid1=$result) 
+ CNSsolve> 
+ CNSsolve>  for $id2 in id ( (resname SIA or resname SIB) and name O8 and known ) loop A28b 
+ CNSsolve> 
+ CNSsolve>    show (segid) (id $id2) 
+ CNSsolve>    evaluate ($segid2=$result) 
+ CNSsolve>    show (resid) (id $id2) 
+ CNSsolve>    evaluate ($resid2=$result) 
+ CNSsolve> 
+ CNSsolve>    show (x) ( id $id1 ) evaluate ($x1=$result) 
+ CNSsolve>    show (y) ( id $id1 ) evaluate ($y1=$result) 
+ CNSsolve>    show (z) ( id $id1 ) evaluate ($z1=$result) 
+ CNSsolve>    show (x) ( id $id2 ) evaluate ($x2=$result) 
+ CNSsolve>    show (y) ( id $id2 ) evaluate ($y2=$result) 
+ CNSsolve>    show (z) ( id $id2 ) evaluate ($z2=$result) 
+ CNSsolve>    evaluate ($distance=sqrt( ($x1-$x2)^2 + ($y1-$y2)^2 + ($z1-$z2)^2 )) 
+ CNSsolve> 
+ CNSsolve>    if ( $distance <= &carbo_dist ) then 
+ CNSsolve>       evaluate ($npatch=$npatch+1) 
+ CNSsolve>       evaluate ($seg1.$npatch=$segid1) 
+ CNSsolve>       evaluate ($seg2.$npatch=$segid2) 
+ CNSsolve>       evaluate ($res1.$npatch=$resid1) 
+ CNSsolve>       evaluate ($res2.$npatch=$resid2) 
+ CNSsolve>       evaluate ($pres.$npatch="A28S") 
+ CNSsolve>   end if 
+ CNSsolve> 
+ CNSsolve>  end loop A28b 
+ CNSsolve> 
+ CNSsolve>end loop A28a 
+ CNSsolve> 
+ CNSsolve>{- now the beta-anomer to any links -} 
+ CNSsolve>{- for B12: beta(1,2)  link from beta-anomer to any -} 
+ CNSsolve>ident (store2) ( ( &alpha or &beta ) and name O2 and known ) 
+ SELRPN:      0 atoms have been selected out of   2469
+ CNSsolve>{- for B13: beta(1,3)  link from beta-anomer to any -} 
+ CNSsolve>ident (store3) ( ( &alpha or &beta ) and name O3 and known ) 
+ SELRPN:      0 atoms have been selected out of   2469
+ CNSsolve>{- for B14: beta(1,4)  link from beta-anomer to any -} 
+ CNSsolve>ident (store4) ( ( &alpha or &beta ) and name O4 and known ) 
+ SELRPN:      0 atoms have been selected out of   2469
+ CNSsolve>{- for B16: beta(1,6)  link from beta-anomer to any -} 
+ CNSsolve>ident (store6) ( ( &alpha or &beta ) and name O6 and known ) 
+ SELRPN:      0 atoms have been selected out of   2469
+ CNSsolve> 
+ CNSsolve>for $id1 in id ( &beta and name C1 and known ) loop B1 
+ SELRPN:      0 atoms have been selected out of   2469
+ CNSsolve> 
+ CNSsolve>  show (segid) (id $id1) 
+ CNSsolve>  evaluate ($segid1=$result) 
+ CNSsolve>  show (resid) (id $id1) 
+ CNSsolve>  evaluate ($resid1=$result) 
+ CNSsolve>  show (resname) (id $id1) 
+ CNSsolve>  evaluate ($resname1=$result) 
+ CNSsolve> 
+ CNSsolve>  for $id2 in id ( recall2 ) loop B12 
+ CNSsolve> 
+ CNSsolve>    show (segid) (id $id2) 
+ CNSsolve>    evaluate ($segid2=$result) 
+ CNSsolve>    show (resid) (id $id2) 
+ CNSsolve>    evaluate ($resid2=$result) 
+ CNSsolve> 
+ CNSsolve>    evaluate ($identical=false) 
+ CNSsolve>    if ($resid1 = $resid2) then 
+ CNSsolve>        if ($segid1 = $segid2) then 
+ CNSsolve>           evaluate ($identical=true) 
+ CNSsolve>        end if 
+ CNSsolve>    end if 
+ CNSsolve> 
+ CNSsolve>    if ($identical=false) then 
+ CNSsolve> 
+ CNSsolve>       show (x) ( id $id1 ) evaluate ($x1=$result) 
+ CNSsolve>       show (y) ( id $id1 ) evaluate ($y1=$result) 
+ CNSsolve>       show (z) ( id $id1 ) evaluate ($z1=$result) 
+ CNSsolve>       show (x) ( id $id2 ) evaluate ($x2=$result) 
+ CNSsolve>       show (y) ( id $id2 ) evaluate ($y2=$result) 
+ CNSsolve>       show (z) ( id $id2 ) evaluate ($z2=$result) 
+ CNSsolve>       evaluate ($distance=sqrt( ($x1-$x2)^2 + ($y1-$y2)^2 + ($z1-$z2)^2 )) 
+ CNSsolve> 
+ CNSsolve>       if ( $distance <= &carbo_dist ) then 
+ CNSsolve>          evaluate ($npatch=$npatch+1) 
+ CNSsolve>          evaluate ($seg1.$npatch=$segid1) 
+ CNSsolve>          evaluate ($seg2.$npatch=$segid2) 
+ CNSsolve>          evaluate ($res1.$npatch=$resid1) 
+ CNSsolve>          evaluate ($res2.$npatch=$resid2) 
+ CNSsolve>          if ($resname1="FUL") then 
+ CNSsolve>             evaluate ($pres.$npatch="B12L") 
+ CNSsolve>          else 
+ CNSsolve>             evaluate ($pres.$npatch="B12") 
+ CNSsolve>          end if 
+ CNSsolve>      end if 
+ CNSsolve>    end if 
+ CNSsolve> 
+ CNSsolve>  end loop B12 
+ CNSsolve> 
+ CNSsolve>  for $id2 in id ( recall3 ) loop B13 
+ CNSsolve> 
+ CNSsolve>    show (segid) (id $id2) 
+ CNSsolve>    evaluate ($segid2=$result) 
+ CNSsolve>    show (resid) (id $id2) 
+ CNSsolve>    evaluate ($resid2=$result) 
+ CNSsolve> 
+ CNSsolve>    evaluate ($identical=false) 
+ CNSsolve>    if ($resid1 = $resid2) then 
+ CNSsolve>        if ($segid1 = $segid2) then 
+ CNSsolve>           evaluate ($identical=true) 
+ CNSsolve>        end if 
+ CNSsolve>    end if 
+ CNSsolve> 
+ CNSsolve>    if ($identical=false) then 
+ CNSsolve> 
+ CNSsolve>       show (x) ( id $id1 ) evaluate ($x1=$result) 
+ CNSsolve>       show (y) ( id $id1 ) evaluate ($y1=$result) 
+ CNSsolve>       show (z) ( id $id1 ) evaluate ($z1=$result) 
+ CNSsolve>       show (x) ( id $id2 ) evaluate ($x2=$result) 
+ CNSsolve>       show (y) ( id $id2 ) evaluate ($y2=$result) 
+ CNSsolve>       show (z) ( id $id2 ) evaluate ($z2=$result) 
+ CNSsolve>       evaluate ($distance=sqrt( ($x1-$x2)^2 + ($y1-$y2)^2 + ($z1-$z2)^2 )) 
+ CNSsolve> 
+ CNSsolve>       if ( $distance <= &carbo_dist ) then 
+ CNSsolve>          evaluate ($npatch=$npatch+1) 
+ CNSsolve>          evaluate ($seg1.$npatch=$segid1) 
+ CNSsolve>          evaluate ($seg2.$npatch=$segid2) 
+ CNSsolve>          evaluate ($res1.$npatch=$resid1) 
+ CNSsolve>          evaluate ($res2.$npatch=$resid2) 
+ CNSsolve>          if ($resname1="FUL") then 
+ CNSsolve>             evaluate ($pres.$npatch="B13L") 
+ CNSsolve>          else 
+ CNSsolve>             evaluate ($pres.$npatch="B13") 
+ CNSsolve>          end if 
+ CNSsolve>      end if 
+ CNSsolve>    end if 
+ CNSsolve> 
+ CNSsolve>  end loop B13 
+ CNSsolve> 
+ CNSsolve>  for $id2 in id ( recall4 ) loop B14 
+ CNSsolve> 
+ CNSsolve>    show (segid) (id $id2) 
+ CNSsolve>    evaluate ($segid2=$result) 
+ CNSsolve>    show (resid) (id $id2) 
+ CNSsolve>    evaluate ($resid2=$result) 
+ CNSsolve> 
+ CNSsolve>    evaluate ($identical=false) 
+ CNSsolve>    if ($resid1 = $resid2) then 
+ CNSsolve>        if ($segid1 = $segid2) then 
+ CNSsolve>           evaluate ($identical=true) 
+ CNSsolve>        end if 
+ CNSsolve>    end if 
+ CNSsolve> 
+ CNSsolve>    if ($identical=false) then 
+ CNSsolve> 
+ CNSsolve>      show (x) ( id $id1 ) evaluate ($x1=$result) 
+ CNSsolve>      show (y) ( id $id1 ) evaluate ($y1=$result) 
+ CNSsolve>      show (z) ( id $id1 ) evaluate ($z1=$result) 
+ CNSsolve>      show (x) ( id $id2 ) evaluate ($x2=$result) 
+ CNSsolve>      show (y) ( id $id2 ) evaluate ($y2=$result) 
+ CNSsolve>      show (z) ( id $id2 ) evaluate ($z2=$result) 
+ CNSsolve>      evaluate ($distance=sqrt( ($x1-$x2)^2 + ($y1-$y2)^2 + ($z1-$z2)^2 )) 
+ CNSsolve> 
+ CNSsolve>      if ( $distance <= &carbo_dist ) then 
+ CNSsolve>          evaluate ($npatch=$npatch+1) 
+ CNSsolve>          evaluate ($seg1.$npatch=$segid1) 
+ CNSsolve>          evaluate ($seg2.$npatch=$segid2) 
+ CNSsolve>          evaluate ($res1.$npatch=$resid1) 
+ CNSsolve>          evaluate ($res2.$npatch=$resid2) 
+ CNSsolve>          if ($resname1="FUL") then 
+ CNSsolve>             evaluate ($pres.$npatch="B14L") 
+ CNSsolve>          else 
+ CNSsolve>             evaluate ($pres.$npatch="B14") 
+ CNSsolve>          end if 
+ CNSsolve>      end if 
+ CNSsolve>    end if 
+ CNSsolve> 
+ CNSsolve>  end loop B14 
+ CNSsolve> 
+ CNSsolve>  for $id2 in id ( recall6 ) loop B16 
+ CNSsolve> 
+ CNSsolve>    show (segid) (id $id2) 
+ CNSsolve>    evaluate ($segid2=$result) 
+ CNSsolve>    show (resid) (id $id2) 
+ CNSsolve>    evaluate ($resid2=$result) 
+ CNSsolve> 
+ CNSsolve>    evaluate ($identical=false) 
+ CNSsolve>    if ($resid1 = $resid2) then 
+ CNSsolve>        if ($segid1 = $segid2) then 
+ CNSsolve>           evaluate ($identical=true) 
+ CNSsolve>        end if 
+ CNSsolve>    end if 
+ CNSsolve> 
+ CNSsolve>    if ($identical=false) then 
+ CNSsolve> 
+ CNSsolve>      show (x) ( id $id1 ) evaluate ($x1=$result) 
+ CNSsolve>      show (y) ( id $id1 ) evaluate ($y1=$result) 
+ CNSsolve>      show (z) ( id $id1 ) evaluate ($z1=$result) 
+ CNSsolve>      show (x) ( id $id2 ) evaluate ($x2=$result) 
+ CNSsolve>      show (y) ( id $id2 ) evaluate ($y2=$result) 
+ CNSsolve>      show (z) ( id $id2 ) evaluate ($z2=$result) 
+ CNSsolve>      evaluate ($distance=sqrt( ($x1-$x2)^2 + ($y1-$y2)^2 + ($z1-$z2)^2 )) 
+ CNSsolve> 
+ CNSsolve>      if ( $distance <= &carbo_dist ) then 
+ CNSsolve>          evaluate ($npatch=$npatch+1) 
+ CNSsolve>          evaluate ($seg1.$npatch=$segid1) 
+ CNSsolve>          evaluate ($seg2.$npatch=$segid2) 
+ CNSsolve>          evaluate ($res1.$npatch=$resid1) 
+ CNSsolve>          evaluate ($res2.$npatch=$resid2) 
+ CNSsolve>          if ($resname1="FUL") then 
+ CNSsolve>             evaluate ($pres.$npatch="B16L") 
+ CNSsolve>          else 
+ CNSsolve>             evaluate ($pres.$npatch="B16") 
+ CNSsolve>          end if 
+ CNSsolve>      end if 
+ CNSsolve>    end if 
+ CNSsolve> 
+ CNSsolve>  end loop B16 
+ CNSsolve> 
+ CNSsolve>end loop B1 
+ CNSsolve> 
+ CNSsolve>{- now the alpha anomer to any links -} 
+ CNSsolve>{- for A12: alpha(1,2)  link from alpha-anomer to any -} 
+ CNSsolve>ident (store2) ( ( &alpha or &beta) and name O2 and known ) 
+ SELRPN:      0 atoms have been selected out of   2469
+ CNSsolve>{- for A13: alpha(1,3)  link from alpha-anomer to any -} 
+ CNSsolve>ident (store3) ( ( &alpha or &beta) and name O3 and known ) 
+ SELRPN:      0 atoms have been selected out of   2469
+ CNSsolve>{- for A14: alpha(1,4)  link from alpha-anomer to any -} 
+ CNSsolve>ident (store4) ( ( &alpha or &beta) and name O4 and known ) 
+ SELRPN:      0 atoms have been selected out of   2469
+ CNSsolve>{- for A16: alpha(1,6)  link from alpha-anomer to any -} 
+ CNSsolve>ident (store6) ( ( &alpha or &beta) and name O6 and known ) 
+ SELRPN:      0 atoms have been selected out of   2469
+ CNSsolve> 
+ CNSsolve>for $id1 in id ( &alpha and name C1 and known ) loop A1 
+ SELRPN:      0 atoms have been selected out of   2469
+ CNSsolve> 
+ CNSsolve>  show (segid) (id $id1) 
+ CNSsolve>  evaluate ($segid1=$result) 
+ CNSsolve>  show (resid) (id $id1) 
+ CNSsolve>  evaluate ($resid1=$result) 
+ CNSsolve>  show (resname) (id $id1) 
+ CNSsolve>  evaluate ($resname1=$result) 
+ CNSsolve> 
+ CNSsolve>  for $id2 in id ( recall2 ) loop A12 
+ CNSsolve> 
+ CNSsolve>    show (segid) (id $id2) 
+ CNSsolve>    evaluate ($segid2=$result) 
+ CNSsolve>    show (resid) (id $id2) 
+ CNSsolve>    evaluate ($resid2=$result) 
+ CNSsolve> 
+ CNSsolve>    evaluate ($identical=false) 
+ CNSsolve>    if ($resid1 = $resid2) then 
+ CNSsolve>        if ($segid1 = $segid2) then 
+ CNSsolve>           evaluate ($identical=true) 
+ CNSsolve>        end if 
+ CNSsolve>    end if 
+ CNSsolve> 
+ CNSsolve>    if ($identical=false) then 
+ CNSsolve> 
+ CNSsolve>       show (x) ( id $id1 ) evaluate ($x1=$result) 
+ CNSsolve>       show (y) ( id $id1 ) evaluate ($y1=$result) 
+ CNSsolve>       show (z) ( id $id1 ) evaluate ($z1=$result) 
+ CNSsolve>       show (x) ( id $id2 ) evaluate ($x2=$result) 
+ CNSsolve>       show (y) ( id $id2 ) evaluate ($y2=$result) 
+ CNSsolve>       show (z) ( id $id2 ) evaluate ($z2=$result) 
+ CNSsolve>       evaluate ($distance=sqrt( ($x1-$x2)^2 + ($y1-$y2)^2 + ($z1-$z2)^2 )) 
+ CNSsolve> 
+ CNSsolve>       if ( $distance <= &carbo_dist ) then 
+ CNSsolve>          evaluate ($npatch=$npatch+1) 
+ CNSsolve>          evaluate ($seg1.$npatch=$segid1) 
+ CNSsolve>          evaluate ($seg2.$npatch=$segid2) 
+ CNSsolve>          evaluate ($res1.$npatch=$resid1) 
+ CNSsolve>          evaluate ($res2.$npatch=$resid2) 
+ CNSsolve>          if ($resname1="FUC") then 
+ CNSsolve>             evaluate ($pres.$npatch="A12L") 
+ CNSsolve>          else 
+ CNSsolve>             evaluate ($pres.$npatch="A12") 
+ CNSsolve>          end if 
+ CNSsolve>      end if 
+ CNSsolve>    end if 
+ CNSsolve> 
+ CNSsolve>  end loop A12 
+ CNSsolve> 
+ CNSsolve>  for $id2 in id ( recall3 ) loop A13 
+ CNSsolve> 
+ CNSsolve>    show (segid) (id $id2) 
+ CNSsolve>    evaluate ($segid2=$result) 
+ CNSsolve>    show (resid) (id $id2) 
+ CNSsolve>    evaluate ($resid2=$result) 
+ CNSsolve> 
+ CNSsolve>    evaluate ($identical=false) 
+ CNSsolve>    if ($resid1 = $resid2) then 
+ CNSsolve>        if ($segid1 = $segid2) then 
+ CNSsolve>           evaluate ($identical=true) 
+ CNSsolve>        end if 
+ CNSsolve>    end if 
+ CNSsolve> 
+ CNSsolve>    if ($identical=false) then 
+ CNSsolve> 
+ CNSsolve>       show (x) ( id $id1 ) evaluate ($x1=$result) 
+ CNSsolve>       show (y) ( id $id1 ) evaluate ($y1=$result) 
+ CNSsolve>       show (z) ( id $id1 ) evaluate ($z1=$result) 
+ CNSsolve>       show (x) ( id $id2 ) evaluate ($x2=$result) 
+ CNSsolve>       show (y) ( id $id2 ) evaluate ($y2=$result) 
+ CNSsolve>       show (z) ( id $id2 ) evaluate ($z2=$result) 
+ CNSsolve>       evaluate ($distance=sqrt( ($x1-$x2)^2 + ($y1-$y2)^2 + ($z1-$z2)^2 )) 
+ CNSsolve> 
+ CNSsolve>       if ( $distance <= &carbo_dist ) then 
+ CNSsolve>          evaluate ($npatch=$npatch+1) 
+ CNSsolve>          evaluate ($seg1.$npatch=$segid1) 
+ CNSsolve>          evaluate ($seg2.$npatch=$segid2) 
+ CNSsolve>          evaluate ($res1.$npatch=$resid1) 
+ CNSsolve>          evaluate ($res2.$npatch=$resid2) 
+ CNSsolve>          if ($resname1="FUC") then 
+ CNSsolve>             evaluate ($pres.$npatch="A13L") 
+ CNSsolve>          else 
+ CNSsolve>             evaluate ($pres.$npatch="A13") 
+ CNSsolve>          end if 
+ CNSsolve>      end if 
+ CNSsolve>    end if 
+ CNSsolve> 
+ CNSsolve>  end loop A13 
+ CNSsolve> 
+ CNSsolve>  for $id2 in id ( recall4 ) loop A14 
+ CNSsolve> 
+ CNSsolve>    show (segid) (id $id2) 
+ CNSsolve>    evaluate ($segid2=$result) 
+ CNSsolve>    show (resid) (id $id2) 
+ CNSsolve>    evaluate ($resid2=$result) 
+ CNSsolve> 
+ CNSsolve>    evaluate ($identical=false) 
+ CNSsolve>    if ($resid1 = $resid2) then 
+ CNSsolve>        if ($segid1 = $segid2) then 
+ CNSsolve>           evaluate ($identical=true) 
+ CNSsolve>        end if 
+ CNSsolve>    end if 
+ CNSsolve> 
+ CNSsolve>    if ($identical=false) then 
+ CNSsolve> 
+ CNSsolve>       show (x) ( id $id1 ) evaluate ($x1=$result) 
+ CNSsolve>       show (y) ( id $id1 ) evaluate ($y1=$result) 
+ CNSsolve>       show (z) ( id $id1 ) evaluate ($z1=$result) 
+ CNSsolve>       show (x) ( id $id2 ) evaluate ($x2=$result) 
+ CNSsolve>       show (y) ( id $id2 ) evaluate ($y2=$result) 
+ CNSsolve>       show (z) ( id $id2 ) evaluate ($z2=$result) 
+ CNSsolve>       evaluate ($distance=sqrt( ($x1-$x2)^2 + ($y1-$y2)^2 + ($z1-$z2)^2 )) 
+ CNSsolve> 
+ CNSsolve>       if ( $distance <= &carbo_dist ) then 
+ CNSsolve>          evaluate ($npatch=$npatch+1) 
+ CNSsolve>          evaluate ($seg1.$npatch=$segid1) 
+ CNSsolve>          evaluate ($seg2.$npatch=$segid2) 
+ CNSsolve>          evaluate ($res1.$npatch=$resid1) 
+ CNSsolve>          evaluate ($res2.$npatch=$resid2) 
+ CNSsolve>          if ($resname1="FUC") then 
+ CNSsolve>             evaluate ($pres.$npatch="A14L") 
+ CNSsolve>          else 
+ CNSsolve>             evaluate ($pres.$npatch="A14") 
+ CNSsolve>          end if 
+ CNSsolve>      end if 
+ CNSsolve>    end if 
+ CNSsolve> 
+ CNSsolve>  end loop A14 
+ CNSsolve> 
+ CNSsolve>  for $id2 in id ( recall6 ) loop A16 
+ CNSsolve> 
+ CNSsolve>    show (segid) (id $id2) 
+ CNSsolve>    evaluate ($segid2=$result) 
+ CNSsolve>    show (resid) (id $id2) 
+ CNSsolve>    evaluate ($resid2=$result) 
+ CNSsolve> 
+ CNSsolve>    evaluate ($identical=false) 
+ CNSsolve>    if ($resid1 = $resid2) then 
+ CNSsolve>        if ($segid1 = $segid2) then 
+ CNSsolve>           evaluate ($identical=true) 
+ CNSsolve>        end if 
+ CNSsolve>    end if 
+ CNSsolve> 
+ CNSsolve>    if ($identical=false) then 
+ CNSsolve>       show (x) ( id $id1 ) evaluate ($x1=$result) 
+ CNSsolve>       show (y) ( id $id1 ) evaluate ($y1=$result) 
+ CNSsolve>       show (z) ( id $id1 ) evaluate ($z1=$result) 
+ CNSsolve>       show (x) ( id $id2 ) evaluate ($x2=$result) 
+ CNSsolve>       show (y) ( id $id2 ) evaluate ($y2=$result) 
+ CNSsolve>       show (z) ( id $id2 ) evaluate ($z2=$result) 
+ CNSsolve>       evaluate ($distance=sqrt( ($x1-$x2)^2 + ($y1-$y2)^2 + ($z1-$z2)^2 )) 
+ CNSsolve> 
+ CNSsolve>       if ( $distance <= &carbo_dist ) then 
+ CNSsolve>          evaluate ($npatch=$npatch+1) 
+ CNSsolve>          evaluate ($seg1.$npatch=$segid1) 
+ CNSsolve>          evaluate ($seg2.$npatch=$segid2) 
+ CNSsolve>          evaluate ($res1.$npatch=$resid1) 
+ CNSsolve>          evaluate ($res2.$npatch=$resid2) 
+ CNSsolve>          if ($resname1="FUC") then 
+ CNSsolve>             evaluate ($pres.$npatch="A16L") 
+ CNSsolve>          else 
+ CNSsolve>             evaluate ($pres.$npatch="A16") 
+ CNSsolve>          end if 
+ CNSsolve>      end if 
+ CNSsolve>    end if 
+ CNSsolve> 
+ CNSsolve>  end loop A16 
+ CNSsolve> 
+ CNSsolve>end loop A1 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>{- now we apply all the patches -} 
+ CNSsolve>evaluate ($counter=1) 
+ EVALUATE: symbol $COUNTER set to    1.00000     (real)
+ CNSsolve>while ( $counter <= $npatch ) loop patc 
+ NEXTCD: condition evaluated as false
+ CNSsolve> 
+ CNSsolve>   patch $pres.$counter 
+ CNSsolve>      reference=-=(segid $seg1.$counter and resid $res1.$counter) 
+ CNSsolve>      reference=+=(segid $seg2.$counter and resid $res2.$counter) 
+ CNSsolve>   end 
+ CNSsolve> 
+ CNSsolve>   display  $pres.$counter link added: $seg1.$counter[a4] $res1.$counter[a4] to $seg2.$counter[a4] $res2.$counter[a4] 
+ CNSsolve>   evaluate ($counter=$counter+1) 
+ CNSsolve>end loop patc 
+ CNSsolve> 
+ CNSsolve>if ($delenph = true) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    delete sele=(name H* and attr charge = 0) end 
+ SELRPN:    965 atoms have been selected out of   2469
+ Status of internal molecular topology database:
+ -> NATOM=       1504(MAXA=     1000000)  NBOND=       1523(MAXB=     1000000)
+ -> NTHETA=      2184(MAXT=     2000000)  NGRP=         153(MAXGRP=   1000000)
+ -> NPHI=        3676(MAXP=     2000000)  NIMPHI=       769(MAXIMP=   1000000)
+ -> NNB=           42(MAXNB=    1000000) 
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>set seed=$iniseed end 
+ CNSsolve> 
+ CNSsolve>show sum(1) ( not(hydrogen) and not(known) ) 
+ SELRPN:      2 atoms have been selected out of   1504
+ SHOW: sum over selected elements =       2.000000
+ CNSsolve>if ( $select = 0 ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    display  %INFO: There are no coordinates missing for non-hydrogen atoms 
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>if ( $log_level = "verbose" ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    set message=verbose echo=on end 
+ CNSsolve>elseif ( $log_level = "normal") then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    set message=normal echo=off end 
+ CNSsolve>else 
+ CNSsolve>    set message=off echo=off end 
+ %PARRDR-info: duplication of bond CH1E OAS 
+ %PARRDR-info: duplication of angle CH2E C    NH1 
+ %PARRDR-info: duplication of nonbonded entry OA3H
+ %PARRDR-info: duplication of nonbonded entry H   
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HC  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry OP1 
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HN  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ POWELL: number of degrees of freedom=   870
+ NBONDS: generating intra-molecular exclusion list with mode=-2
+ MAKINB: mode  -2 found    290 exclusions and      0 interactions(1-4)
+ NBONDS: found    24491 intra-atom interactions
+ NBONDS: found    23319 intra-atom interactions
+ NBONDS: found    22679 intra-atom interactions
+ NBONDS: found    22558 intra-atom interactions
+ NBONDS: found    22689 intra-atom interactions
+ NBONDS: found    22638 intra-atom interactions
+ --------------- cycle=    10 ------ stepsize=    0.0001 -----------------------
+ | Etotal =46693.953  grad(E)=243.902    E(BOND)=10753.657  E(ANGL)=27330.450  |
+ | E(VDW )=8609.845                                                            |
+ -------------------------------------------------------------------------------
+ NBONDS: found    22631 intra-atom interactions
+ NBONDS: found    22618 intra-atom interactions
+ NBONDS: found    22655 intra-atom interactions
+ NBONDS: found    22572 intra-atom interactions
+ --------------- cycle=    20 ------ stepsize=   -0.0001 -----------------------
+ | Etotal =5405.455   grad(E)=73.955     E(BOND)=1856.020   E(ANGL)=1139.657   |
+ | E(VDW )=2409.778                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    30 ------ stepsize=   -0.0001 -----------------------
+ | Etotal =3663.039   grad(E)=49.711     E(BOND)=1379.456   E(ANGL)=229.080    |
+ | E(VDW )=2054.503                                                            |
+ -------------------------------------------------------------------------------
+ NBONDS: found    22575 intra-atom interactions
+ --------------- cycle=    40 ------ stepsize=   -0.0002 -----------------------
+ | Etotal =3532.998   grad(E)=48.246     E(BOND)=1469.369   E(ANGL)=190.954    |
+ | E(VDW )=1872.675                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    50 ------ stepsize=    0.0010 -----------------------
+ | Etotal =3515.874   grad(E)=47.743     E(BOND)=1409.887   E(ANGL)=188.915    |
+ | E(VDW )=1917.073                                                            |
+ -------------------------------------------------------------------------------
+ POWELL: STEP number limit. Normal termination
+ POWELL: Current coordinates set to last minimum
+ DCART: temperature coupling (TCOUpling) enabled
+ -------------------------- Cartesian dynamics start ---------------------------
+ | E(kin)+E(total)=34184.104       E(kin)=260.182       temperature=300.987    |
+ | Etotal =33923.922  grad(E)=194.157    E(BOND)=1409.887   E(ANGL)=188.915    |
+ | E(IMPR)=32325.120                                                           |
+ -------------------------------------------------------------------------------
+ ----------------- final step=       50 at      0.02500 ps ---------------------
+ | E(kin)+E(total)=17246.441       E(kin)=6838.200      temperature=7910.664   |
+ | Etotal =10408.242  grad(E)=87.260     E(BOND)=824.617    E(ANGL)=1629.679   |
+ | E(IMPR)=7953.945                                                            |
+ -------------------------------------------------------------------------------
+ CENMAS: Information about center of free masses
+         position [A]          :    -38.16399     18.93936     44.19791
+         velocity [A/ps]       :     -1.01223     -0.23620      0.29802
+         ang. mom. [amu A/ps]  :-120939.69067    795.85634  44035.27112
+         kin. ener. [Kcal/mol] :      8.10405
+ POWELL: number of degrees of freedom=   870
+ NBONDS: found    22561 intra-atom interactions
+ NBONDS: found    22558 intra-atom interactions
+ --------------- cycle=    10 ------ stepsize=   -0.0002 -----------------------
+ | Etotal =8735.005   grad(E)=56.595     E(BOND)=1168.684   E(ANGL)=1330.798   |
+ | E(IMPR)=3858.864   E(VDW )=2376.660                                         |
+ -------------------------------------------------------------------------------
+ NBONDS: found    22554 intra-atom interactions
+ --------------- cycle=    20 ------ stepsize=    0.0002 -----------------------
+ | Etotal =6741.787   grad(E)=50.202     E(BOND)=1499.947   E(ANGL)=1380.742   |
+ | E(IMPR)=1849.341   E(VDW )=2011.758                                         |
+ -------------------------------------------------------------------------------
+ NBONDS: found    22574 intra-atom interactions
+ --------------- cycle=    30 ------ stepsize=    0.0001 -----------------------
+ | Etotal =6313.171   grad(E)=55.649     E(BOND)=1556.047   E(ANGL)=952.738    |
+ | E(IMPR)=1857.586   E(VDW )=1946.799                                         |
+ -------------------------------------------------------------------------------
+ NBONDS: found    22555 intra-atom interactions
+ --------------- cycle=    40 ------ stepsize=   -0.0001 -----------------------
+ | Etotal =5537.606   grad(E)=48.081     E(BOND)=1407.747   E(ANGL)=593.483    |
+ | E(IMPR)=1560.925   E(VDW )=1975.450                                         |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    50 ------ stepsize=   -0.0001 -----------------------
+ | Etotal =5527.723   grad(E)=47.815     E(BOND)=1450.742   E(ANGL)=582.761    |
+ | E(IMPR)=1562.205   E(VDW )=1932.015                                         |
+ -------------------------------------------------------------------------------
+ POWELL: STEP number limit. Normal termination
+ POWELL: Current coordinates set to last minimum
+ DCART: temperature coupling (TCOUpling) enabled
+ -------------------------- Cartesian dynamics start ---------------------------
+ | E(kin)+E(total)=5787.905        E(kin)=260.182       temperature=300.987    |
+ | Etotal =5527.723   grad(E)=47.815     E(BOND)=1450.742   E(ANGL)=582.761    |
+ | E(IMPR)=1562.205   E(VDW )=1932.015                                         |
+ -------------------------------------------------------------------------------
+ ----------------- final step=       50 at      0.02500 ps ---------------------
+ | E(kin)+E(total)=6001.045        E(kin)=264.733       temperature=306.252    |
+ | Etotal =5736.313   grad(E)=52.052     E(BOND)=1495.999   E(ANGL)=651.546    |
+ | E(IMPR)=1637.813   E(VDW )=1950.954                                         |
+ -------------------------------------------------------------------------------
+ CENMAS: Information about center of free masses
+         position [A]          :    -38.16439     18.93991     44.20127
+         velocity [A/ps]       :      0.21917      0.06096      0.03374
+         ang. mom. [amu A/ps]  :   7301.80114 -12206.84310   8429.46437
+         kin. ener. [Kcal/mol] :      0.36660
+ %PARRDR-info: duplication of bond CH1E OAS 
+ %PARRDR-info: duplication of angle CH2E C    NH1 
+ %PARRDR-info: duplication of nonbonded entry OA3H
+ %PARRDR-info: duplication of nonbonded entry H   
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HC  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry OP1 
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HN  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ POWELL: number of degrees of freedom=   870
+ NBONDS: generating intra-molecular exclusion list with mode=-3
+ MAKINB: mode  -3 found    802 exclusions and      0 interactions(1-4)
+ NBONDS: found    22070 intra-atom interactions
+ --------------- cycle=    25 ------ stepsize=    0.0002 -----------------------
+ | Etotal =1977.543   grad(E)=17.854     E(BOND)=457.135    E(ANGL)=648.699    |
+ | E(IMPR)=869.537    E(VDW )=2.172                                            |
+ -------------------------------------------------------------------------------
+ NBONDS: found    22041 intra-atom interactions
+ NBONDS: found    22037 intra-atom interactions
+ --------------- cycle=    50 ------ stepsize=    0.0004 -----------------------
+ | Etotal =35.344     grad(E)=4.049      E(BOND)=0.076      E(ANGL)=29.570     |
+ | E(IMPR)=0.013      E(VDW )=5.685                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    75 ------ stepsize=    0.0006 -----------------------
+ | Etotal =30.736     grad(E)=3.962      E(BOND)=0.091      E(ANGL)=28.630     |
+ | E(IMPR)=0.005      E(VDW )=2.010                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=   100 ------ stepsize=   -0.0000 -----------------------
+ | Etotal =30.734     grad(E)=3.963      E(BOND)=0.091      E(ANGL)=28.634     |
+ | E(IMPR)=0.005      E(VDW )=2.004                                            |
+ -------------------------------------------------------------------------------
+ POWELL: STEP number limit. Normal termination
+ POWELL: Current coordinates set to last minimum
+ DCART: temperature coupling (TCOUpling) enabled
+ -------------------------- Cartesian dynamics start ---------------------------
+ | E(kin)+E(total)=290.916         E(kin)=260.182       temperature=300.987    |
+ | Etotal =30.734     grad(E)=3.963      E(BOND)=0.091      E(ANGL)=28.634     |
+ | E(IMPR)=0.005      E(VDW )=2.004                                            |
+ -------------------------------------------------------------------------------
+ NBONDS: found    22011 intra-atom interactions
+ NBONDS: found    21995 intra-atom interactions
+ NBONDS: found    22030 intra-atom interactions
+ NBONDS: found    21995 intra-atom interactions
+ ----------------- final step=      500 at      0.25000 ps ---------------------
+ | E(kin)+E(total)=477.238         E(kin)=269.849       temperature=312.171    |
+ | Etotal =207.389    grad(E)=20.498     E(BOND)=27.491     E(ANGL)=80.913     |
+ | E(IMPR)=95.050     E(VDW )=3.935                                            |
+ -------------------------------------------------------------------------------
+ CENMAS: Information about center of free masses
+         position [A]          :    -38.15051     18.93666     44.19263
+         velocity [A/ps]       :      0.14949     -0.07218     -0.08887
+         ang. mom. [amu A/ps]  : -23960.42308  11460.84091 -21502.87255
+         kin. ener. [Kcal/mol] :      0.24575
+ EFLAGS: the following energy flags are set
+ EFLAGS: BOND ANGL DIHE IMPR VDW 
+ %PARRDR-info: duplication of bond CH1E OAS 
+ %PARRDR-info: duplication of angle CH2E C    NH1 
+ %PARRDR-info: duplication of nonbonded entry OA3H
+ %PARRDR-info: duplication of nonbonded entry H   
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HC  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry OP1 
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HN  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ POWELL: number of degrees of freedom=   870
+ NBONDS: generating intra-molecular exclusion list with mode=-3
+ MAKINB: mode  -3 found    802 exclusions and      0 interactions(1-4)
+ NBONDS: found    21998 intra-atom interactions
+ --------------- cycle=    50 ------ stepsize=    0.0010 -----------------------
+ | Etotal =113.785    grad(E)=5.637      E(BOND)=2.921      E(ANGL)=43.344     |
+ | E(DIHE)=11.375     E(IMPR)=0.128      E(VDW )=56.017                        |
+ -------------------------------------------------------------------------------
+ NBONDS: found    21990 intra-atom interactions
+ --------------- cycle=   100 ------ stepsize=    0.0013 -----------------------
+ | Etotal =108.462    grad(E)=5.733      E(BOND)=3.455      E(ANGL)=45.618     |
+ | E(DIHE)=7.288      E(IMPR)=0.165      E(VDW )=51.936                        |
+ -------------------------------------------------------------------------------
+ --------------- cycle=   150 ------ stepsize=    0.0013 -----------------------
+ | Etotal =104.320    grad(E)=5.677      E(BOND)=3.288      E(ANGL)=44.638     |
+ | E(DIHE)=3.760      E(IMPR)=0.027      E(VDW )=52.608                        |
+ -------------------------------------------------------------------------------
+ NBONDS: found    21998 intra-atom interactions
+ --------------- cycle=   200 ------ stepsize=    0.0010 -----------------------
+ | Etotal =103.055    grad(E)=5.680      E(BOND)=3.187      E(ANGL)=45.610     |
+ | E(DIHE)=2.483      E(IMPR)=0.013      E(VDW )=51.762                        |
+ -------------------------------------------------------------------------------
+ --------------- cycle=   250 ------ stepsize=    0.0010 -----------------------
+ | Etotal =102.910    grad(E)=5.668      E(BOND)=3.147      E(ANGL)=44.860     |
+ | E(DIHE)=2.597      E(IMPR)=0.012      E(VDW )=52.295                        |
+ -------------------------------------------------------------------------------
+ --------------- cycle=   300 ------ stepsize=    0.0014 -----------------------
+ | Etotal =102.909    grad(E)=5.668      E(BOND)=3.150      E(ANGL)=44.801     |
+ | E(DIHE)=2.600      E(IMPR)=0.012      E(VDW )=52.345                        |
+ -------------------------------------------------------------------------------
+ POWELL: Gradient converged. Normal termination
+ POWELL: Current coordinates set to last minimum
+ POWELL: number of degrees of freedom=   870
+ POWELL: Gradient converged. Normal termination
+ POWELL: Current coordinates set to last minimum
+ DCART: temperature coupling (TCOUpling) enabled
+ -------------------------- Cartesian dynamics start ---------------------------
+ | E(kin)+E(total)=363.090         E(kin)=260.182       temperature=300.987    |
+ | Etotal =102.909    grad(E)=5.668      E(BOND)=3.150      E(ANGL)=44.806     |
+ | E(DIHE)=2.598      E(IMPR)=0.012      E(VDW )=52.343     E(ELEC)=0.000      |
+ -------------------------------------------------------------------------------
+ NBONDS: found    21969 intra-atom interactions
+ NBONDS: found    21950 intra-atom interactions
+ NBONDS: found    21972 intra-atom interactions
+ NBONDS: found    21986 intra-atom interactions
+ NBONDS: found    21982 intra-atom interactions
+ NBONDS: found    21978 intra-atom interactions
+ NBONDS: found    21976 intra-atom interactions
+ NBONDS: found    21989 intra-atom interactions
+ NBONDS: found    22001 intra-atom interactions
+ NBONDS: found    21996 intra-atom interactions
+ NBONDS: found    21983 intra-atom interactions
+ NBONDS: found    21970 intra-atom interactions
+ NBONDS: found    21962 intra-atom interactions
+ NBONDS: found    21986 intra-atom interactions
+ NBONDS: found    21990 intra-atom interactions
+ NBONDS: found    21999 intra-atom interactions
+ NBONDS: found    21953 intra-atom interactions
+ NBONDS: found    21944 intra-atom interactions
+ ----------------- final step=      500 at      0.25000 ps ---------------------
+ | E(kin)+E(total)=565.847         E(kin)=246.576       temperature=285.247    |
+ | Etotal =319.271    grad(E)=22.518     E(BOND)=29.919     E(ANGL)=148.084    |
+ | E(DIHE)=4.252      E(IMPR)=79.983     E(VDW )=57.033     E(ELEC)=0.000      |
+ -------------------------------------------------------------------------------
+ CENMAS: Information about center of free masses
+         position [A]          :    -35.77599     19.55656     43.10096
+         velocity [A/ps]       :      0.11062     -0.03131      0.14463
+         ang. mom. [amu A/ps]  :  -2432.28402  -3578.33524 -12118.51659
+         kin. ener. [Kcal/mol] :      0.01282
+ POWELL: number of degrees of freedom=   870
+ --------------- cycle=    50 ------ stepsize=    0.0006 -----------------------
+ | Etotal =103.673    grad(E)=5.645      E(BOND)=2.995      E(ANGL)=44.379     |
+ | E(DIHE)=3.607      E(IMPR)=0.029      E(VDW )=52.663     E(ELEC)=0.000      |
+ -------------------------------------------------------------------------------
+ --------------- cycle=   100 ------ stepsize=    0.0009 -----------------------
+ | Etotal =102.917    grad(E)=5.669      E(BOND)=3.152      E(ANGL)=44.895     |
+ | E(DIHE)=2.586      E(IMPR)=0.012      E(VDW )=52.272     E(ELEC)=0.000      |
+ -------------------------------------------------------------------------------
+ --------------- cycle=   150 ------ stepsize=    0.0007 -----------------------
+ | Etotal =102.909    grad(E)=5.668      E(BOND)=3.149      E(ANGL)=44.807     |
+ | E(DIHE)=2.595      E(IMPR)=0.012      E(VDW )=52.346     E(ELEC)=0.000      |
+ -------------------------------------------------------------------------------
+ --------------- cycle=   200 ------ stepsize=    0.0008 -----------------------
+ | Etotal =102.909    grad(E)=5.668      E(BOND)=3.151      E(ANGL)=44.801     |
+ | E(DIHE)=2.597      E(IMPR)=0.012      E(VDW )=52.348     E(ELEC)=0.000      |
+ -------------------------------------------------------------------------------
+ --------------- cycle=   250 ------ stepsize=    0.0009 -----------------------
+ | Etotal =102.909    grad(E)=5.668      E(BOND)=3.150      E(ANGL)=44.807     |
+ | E(DIHE)=2.598      E(IMPR)=0.012      E(VDW )=52.342     E(ELEC)=0.000      |
+ -------------------------------------------------------------------------------
+ POWELL: Gradient converged. Normal termination
+ POWELL: Current coordinates set to last minimum
+ (atom-i        |atom-j        )    dist.   equil.   delta    energy   const. 
+
+ (B    1    CB  |B    1    CG1 )    1.573    1.521    0.052    2.663 1000.000
+ (B    1    CB  |B    1    CG2 )    1.543    1.521    0.022    0.468 1000.000
+ Number of violations greater    0.020:     2
+ RMS deviation=   0.003
+ (atom-i        |atom-j        |atom-k        )  angle    equil.     delta    energy  const. 
+
+ (B    1    CA  |B    1    CB  |B    1    CG1 )  120.749  110.488   10.261   16.035  500.000
+ Number of violations greater    5.000:     1
+ RMS deviation=   0.758
+ Total number of dihedral angle restraints=     0
+  overall scale =    1.0000
+ Number of dihedral angle restraints=    0
+ Number of violations greater than    5.000:     0
+ RMS deviation=   0.000
+ --------------- cycle=     1 --------------------------------------------------
+ | Etotal =102.909    grad(E)=5.668      E(BOND)=3.150      E(ANGL)=44.807     |
+ | E(DIHE)=2.598      E(IMPR)=0.012      E(VDW )=52.342     E(ELEC)=0.000      |
+ | E(CDIH)=0.000      E(NOE )=0.000                                            |
+ -------------------------------------------------------------------------------
+ Total number of dihedral angle restraints=     0
+  overall scale =    1.0000
+ Number of dihedral angle restraints=    0
+ Number of violations greater than    5.000:     0
+ RMS deviation=   0.000
+ (atom-i        |atom-j        )    dist.   equil.   delta    energy   const. 
+
+ (B    1    CB  |B    1    CG1 )    1.573    1.521    0.052    2.663 1000.000
+ (B    1    CB  |B    1    CG2 )    1.543    1.521    0.022    0.468 1000.000
+ Number of violations greater    0.020:     2
+ RMS deviation=   0.003
+ (atom-i        |atom-j        |atom-k        )  angle    equil.     delta    energy  const. 
+
+ (B    1    CA  |B    1    CB  |B    1    CG1 )  120.749  110.488   10.261   16.035  500.000
+ Number of violations greater    5.000:     1
+ RMS deviation=   0.758
+ %POWELL-ERR: all atoms fixed. No action
+ SCRATC-warning: Pairs of Interacting Groups erased.
+CIS peptide bon detected for residue 113
+CIS peptide bon detected for residue 122
+ %PARRDR-info: duplication of bond CH1E OAS 
+ %PARRDR-info: duplication of angle CH2E C    NH1 
+ %PARRDR-info: duplication of nonbonded entry OA3H
+ %PARRDR-info: duplication of nonbonded entry H   
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HC  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry OP1 
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HN  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ POWELL: number of degrees of freedom=  4506
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found     10 exclusions and     16 interactions(1-4)
+ NBONDS: found     1774 intra-atom interactions
+ --------------- cycle=     5 ------ stepsize=   -0.0000 -----------------------
+ | Etotal =-11.967    grad(E)=1.406      E(BOND)=0.029      E(ANGL)=0.705      |
+ | E(DIHE)=7.099      E(IMPR)=6.173      E(VDW )=-17.383    E(ELEC)=-8.590     |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    10 ------ stepsize=    0.0007 -----------------------
+ | Etotal =-17.923    grad(E)=2.084      E(BOND)=0.076      E(ANGL)=1.223      |
+ | E(DIHE)=7.097      E(IMPR)=0.187      E(VDW )=-17.918    E(ELEC)=-8.588     |
+ -------------------------------------------------------------------------------
+ POWELL: STEP number limit. Normal termination
+ POWELL: Current coordinates set to last minimum
+ --------------- cycle=     2 --------------------------------------------------
+ | Etotal =-18.365    grad(E)=0.847      E(BOND)=0.065      E(ANGL)=0.483      |
+ | E(DIHE)=7.094      E(IMPR)=0.406      E(VDW )=-17.814    E(ELEC)=-8.600     |
+ -------------------------------------------------------------------------------
+ POWELL: number of degrees of freedom=  4506
+ --------------- cycle=     5 ------ stepsize=   -0.0000 -----------------------
+ | Etotal =-11.255    grad(E)=1.410      E(BOND)=0.031      E(ANGL)=0.711      |
+ | E(DIHE)=7.099      E(IMPR)=6.162      E(VDW )=-17.388    E(ELEC)=-7.870     |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    10 ------ stepsize=    0.0007 -----------------------
+ | Etotal =-17.252    grad(E)=2.088      E(BOND)=0.077      E(ANGL)=1.229      |
+ | E(DIHE)=7.097      E(IMPR)=0.187      E(VDW )=-17.952    E(ELEC)=-7.890     |
+ -------------------------------------------------------------------------------
+ POWELL: STEP number limit. Normal termination
+ POWELL: Current coordinates set to last minimum
+ --------------- cycle=     3 --------------------------------------------------
+ | Etotal =-17.702    grad(E)=0.848      E(BOND)=0.063      E(ANGL)=0.477      |
+ | E(DIHE)=7.094      E(IMPR)=0.392      E(VDW )=-17.841    E(ELEC)=-7.887     |
+ -------------------------------------------------------------------------------
+ POWELL: number of degrees of freedom=  4506
+ --------------- cycle=     5 ------ stepsize=   -0.0000 -----------------------
+ | Etotal =-10.917    grad(E)=1.411      E(BOND)=0.031      E(ANGL)=0.711      |
+ | E(DIHE)=7.099      E(IMPR)=6.159      E(VDW )=-17.389    E(ELEC)=-7.528     |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    10 ------ stepsize=    0.0007 -----------------------
+ | Etotal =-16.927    grad(E)=2.088      E(BOND)=0.076      E(ANGL)=1.229      |
+ | E(DIHE)=7.097      E(IMPR)=0.186      E(VDW )=-17.954    E(ELEC)=-7.561     |
+ -------------------------------------------------------------------------------
+ POWELL: STEP number limit. Normal termination
+ POWELL: Current coordinates set to last minimum
+ --------------- cycle=     4 --------------------------------------------------
+ | Etotal =-17.375    grad(E)=0.849      E(BOND)=0.063      E(ANGL)=0.477      |
+ | E(DIHE)=7.094      E(IMPR)=0.391      E(VDW )=-17.843    E(ELEC)=-7.557     |
+ -------------------------------------------------------------------------------
+ POWELL: number of degrees of freedom=  4506
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found     10 exclusions and     16 interactions(1-4)
+ NBONDS: found     1730 intra-atom interactions
+ --------------- cycle=     5 ------ stepsize=    0.0002 -----------------------
+ | Etotal =-9.726     grad(E)=1.893      E(BOND)=0.050      E(ANGL)=0.686      |
+ | E(DIHE)=7.090      E(IMPR)=6.141      E(VDW )=-20.473    E(ELEC)=-3.221     |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    10 ------ stepsize=    0.0004 -----------------------
+ | Etotal =-17.864    grad(E)=0.578      E(BOND)=0.027      E(ANGL)=0.336      |
+ | E(DIHE)=7.089      E(IMPR)=0.070      E(VDW )=-22.231    E(ELEC)=-3.156     |
+ -------------------------------------------------------------------------------
+ POWELL: STEP number limit. Normal termination
+ POWELL: Current coordinates set to last minimum
+ --------------- cycle=     5 --------------------------------------------------
+ | Etotal =-17.864    grad(E)=0.578      E(BOND)=0.027      E(ANGL)=0.336      |
+ | E(DIHE)=7.089      E(IMPR)=0.070      E(VDW )=-22.231    E(ELEC)=-3.156     |
+ -------------------------------------------------------------------------------
+ POWELL: number of degrees of freedom=  4506
+ --------------- cycle=     5 ------ stepsize=    0.0002 -----------------------
+ | Etotal =-12.433    grad(E)=1.881      E(BOND)=0.051      E(ANGL)=0.676      |
+ | E(DIHE)=7.090      E(IMPR)=6.147      E(VDW )=-20.485    E(ELEC)=-5.911     |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    10 ------ stepsize=    0.0004 -----------------------
+ | Etotal =-20.455    grad(E)=0.566      E(BOND)=0.027      E(ANGL)=0.347      |
+ | E(DIHE)=7.089      E(IMPR)=0.063      E(VDW )=-22.264    E(ELEC)=-5.717     |
+ -------------------------------------------------------------------------------
+ POWELL: STEP number limit. Normal termination
+ POWELL: Current coordinates set to last minimum
+ --------------- cycle=     6 --------------------------------------------------
+ | Etotal =-20.455    grad(E)=0.566      E(BOND)=0.027      E(ANGL)=0.347      |
+ | E(DIHE)=7.089      E(IMPR)=0.063      E(VDW )=-22.264    E(ELEC)=-5.717     |
+ -------------------------------------------------------------------------------
+ POWELL: number of degrees of freedom=  4506
+ --------------- cycle=     5 ------ stepsize=    0.0002 -----------------------
+ | Etotal =-14.929    grad(E)=1.875      E(BOND)=0.051      E(ANGL)=0.671      |
+ | E(DIHE)=7.090      E(IMPR)=6.162      E(VDW )=-20.490    E(ELEC)=-8.414     |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    10 ------ stepsize=    0.0004 -----------------------
+ | Etotal =-22.941    grad(E)=0.570      E(BOND)=0.027      E(ANGL)=0.345      |
+ | E(DIHE)=7.089      E(IMPR)=0.063      E(VDW )=-22.294    E(ELEC)=-8.169     |
+ -------------------------------------------------------------------------------
+ POWELL: STEP number limit. Normal termination
+ POWELL: Current coordinates set to last minimum
+ --------------- cycle=     7 --------------------------------------------------
+ | Etotal =-22.941    grad(E)=0.570      E(BOND)=0.027      E(ANGL)=0.345      |
+ | E(DIHE)=7.089      E(IMPR)=0.063      E(VDW )=-22.294    E(ELEC)=-8.169     |
+ -------------------------------------------------------------------------------
+ POWELL: number of degrees of freedom=  4506
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found     10 exclusions and     16 interactions(1-4)
+ NBONDS: found     1636 intra-atom interactions
+ --------------- cycle=     5 ------ stepsize=    0.0003 -----------------------
+ | Etotal =-19.589    grad(E)=0.772      E(BOND)=0.005      E(ANGL)=0.151      |
+ | E(DIHE)=7.128      E(IMPR)=0.320      E(VDW )=-14.846    E(ELEC)=-12.346    |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    10 ------ stepsize=    0.0004 -----------------------
+ | Etotal =-20.368    grad(E)=0.277      E(BOND)=0.011      E(ANGL)=0.095      |
+ | E(DIHE)=7.127      E(IMPR)=0.035      E(VDW )=-15.095    E(ELEC)=-12.541    |
+ -------------------------------------------------------------------------------
+ POWELL: STEP number limit. Normal termination
+ POWELL: Current coordinates set to last minimum
+ --------------- cycle=     8 --------------------------------------------------
+ | Etotal =-20.368    grad(E)=0.277      E(BOND)=0.011      E(ANGL)=0.095      |
+ | E(DIHE)=7.127      E(IMPR)=0.035      E(VDW )=-15.095    E(ELEC)=-12.541    |
+ -------------------------------------------------------------------------------
+ POWELL: number of degrees of freedom=  4506
+ --------------- cycle=     5 ------ stepsize=    0.0003 -----------------------
+ | Etotal =-12.298    grad(E)=0.736      E(BOND)=0.004      E(ANGL)=0.145      |
+ | E(DIHE)=7.128      E(IMPR)=0.324      E(VDW )=-14.841    E(ELEC)=-5.057     |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    10 ------ stepsize=    0.0004 -----------------------
+ | Etotal =-12.941    grad(E)=0.229      E(BOND)=0.009      E(ANGL)=0.078      |
+ | E(DIHE)=7.127      E(IMPR)=0.035      E(VDW )=-15.065    E(ELEC)=-5.125     |
+ -------------------------------------------------------------------------------
+ POWELL: STEP number limit. Normal termination
+ POWELL: Current coordinates set to last minimum
+ --------------- cycle=     9 --------------------------------------------------
+ | Etotal =-12.941    grad(E)=0.229      E(BOND)=0.009      E(ANGL)=0.078      |
+ | E(DIHE)=7.127      E(IMPR)=0.035      E(VDW )=-15.065    E(ELEC)=-5.125     |
+ -------------------------------------------------------------------------------
+ POWELL: number of degrees of freedom=  4506
+ --------------- cycle=     5 ------ stepsize=    0.0003 -----------------------
+ | Etotal =-16.937    grad(E)=0.741      E(BOND)=0.004      E(ANGL)=0.147      |
+ | E(DIHE)=7.128      E(IMPR)=0.323      E(VDW )=-14.842    E(ELEC)=-9.697     |
+ -------------------------------------------------------------------------------
+ --------------- cycle=    10 ------ stepsize=    0.0004 -----------------------
+ | Etotal =-17.599    grad(E)=0.237      E(BOND)=0.009      E(ANGL)=0.080      |
+ | E(DIHE)=7.127      E(IMPR)=0.035      E(VDW )=-15.069    E(ELEC)=-9.781     |
+ -------------------------------------------------------------------------------
+ POWELL: STEP number limit. Normal termination
+ POWELL: Current coordinates set to last minimum
+ --------------- cycle=    10 --------------------------------------------------
+ | Etotal =-17.599    grad(E)=0.237      E(BOND)=0.009      E(ANGL)=0.080      |
+ | E(DIHE)=7.127      E(IMPR)=0.035      E(VDW )=-15.069    E(ELEC)=-9.781     |
+ -------------------------------------------------------------------------------
+ SCRATC-warning: Pairs of Interacting Groups erased.
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found   3724 exclusions and   2677 interactions(1-4)
+ NBONDS: found    83713 intra-atom interactions
+ --------------- cycle=    11 --------------------------------------------------
+ | Etotal =5967.531   grad(E)=88.004     E(BOND)=48.896     E(ANGL)=407.172    |
+ | E(DIHE)=792.741    E(IMPR)=5799.108   E(VDW )=-556.898   E(ELEC)=-523.488   |
+ -------------------------------------------------------------------------------
+ SELRPN: Store empty. No atoms selected.
+ SELRPN: Store empty. No atoms selected.
+OUTPUT: P7KBJ_0_P7KBJ_chain_A_haddock.pdb
+OUTPUT: P7KBJ_0_P7KBJ_chain_A_haddock.psf
+ HEAP: maximum use      =    10320784 current use      =       96000 bytes
+ HEAP: maximum overhead =        2672 current overhead =         752 bytes
+          ============================================================
+           Maximum dynamic memory allocation:    10320784 bytes
+           Maximum dynamic memory overhead:          2672 bytes
+           Program started at: 18:42:11 on 20-Dec-2025
+           Program stopped at: 18:42:12 on 20-Dec-2025
+           CPU time used:       0.8581 seconds
+          ============================================================

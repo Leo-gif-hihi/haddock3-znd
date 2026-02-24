@@ -1,0 +1,17 @@
+The parts most worth “future‑bug hardening” are the ones that (a) depend on strict formatting assumptions (PDB/TBL), (b) do chain-ID remapping, or (c) assume CLI args are always present. Here are the highest-risk items in priority order.
+
+CLI options that don’t validate $2: In the arg parser, some flags don’t check [[ $# -lt 2 ]] before reading $2 (with set -euo pipefail this can crash on a missing value). See the --arctic3d-prob, --arctic3d-blast-db, --arctic3d-position-tolerance cases in a.sh:1190-1347.
+
+Variables to watch: ARCTIC3D_PROB_THRESHOLD, ARCTIC3D_BLAST_DB, ARCTIC3D_POSITION_TOLERANCE.
+Chain-ID pool exhaustion / collision: Pair setup computes rhs_start_char from LHS chain count, then rechains RHS accordingly. If LHS has ≥36 chains, rhs_start_char becomes empty, and rechain_partner falls back to starting at A (collision risk). See a.sh:1637-1642 and the fallback behavior in a.sh:348-367.
+
+Variables to watch: lhs_chain_count, chain_pool, rhs_start_char.
+Restraint chain remapping is “segid-only”: remap_tbl_chain only rewrites patterns like segid X. If a .tbl uses other selectors (e.g., chain, quoted segids, or different syntax), RHS rechaining can silently desync restraints from structures. See a.sh:456-503.
+
+Part to watch: the regex in remap_tbl_chain and all generated/copied .tbl sources.
+PDB cleaning/allowlist can drop important molecules: The embedded PDB-prep logic filters residues against a hardcoded allowlist and optionally drops all HETATMs. This is a common source of “it runs but results are wrong” bugs (e.g., metal ions/cofactors/modified residues not covered). The effect is driven by REMOVE_HETATM and the allowlist inside run_prepare_partner. (The allowlist is in the big Python block starting around a.sh:515.)
+
+Variables to watch: REMOVE_HETATM, and the “STANDARD_RESIDUES” set.
+Counters/reporting are misleading right now: The loop increments success_count when configs are generated, but the summary prints “Successful runs”, while actual HADDOCK3 execution is commented out. Also skipped_count is never incremented but printed in dry-run mode. See a.sh:1863-1946.
+
+Variables to watch: success_count, failure_count, skipped_count, and the commented execution block.

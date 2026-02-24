@@ -25,7 +25,7 @@ SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 # ---------------------------------------------------------------------------
 # Global Configuration & Defaults
 # ---------------------------------------------------------------------------
-FORCE_CHAINS_TOGETHER=true
+GENERATE_BODY_RESTRAINTS=true
 
 # Partner & Grouping Data Structures
 declare -a PARTNER_ORDER=()          # Ordered list of partner labels
@@ -104,11 +104,12 @@ Required:
                              list of PDB files, or a .lst file with one path per line.
 
 Modes & presets:
-  --keep-chains-separate          Don't force chains from the same PDB together during docking.
+  --no-rigid-body             Do not generate rigid-body restraints between chains of the same partner.
   --group-bodies <label>=<pdb|json>  Mapping for body restraints. Repeat per partner or provide a JSON file.
   --auto-partners <dir>       Discover partners automatically from PDBs inside <dir>.
   --abinitio                   Blind docking mode: high sampling, ranair, no restraint processing.
-  --ranair                     Force [rigidbody] ranair = true.
+  --ranair                     Force [rigidbody] ranair = true. 
+  Note: ranair parameter is limited to the docking of two chains only, and no other type of restraints will be considered, even if specified in the configuration file.
 
 Pair selection (optional):
   --pair <label1,label2>       Restrict docking to the specified labelled pair. Repeatable.
@@ -147,14 +148,14 @@ Examples:
 
   # Docking with chains moving independently (no body restraints)
   ./a.sh --partner A=proteinA.pdb --partner B=proteinB.pdb \
-        --keep-chains-separate --ambig manual_air.tbl
+        --no-rigid-body --ambig manual_air.tbl
 
 See README for details on manifest formats accepted by --group-bodies.
 USAGE
 }
 
 # Logging helpers
-log() { printf '[%s] %s\n' "$(date '+%H:%M:%S')" "$*"; }
+log() { printf '[%s] %s\n' "$(date '+%H:%M:%S')" "$*" >&2; }
 warn() { log "WARN: $*"; }
 error() { log "ERROR: $*"; }
 die() { error "$*"; exit 1; }
@@ -620,7 +621,7 @@ run_prepare_partner() {
     local pool="$chain_pool"
 
     mapfile -t PREP_INFO < <(
-        python3 - "$rename_mode" "$prep_dir" "$label" "$pool" "$FORCE_CHAINS_TOGETHER" "$REMOVE_HETATM" "${files[@]}" <<'PY'
+        python3 - "$rename_mode" "$prep_dir" "$label" "$pool" "$GENERATE_BODY_RESTRAINTS" "$REMOVE_HETATM" "${files[@]}" <<'PY'
 import os
 import sys
 import json
@@ -632,7 +633,7 @@ rename_mode = sys.argv[1]
 output_dir = sys.argv[2]
 label = sys.argv[3]
 chain_pool = sys.argv[4]
-force_together = sys.argv[5].lower() == 'true'
+generate_restraints = sys.argv[5].lower() == 'true'
 remove_hetatm = sys.argv[6].lower() == 'true'
 input_files = sys.argv[7:]
 
@@ -804,7 +805,7 @@ for (chain, res, icode), info in residue_map.items():
 payload = {
     "label": label,
     "rename_mode": rename_mode,
-    "force_chains_together": force_together,
+    "generate_body_restraints": generate_restraints,
     "inputs": input_files,
     "output_path": os.path.abspath(combined_path),
     "chain_mapping": chain_mapping,
@@ -817,7 +818,7 @@ with open(mapping_path, 'w', encoding='utf-8') as handle:
 # No longer creating split chain files - keep multi-chain file
 # Body restraints still generated if needed
 body_tbl = ''
-if force_together and len(chain_mapping) > 1:
+if generate_restraints and len(chain_mapping) > 1:
     restrain_bin = shutil.which('haddock3-restraints')
     if restrain_bin:
         try:
@@ -845,12 +846,37 @@ if force_together and len(chain_mapping) > 1:
     else:
         print("[WARN] haddock3-restraints not available; skipping restrain_bodies", file=sys.stderr)
 
-# Output: combined_path, mapping_path, body_tbl, and always 1 output file (the combined file)
+# Split chains into separate files
+split_files = []
+chain_lines = defaultdict(list)
+current_chain_id = None
+
+for line in combined_lines:
+    if line.startswith(('ATOM', 'HETATM')):
+        chain_id = line[21]
+        chain_lines[chain_id].append(line)
+        current_chain_id = chain_id
+    elif line.startswith('TER'):
+        # TER belongs to the previous chain
+        if current_chain_id and current_chain_id in chain_lines:
+            chain_lines[current_chain_id].append(line)
+
+# Write split files
+for chain_id, lines in chain_lines.items():
+    split_path = os.path.join(output_dir, f"{label}_chain_{chain_id}.pdb")
+    with open(split_path, 'w', encoding='utf-8') as handle:
+        ensure_end(lines)
+        handle.write('\n'.join(lines))
+        handle.write('\n')
+    split_files.append(os.path.abspath(split_path))
+
+# Output: combined_path, mapping_path, body_tbl, count of split files, and split file paths
 print(os.path.abspath(combined_path))
 print(os.path.abspath(mapping_path))
 print(body_tbl)
-print("1")  # Always output 1 file (combined)
-print(os.path.abspath(combined_path))
+print(len(split_files))
+for f in split_files:
+    print(f)
 PY
     )
 
@@ -1190,10 +1216,11 @@ create_config() {
     local ambig_value="$7"
     local unambig_value="$8"
     local reference="$9"
-    shift 9
+    local has_external="${10}"
+    shift 10
     local -a molecules=("$@")
 
-    python3 - "$config_path" "$run_dir_name" "$sampling" "$ncores" "$ranair" "$version" "$ambig_value" "$unambig_value" "$reference" "${molecules[@]}" <<'PY'
+    python3 - "$config_path" "$run_dir_name" "$sampling" "$ncores" "$ranair" "$version" "$ambig_value" "$unambig_value" "$reference" "$has_external" "${molecules[@]}" <<'PY'
 import os
 import sys
 
@@ -1206,7 +1233,8 @@ version = int(sys.argv[6])
 ambig_value = sys.argv[7]
 unambig_value = sys.argv[8]
 reference = sys.argv[9]
-molecules = sys.argv[10:]
+has_external = sys.argv[10] == 'true'
+molecules = sys.argv[11:]
 
 def parse_files(value):
     return [item for item in value.split(",") if item]
@@ -1229,8 +1257,8 @@ with open(config_path, 'w', encoding='utf-8') as fh:
     fh.write("[rigidbody]\n")
     fh.write("tolerance = 5\n")
     fh.write(f"sampling = {sampling}\n")
-    # Only enable cmrest for ab initio docking (no ambig files)
-    if not ambig_files:
+    # Only enable cmrest for ab initio docking (no ambig or unambig files)
+    if not ranair and not has_external:
         fh.write("cmrest = true\n")
     if ranair:
         fh.write("ranair = true\n")
@@ -1240,6 +1268,14 @@ with open(config_path, 'w', encoding='utf-8') as fh:
         else:
             fh.write("ambig_fname = [\n")
             for path in ambig_files:
+                fh.write(f"  \"{path}\",\n")
+            fh.write("]\n")
+    if unambig_files:
+        if len(unambig_files) == 1:
+            fh.write(f"unambig_fname = \"{unambig_files[0]}\"\n")
+        else:
+            fh.write("unambig_fname = [\n")
+            for path in unambig_files:
                 fh.write(f"  \"{path}\",\n")
             fh.write("]\n")
     fh.write("\n")
@@ -1295,8 +1331,8 @@ require_command python3
 ARGS=("$@")
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --keep-chains-separate)
-            FORCE_CHAINS_TOGETHER=false
+        --no-rigid-body)
+            GENERATE_BODY_RESTRAINTS=false
             shift
             ;;
         --auto-partners)
@@ -1576,7 +1612,7 @@ mkdir -p "$PREP_DIR"
 
 log "Preparing partners in $PREP_DIR"
 log "  Partners: ${PARTNER_ORDER[*]}"
-log "  Mode: multi-chain files | Version: $VERSION | Force chains together: $FORCE_CHAINS_TOGETHER"
+log "  Mode: multi-chain files | Version: $VERSION | Generate body restraints: $GENERATE_BODY_RESTRAINTS"
 if [[ "$USE_ARCTIC3D" == true ]]; then
     log "  ARCTIC3D: enabled (probability threshold: $ARCTIC3D_PROB_THRESHOLD)"
 fi
@@ -1727,6 +1763,13 @@ pair_idx=0
 start_global=$(date +%s)
 
 for pair in "${PAIR_LIST[@]}"; do
+    # Initialize/reset arrays for each iteration
+    molecules=()
+    pair_ambig_files=()
+    pair_unambig_files=()
+    rhs_pdb_files=()
+    has_external_restraints=false
+    
     pair_idx=$((pair_idx + 1))
     IFS='|' read -r lhs rhs <<< "$pair"
     pair_label="PAIR_${lhs}_vs_${rhs}"
@@ -1814,14 +1857,14 @@ for pair in "${PAIR_LIST[@]}"; do
         fi
     fi
 
-    declare -a pair_ambig_files=()
-    declare -a pair_unambig_files=()
+    # pair_ambig_files and pair_unambig_files already declared at loop start
 
     for path in "${AMBIG_MANUAL[@]}"; do
         base="$(basename "$path")"
         dest="$pair_rest_dir/$base"
         cp "$path" "$dest"
         pair_ambig_files+=("$dest")
+        has_external_restraints=true
     done
 
     for path in "${UNAMBIG_MANUAL[@]}"; do
@@ -1829,9 +1872,10 @@ for pair in "${PAIR_LIST[@]}"; do
         dest="$pair_rest_dir/$base"
         cp "$path" "$dest"
         pair_unambig_files+=("$dest")
+        has_external_restraints=true
     done
 
-    if [[ "$FORCE_CHAINS_TOGETHER" == true ]]; then
+    if [[ "$GENERATE_BODY_RESTRAINTS" == true ]]; then
         for partner_label in "$lhs" "$rhs"; do
             body_src="${PARTNER_BODY_TBL[$partner_label]}"
             if [[ -n "$body_src" && -f "$body_src" ]]; then
@@ -1873,11 +1917,13 @@ PY
                 append_unique pair_ambig_files "$arctic3d_ambig"
                 log "   → ARCTIC3D ambiguous restraints added"
                 arctic3d_restraints_count=$((arctic3d_restraints_count + 1))
+                has_external_restraints=true
             fi
             if [[ -n "$arctic3d_unambig" && -f "$arctic3d_unambig" ]]; then
                 append_unique pair_unambig_files "$arctic3d_unambig"
                 log "   → ARCTIC3D unambiguous restraints added"
                 arctic3d_restraints_count=$((arctic3d_restraints_count + 1))
+                has_external_restraints=true
             fi
         fi
     fi
@@ -1900,7 +1946,7 @@ PY
         fi
         
         # Remap Body Restraints for RHS
-        if [[ "$FORCE_CHAINS_TOGETHER" == true ]]; then
+        if [[ "$GENERATE_BODY_RESTRAINTS" == true ]]; then
              body_dest="$pair_rest_dir/${rhs}_restrain_bodies.tbl"
              if [[ -f "$body_dest" ]]; then
                  remap_tbl_chain "$body_dest" "$rhs_chain_map"
@@ -1957,10 +2003,12 @@ PY
             if [[ -n "$auto_ambig" && -f "$auto_ambig" ]]; then
                 append_unique pair_ambig_files "$auto_ambig"
                 auto_restraints_count=$((auto_restraints_count + 1))
+                has_external_restraints=true
             fi
             if [[ -n "$auto_unambig" && -f "$auto_unambig" ]]; then
                 append_unique pair_unambig_files "$auto_unambig"
                 auto_restraints_count=$((auto_restraints_count + 1))
+                has_external_restraints=true
             fi
         fi
     fi
@@ -1996,8 +2044,6 @@ PY
     ranair_value=false
     if [[ "$FORCE_RANAIR" == true ]]; then
         ranair_value=true
-    elif [[ ${#pair_ambig_files[@]} -eq 0 && ${#pair_unambig_files[@]} -eq 0 ]]; then
-        ranair_value=true
     fi
 
     if (( ${#pair_ambig_files[@]} )); then
@@ -2029,10 +2075,13 @@ PY
         ((counter+=1))
     done
 
-    create_config "$CONFIG_PATH" "$RUN_SUBDIR" "$sampling_value" "$NCORES" "$ranair_value" "$VERSION" "$AMBIG_VALUE" "$UNAMBIG_VALUE" "$REFERENCE_VALUE" "${molecules[@]}"
+    create_config "$CONFIG_PATH" "$RUN_SUBDIR" "$sampling_value" "$NCORES" "$ranair_value" "$VERSION" "$AMBIG_VALUE" "$UNAMBIG_VALUE" "$REFERENCE_VALUE" "$has_external_restraints" "${molecules[@]}"
 
     log "  Config generated at $CONFIG_PATH"
     success_count=$((success_count + 1))
+    
+    # Cleanup arrays for this iteration
+    unset molecules pair_ambig_files pair_unambig_files rhs_pdb_files
 done
 
 # ---------------------------------------------------------------------------
@@ -2246,6 +2295,23 @@ else
     fi
 
 fi
+
+# ---------------------------------------------------------------------------
+# Cleanup temporary files
+# ---------------------------------------------------------------------------
+cleanup_temp_files() {
+    # Remove temporary rechained PDB files
+    find "$RUN_DIR" -name '*_rechained_combined.pdb' -delete 2>/dev/null || true
+}
+
+if [[ "$DRY_RUN" != true ]]; then
+    cleanup_temp_files
+fi
+
+# Clear large data structures
+unset PARTNER_SPECS PARTNER_FILES PARTNER_COMBINED PARTNER_AMBIG_MANUAL PARTNER_AMBIG_AUTO
+unset PARTNER_UNAMBIG_MANUAL PARTNER_UNAMBIG_AUTO PARTNER_REFERENCE PARTNER_SPLIT_FILES
+unset PARTNER_MAPPING PARTNER_ARCTIC3D PAIR_LIST
 
 log ""
 log "IMPORTANT: Always cd into the pair directory before running haddock3!"

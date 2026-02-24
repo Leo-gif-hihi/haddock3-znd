@@ -1,0 +1,581 @@
+{
+    "input": [],
+    "output": [
+        {
+            "0": {
+                "clt_id": null,
+                "clt_model_rank": null,
+                "clt_rank": null,
+                "created": "2025-12-20 18:42:20",
+                "file_name": "P1CLL_0_P1CLL_chain_A_haddock.pdb",
+                "file_type": {
+                    "py/reduce": [
+                        {
+                            "py/type": "haddock.libs.libontology.Format"
+                        },
+                        {
+                            "py/tuple": [
+                                "pdb"
+                            ]
+                        }
+                    ]
+                },
+                "full_name": "P1CLL_0_P1CLL_chain_A_haddock.pdb",
+                "len": NaN,
+                "md5": null,
+                "ori_name": "P1CLL_0_P1CLL_chain_A",
+                "path": "/home/phucdao/haddock3-znd/protein_test7/run_P1CLL_vs_P7KBJ_20251220_182210/0_topoaa",
+                "py/object": "haddock.libs.libontology.PDBFile",
+                "rel_path": {
+                    "py/reduce": [
+                        {
+                            "py/type": "pathlib.PosixPath"
+                        },
+                        {
+                            "py/tuple": [
+                                "..",
+                                "0_topoaa",
+                                "P1CLL_0_P1CLL_chain_A_haddock.pdb"
+                            ]
+                        }
+                    ]
+                },
+                "restr_fname": null,
+                "score": NaN,
+                "seed": null,
+                "topology": {
+                    "created": "2025-12-20 18:42:20",
+                    "file_name": "P1CLL_0_P1CLL_chain_A_haddock.psf",
+                    "file_type": {
+                        "py/reduce": [
+                            {
+                                "py/type": "haddock.libs.libontology.Format"
+                            },
+                            {
+                                "py/tuple": [
+                                    "psf"
+                                ]
+                            }
+                        ]
+                    },
+                    "full_name": "P1CLL_0_P1CLL_chain_A_haddock.psf",
+                    "md5": null,
+                    "path": "/home/phucdao/haddock3-znd/protein_test7/run_P1CLL_vs_P7KBJ_20251220_182210/0_topoaa",
+                    "py/object": "haddock.libs.libontology.TopologyFile",
+                    "rel_path": {
+                        "py/reduce": [
+                            {
+                                "py/type": "pathlib.PosixPath"
+                            },
+                            {
+                                "py/tuple": [
+                                    "..",
+                                    "0_topoaa",
+                                    "P1CLL_0_P1CLL_chain_A_haddock.psf"
+                                ]
+                            }
+                        ]
+                    },
+                    "restr_fname": null
+                },
+                "unw_energies": null
+            }
+        },
+        {
+            "0": {
+                "clt_id": null,
+                "clt_model_rank": null,
+                "clt_rank": null,
+                "created": "2025-12-20 18:42:20",
+                "file_name": "P7KBJ_0_P7KBJ_chain_A_haddock.pdb",
+                "file_type": {
+                    "py/id": 5
+                },
+                "full_name": "P7KBJ_0_P7KBJ_chain_A_haddock.pdb",
+                "len": NaN,
+                "md5": null,
+                "ori_name": "P7KBJ_0_P7KBJ_chain_A",
+                "path": "/home/phucdao/haddock3-znd/protein_test7/run_P1CLL_vs_P7KBJ_20251220_182210/0_topoaa",
+                "py/object": "haddock.libs.libontology.PDBFile",
+                "rel_path": {
+                    "py/reduce": [
+                        {
+                            "py/type": "pathlib.PosixPath"
+                        },
+                        {
+                            "py/tuple": [
+                                "..",
+                                "0_topoaa",
+                                "P7KBJ_0_P7KBJ_chain_A_haddock.pdb"
+                            ]
+                        }
+                    ]
+                },
+                "restr_fname": null,
+                "score": NaN,
+                "seed": null,
+                "topology": {
+                    "created": "2025-12-20 18:42:20",
+                    "file_name": "P7KBJ_0_P7KBJ_chain_A_haddock.psf",
+                    "file_type": {
+                        "py/id": 8
+                    },
+                    "full_name": "P7KBJ_0_P7KBJ_chain_A_haddock.psf",
+                    "md5": null,
+                    "path": "/home/phucdao/haddock3-znd/protein_test7/run_P1CLL_vs_P7KBJ_20251220_182210/0_topoaa",
+                    "py/object": "haddock.libs.libontology.TopologyFile",
+                    "rel_path": {
+                        "py/reduce": [
+                            {
+                                "py/type": "pathlib.PosixPath"
+                            },
+                            {
+                                "py/tuple": [
+                                    "..",
+                                    "0_topoaa",
+                                    "P7KBJ_0_P7KBJ_chain_A_haddock.psf"
+                                ]
+                            }
+                        ]
+                    },
+                    "restr_fname": null
+                },
+                "unw_energies": null
+            }
+        },
+        {
+            "0": {
+                "clt_id": null,
+                "clt_model_rank": null,
+                "clt_rank": null,
+                "created": "2025-12-20 18:42:20",
+                "file_name": "P7KBJ_1_P7KBJ_chain_B_haddock.pdb",
+                "file_type": {
+                    "py/id": 5
+                },
+                "full_name": "P7KBJ_1_P7KBJ_chain_B_haddock.pdb",
+                "len": NaN,
+                "md5": null,
+                "ori_name": "P7KBJ_1_P7KBJ_chain_B",
+                "path": "/home/phucdao/haddock3-znd/protein_test7/run_P1CLL_vs_P7KBJ_20251220_182210/0_topoaa",
+                "py/object": "haddock.libs.libontology.PDBFile",
+                "rel_path": {
+                    "py/reduce": [
+                        {
+                            "py/type": "pathlib.PosixPath"
+                        },
+                        {
+                            "py/tuple": [
+                                "..",
+                                "0_topoaa",
+                                "P7KBJ_1_P7KBJ_chain_B_haddock.pdb"
+                            ]
+                        }
+                    ]
+                },
+                "restr_fname": null,
+                "score": NaN,
+                "seed": null,
+                "topology": {
+                    "created": "2025-12-20 18:42:20",
+                    "file_name": "P7KBJ_1_P7KBJ_chain_B_haddock.psf",
+                    "file_type": {
+                        "py/id": 8
+                    },
+                    "full_name": "P7KBJ_1_P7KBJ_chain_B_haddock.psf",
+                    "md5": null,
+                    "path": "/home/phucdao/haddock3-znd/protein_test7/run_P1CLL_vs_P7KBJ_20251220_182210/0_topoaa",
+                    "py/object": "haddock.libs.libontology.TopologyFile",
+                    "rel_path": {
+                        "py/reduce": [
+                            {
+                                "py/type": "pathlib.PosixPath"
+                            },
+                            {
+                                "py/tuple": [
+                                    "..",
+                                    "0_topoaa",
+                                    "P7KBJ_1_P7KBJ_chain_B_haddock.psf"
+                                ]
+                            }
+                        ]
+                    },
+                    "restr_fname": null
+                },
+                "unw_energies": null
+            }
+        },
+        {
+            "0": {
+                "clt_id": null,
+                "clt_model_rank": null,
+                "clt_rank": null,
+                "created": "2025-12-20 18:42:20",
+                "file_name": "P7KBJ_2_P7KBJ_chain_C_haddock.pdb",
+                "file_type": {
+                    "py/id": 5
+                },
+                "full_name": "P7KBJ_2_P7KBJ_chain_C_haddock.pdb",
+                "len": NaN,
+                "md5": null,
+                "ori_name": "P7KBJ_2_P7KBJ_chain_C",
+                "path": "/home/phucdao/haddock3-znd/protein_test7/run_P1CLL_vs_P7KBJ_20251220_182210/0_topoaa",
+                "py/object": "haddock.libs.libontology.PDBFile",
+                "rel_path": {
+                    "py/reduce": [
+                        {
+                            "py/type": "pathlib.PosixPath"
+                        },
+                        {
+                            "py/tuple": [
+                                "..",
+                                "0_topoaa",
+                                "P7KBJ_2_P7KBJ_chain_C_haddock.pdb"
+                            ]
+                        }
+                    ]
+                },
+                "restr_fname": null,
+                "score": NaN,
+                "seed": null,
+                "topology": {
+                    "created": "2025-12-20 18:42:20",
+                    "file_name": "P7KBJ_2_P7KBJ_chain_C_haddock.psf",
+                    "file_type": {
+                        "py/id": 8
+                    },
+                    "full_name": "P7KBJ_2_P7KBJ_chain_C_haddock.psf",
+                    "md5": null,
+                    "path": "/home/phucdao/haddock3-znd/protein_test7/run_P1CLL_vs_P7KBJ_20251220_182210/0_topoaa",
+                    "py/object": "haddock.libs.libontology.TopologyFile",
+                    "rel_path": {
+                        "py/reduce": [
+                            {
+                                "py/type": "pathlib.PosixPath"
+                            },
+                            {
+                                "py/tuple": [
+                                    "..",
+                                    "0_topoaa",
+                                    "P7KBJ_2_P7KBJ_chain_C_haddock.psf"
+                                ]
+                            }
+                        ]
+                    },
+                    "restr_fname": null
+                },
+                "unw_energies": null
+            }
+        },
+        {
+            "0": {
+                "clt_id": null,
+                "clt_model_rank": null,
+                "clt_rank": null,
+                "created": "2025-12-20 18:42:20",
+                "file_name": "P7KBJ_3_P7KBJ_chain_D_haddock.pdb",
+                "file_type": {
+                    "py/id": 5
+                },
+                "full_name": "P7KBJ_3_P7KBJ_chain_D_haddock.pdb",
+                "len": NaN,
+                "md5": null,
+                "ori_name": "P7KBJ_3_P7KBJ_chain_D",
+                "path": "/home/phucdao/haddock3-znd/protein_test7/run_P1CLL_vs_P7KBJ_20251220_182210/0_topoaa",
+                "py/object": "haddock.libs.libontology.PDBFile",
+                "rel_path": {
+                    "py/reduce": [
+                        {
+                            "py/type": "pathlib.PosixPath"
+                        },
+                        {
+                            "py/tuple": [
+                                "..",
+                                "0_topoaa",
+                                "P7KBJ_3_P7KBJ_chain_D_haddock.pdb"
+                            ]
+                        }
+                    ]
+                },
+                "restr_fname": null,
+                "score": NaN,
+                "seed": null,
+                "topology": {
+                    "created": "2025-12-20 18:42:20",
+                    "file_name": "P7KBJ_3_P7KBJ_chain_D_haddock.psf",
+                    "file_type": {
+                        "py/id": 8
+                    },
+                    "full_name": "P7KBJ_3_P7KBJ_chain_D_haddock.psf",
+                    "md5": null,
+                    "path": "/home/phucdao/haddock3-znd/protein_test7/run_P1CLL_vs_P7KBJ_20251220_182210/0_topoaa",
+                    "py/object": "haddock.libs.libontology.TopologyFile",
+                    "rel_path": {
+                        "py/reduce": [
+                            {
+                                "py/type": "pathlib.PosixPath"
+                            },
+                            {
+                                "py/tuple": [
+                                    "..",
+                                    "0_topoaa",
+                                    "P7KBJ_3_P7KBJ_chain_D_haddock.psf"
+                                ]
+                            }
+                        ]
+                    },
+                    "restr_fname": null
+                },
+                "unw_energies": null
+            }
+        },
+        {
+            "0": {
+                "clt_id": null,
+                "clt_model_rank": null,
+                "clt_rank": null,
+                "created": "2025-12-20 18:42:20",
+                "file_name": "P7KBJ_4_P7KBJ_chain_E_haddock.pdb",
+                "file_type": {
+                    "py/id": 5
+                },
+                "full_name": "P7KBJ_4_P7KBJ_chain_E_haddock.pdb",
+                "len": NaN,
+                "md5": null,
+                "ori_name": "P7KBJ_4_P7KBJ_chain_E",
+                "path": "/home/phucdao/haddock3-znd/protein_test7/run_P1CLL_vs_P7KBJ_20251220_182210/0_topoaa",
+                "py/object": "haddock.libs.libontology.PDBFile",
+                "rel_path": {
+                    "py/reduce": [
+                        {
+                            "py/type": "pathlib.PosixPath"
+                        },
+                        {
+                            "py/tuple": [
+                                "..",
+                                "0_topoaa",
+                                "P7KBJ_4_P7KBJ_chain_E_haddock.pdb"
+                            ]
+                        }
+                    ]
+                },
+                "restr_fname": null,
+                "score": NaN,
+                "seed": null,
+                "topology": {
+                    "created": "2025-12-20 18:42:20",
+                    "file_name": "P7KBJ_4_P7KBJ_chain_E_haddock.psf",
+                    "file_type": {
+                        "py/id": 8
+                    },
+                    "full_name": "P7KBJ_4_P7KBJ_chain_E_haddock.psf",
+                    "md5": null,
+                    "path": "/home/phucdao/haddock3-znd/protein_test7/run_P1CLL_vs_P7KBJ_20251220_182210/0_topoaa",
+                    "py/object": "haddock.libs.libontology.TopologyFile",
+                    "rel_path": {
+                        "py/reduce": [
+                            {
+                                "py/type": "pathlib.PosixPath"
+                            },
+                            {
+                                "py/tuple": [
+                                    "..",
+                                    "0_topoaa",
+                                    "P7KBJ_4_P7KBJ_chain_E_haddock.psf"
+                                ]
+                            }
+                        ]
+                    },
+                    "restr_fname": null
+                },
+                "unw_energies": null
+            }
+        },
+        {
+            "0": {
+                "clt_id": null,
+                "clt_model_rank": null,
+                "clt_rank": null,
+                "created": "2025-12-20 18:42:20",
+                "file_name": "P7KBJ_5_P7KBJ_chain_F_haddock.pdb",
+                "file_type": {
+                    "py/id": 5
+                },
+                "full_name": "P7KBJ_5_P7KBJ_chain_F_haddock.pdb",
+                "len": NaN,
+                "md5": null,
+                "ori_name": "P7KBJ_5_P7KBJ_chain_F",
+                "path": "/home/phucdao/haddock3-znd/protein_test7/run_P1CLL_vs_P7KBJ_20251220_182210/0_topoaa",
+                "py/object": "haddock.libs.libontology.PDBFile",
+                "rel_path": {
+                    "py/reduce": [
+                        {
+                            "py/type": "pathlib.PosixPath"
+                        },
+                        {
+                            "py/tuple": [
+                                "..",
+                                "0_topoaa",
+                                "P7KBJ_5_P7KBJ_chain_F_haddock.pdb"
+                            ]
+                        }
+                    ]
+                },
+                "restr_fname": null,
+                "score": NaN,
+                "seed": null,
+                "topology": {
+                    "created": "2025-12-20 18:42:20",
+                    "file_name": "P7KBJ_5_P7KBJ_chain_F_haddock.psf",
+                    "file_type": {
+                        "py/id": 8
+                    },
+                    "full_name": "P7KBJ_5_P7KBJ_chain_F_haddock.psf",
+                    "md5": null,
+                    "path": "/home/phucdao/haddock3-znd/protein_test7/run_P1CLL_vs_P7KBJ_20251220_182210/0_topoaa",
+                    "py/object": "haddock.libs.libontology.TopologyFile",
+                    "rel_path": {
+                        "py/reduce": [
+                            {
+                                "py/type": "pathlib.PosixPath"
+                            },
+                            {
+                                "py/tuple": [
+                                    "..",
+                                    "0_topoaa",
+                                    "P7KBJ_5_P7KBJ_chain_F_haddock.psf"
+                                ]
+                            }
+                        ]
+                    },
+                    "restr_fname": null
+                },
+                "unw_energies": null
+            }
+        },
+        {
+            "0": {
+                "clt_id": null,
+                "clt_model_rank": null,
+                "clt_rank": null,
+                "created": "2025-12-20 18:42:20",
+                "file_name": "P7KBJ_6_P7KBJ_chain_G_haddock.pdb",
+                "file_type": {
+                    "py/id": 5
+                },
+                "full_name": "P7KBJ_6_P7KBJ_chain_G_haddock.pdb",
+                "len": NaN,
+                "md5": null,
+                "ori_name": "P7KBJ_6_P7KBJ_chain_G",
+                "path": "/home/phucdao/haddock3-znd/protein_test7/run_P1CLL_vs_P7KBJ_20251220_182210/0_topoaa",
+                "py/object": "haddock.libs.libontology.PDBFile",
+                "rel_path": {
+                    "py/reduce": [
+                        {
+                            "py/type": "pathlib.PosixPath"
+                        },
+                        {
+                            "py/tuple": [
+                                "..",
+                                "0_topoaa",
+                                "P7KBJ_6_P7KBJ_chain_G_haddock.pdb"
+                            ]
+                        }
+                    ]
+                },
+                "restr_fname": null,
+                "score": NaN,
+                "seed": null,
+                "topology": {
+                    "created": "2025-12-20 18:42:20",
+                    "file_name": "P7KBJ_6_P7KBJ_chain_G_haddock.psf",
+                    "file_type": {
+                        "py/id": 8
+                    },
+                    "full_name": "P7KBJ_6_P7KBJ_chain_G_haddock.psf",
+                    "md5": null,
+                    "path": "/home/phucdao/haddock3-znd/protein_test7/run_P1CLL_vs_P7KBJ_20251220_182210/0_topoaa",
+                    "py/object": "haddock.libs.libontology.TopologyFile",
+                    "rel_path": {
+                        "py/reduce": [
+                            {
+                                "py/type": "pathlib.PosixPath"
+                            },
+                            {
+                                "py/tuple": [
+                                    "..",
+                                    "0_topoaa",
+                                    "P7KBJ_6_P7KBJ_chain_G_haddock.psf"
+                                ]
+                            }
+                        ]
+                    },
+                    "restr_fname": null
+                },
+                "unw_energies": null
+            }
+        },
+        {
+            "0": {
+                "clt_id": null,
+                "clt_model_rank": null,
+                "clt_rank": null,
+                "created": "2025-12-20 18:42:20",
+                "file_name": "P7KBJ_7_P7KBJ_chain_H_haddock.pdb",
+                "file_type": {
+                    "py/id": 5
+                },
+                "full_name": "P7KBJ_7_P7KBJ_chain_H_haddock.pdb",
+                "len": NaN,
+                "md5": null,
+                "ori_name": "P7KBJ_7_P7KBJ_chain_H",
+                "path": "/home/phucdao/haddock3-znd/protein_test7/run_P1CLL_vs_P7KBJ_20251220_182210/0_topoaa",
+                "py/object": "haddock.libs.libontology.PDBFile",
+                "rel_path": {
+                    "py/reduce": [
+                        {
+                            "py/type": "pathlib.PosixPath"
+                        },
+                        {
+                            "py/tuple": [
+                                "..",
+                                "0_topoaa",
+                                "P7KBJ_7_P7KBJ_chain_H_haddock.pdb"
+                            ]
+                        }
+                    ]
+                },
+                "restr_fname": null,
+                "score": NaN,
+                "seed": null,
+                "topology": {
+                    "created": "2025-12-20 18:42:20",
+                    "file_name": "P7KBJ_7_P7KBJ_chain_H_haddock.psf",
+                    "file_type": {
+                        "py/id": 8
+                    },
+                    "full_name": "P7KBJ_7_P7KBJ_chain_H_haddock.psf",
+                    "md5": null,
+                    "path": "/home/phucdao/haddock3-znd/protein_test7/run_P1CLL_vs_P7KBJ_20251220_182210/0_topoaa",
+                    "py/object": "haddock.libs.libontology.TopologyFile",
+                    "rel_path": {
+                        "py/reduce": [
+                            {
+                                "py/type": "pathlib.PosixPath"
+                            },
+                            {
+                                "py/tuple": [
+                                    "..",
+                                    "0_topoaa",
+                                    "P7KBJ_7_P7KBJ_chain_H_haddock.psf"
+                                ]
+                            }
+                        ]
+                    },
+                    "restr_fname": null
+                },
+                "unw_energies": null
+            }
+        }
+    ]
+}

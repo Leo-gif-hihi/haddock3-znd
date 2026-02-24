@@ -1,0 +1,30 @@
+run_dir = "run_P1CLL_vs_P7KBJ_20251220_071048"
+mode = "local"
+ncores = 8
+
+molecules = [
+  "P1CLL_0_P1CLL_combined.pdb",
+  "P7KBJ_0_P7KBJ_combined.pdb",
+]
+
+['topoaa.1']
+
+['rigidbody.1']
+tolerance = 5
+sampling = 2000
+unambig_fname = "P7KBJ_restrain_bodies.tbl"
+
+['seletop.1']
+select = 50
+
+['flexref.1']
+tolerance = 5
+unambig_fname = "P7KBJ_restrain_bodies.tbl"
+
+['emref.1']
+tolerance = 5
+unambig_fname = "P7KBJ_restrain_bodies.tbl"
+['seletop.2']
+select = 1
+
+['prodigyprotein.1']

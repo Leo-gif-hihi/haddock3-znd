@@ -1,0 +1,2083 @@
+          ============================================================
+          |                                                          |
+          |            Crystallography & NMR System (CNS)            |
+          |                         CNSsolve                         |
+          |                                                          |
+          ============================================================
+           Version: 1.3 at patch level U
+           Status: Special UU release with Rg, paramagnetic
+                   and Z-restraints (A. Bonvin, UU 2013)
+          ============================================================
+           Written by: A.T.Brunger, P.D.Adams, G.M.Clore, W.L.DeLano,
+                       P.Gros, R.W.Grosse-Kunstleve,J.-S.Jiang,J.M.Krahn,
+                       J.Kuszewski, M.Nilges, N.S.Pannu, R.J.Read,
+                       L.M.Rice, G.F.Schroeder, T.Simonson, G.L.Warren.
+           Copyright (c) 1997-2010 Yale University
+          ============================================================
+           Running on machine: hostname unknown (x86_64/Linux,64-bit)
+           Program started by: unknown
+           Program started at: 18:47:53 on 20-Dec-2025
+          ============================================================
+
+ FFT3C: Using FFTPACK4.1
+
+ CNSsolve> 
+ CNSsolve>! Parameters 
+ CNSsolve>eval ($ncores=8) 
+ EVALUATE: symbol $NCORES set to    8.00000     (real)
+ CNSsolve>eval ($max_cpus=true) 
+ EVALUATE: symbol $MAX_CPUS set to TRUE (logical)
+ CNSsolve>eval ($mode="local") 
+ EVALUATE: symbol $MODE set to "local" (string)
+ CNSsolve>eval ($batch_type="slurm") 
+ EVALUATE: symbol $BATCH_TYPE set to "slurm" (string)
+ CNSsolve>eval ($queue_limit=100) 
+ EVALUATE: symbol $QUEUE_LIMIT set to    100.000     (real)
+ CNSsolve>eval ($concat=1) 
+ EVALUATE: symbol $CONCAT set to    1.00000     (real)
+ CNSsolve>eval ($self_contained=false) 
+ EVALUATE: symbol $SELF_CONTAINED set to FALSE (logical)
+ CNSsolve>eval ($clean=true) 
+ EVALUATE: symbol $CLEAN set to TRUE (logical)
+ CNSsolve>eval ($offline=false) 
+ EVALUATE: symbol $OFFLINE set to FALSE (logical)
+ CNSsolve>eval ($debug=true) 
+ EVALUATE: symbol $DEBUG set to TRUE (logical)
+ CNSsolve>eval ($mol_fix_origin_1=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_1 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_1=false) 
+ EVALUATE: symbol $MOL_SHAPE_1 set to FALSE (logical)
+ CNSsolve>eval ($ambig_fname="") 
+ EVALUATE: symbol $AMBIG_FNAME set to "" (string)
+ CNSsolve>eval ($previous_ambig=false) 
+ EVALUATE: symbol $PREVIOUS_AMBIG set to FALSE (logical)
+ CNSsolve>eval ($unambig_fname="../data/3_flexref/P7KBJ_restrain_bodies.tbl") 
+ EVALUATE: symbol $UNAMBIG_FNAME set to "../data/3_flexref/P7KBJ_restrain_bodies.tbl" (string)
+ CNSsolve>eval ($hbond_fname="") 
+ EVALUATE: symbol $HBOND_FNAME set to "" (string)
+ CNSsolve>eval ($ambig_hot=10) 
+ EVALUATE: symbol $AMBIG_HOT set to    10.0000     (real)
+ CNSsolve>eval ($ambig_cool1=10) 
+ EVALUATE: symbol $AMBIG_COOL1 set to    10.0000     (real)
+ CNSsolve>eval ($ambig_cool2=50) 
+ EVALUATE: symbol $AMBIG_COOL2 set to    50.0000     (real)
+ CNSsolve>eval ($ambig_cool3=50) 
+ EVALUATE: symbol $AMBIG_COOL3 set to    50.0000     (real)
+ CNSsolve>eval ($unambig_hot=10) 
+ EVALUATE: symbol $UNAMBIG_HOT set to    10.0000     (real)
+ CNSsolve>eval ($unambig_cool1=10) 
+ EVALUATE: symbol $UNAMBIG_COOL1 set to    10.0000     (real)
+ CNSsolve>eval ($unambig_cool2=50) 
+ EVALUATE: symbol $UNAMBIG_COOL2 set to    50.0000     (real)
+ CNSsolve>eval ($unambig_cool3=50) 
+ EVALUATE: symbol $UNAMBIG_COOL3 set to    50.0000     (real)
+ CNSsolve>eval ($hbond_hot=10) 
+ EVALUATE: symbol $HBOND_HOT set to    10.0000     (real)
+ CNSsolve>eval ($hbond_cool1=10) 
+ EVALUATE: symbol $HBOND_COOL1 set to    10.0000     (real)
+ CNSsolve>eval ($hbond_cool2=50) 
+ EVALUATE: symbol $HBOND_COOL2 set to    50.0000     (real)
+ CNSsolve>eval ($hbond_cool3=50) 
+ EVALUATE: symbol $HBOND_COOL3 set to    50.0000     (real)
+ CNSsolve>eval ($randremoval=true) 
+ EVALUATE: symbol $RANDREMOVAL set to TRUE (logical)
+ CNSsolve>eval ($npart=2) 
+ EVALUATE: symbol $NPART set to    2.00000     (real)
+ CNSsolve>eval ($contactairs=false) 
+ EVALUATE: symbol $CONTACTAIRS set to FALSE (logical)
+ CNSsolve>eval ($kcont=1.0) 
+ EVALUATE: symbol $KCONT set to    1.00000     (real)
+ CNSsolve>eval ($cmrest=false) 
+ EVALUATE: symbol $CMREST set to FALSE (logical)
+ CNSsolve>eval ($cmtight=true) 
+ EVALUATE: symbol $CMTIGHT set to TRUE (logical)
+ CNSsolve>eval ($kcm=1.0) 
+ EVALUATE: symbol $KCM set to    1.00000     (real)
+ CNSsolve>eval ($dihe_fname="") 
+ EVALUATE: symbol $DIHE_FNAME set to "" (string)
+ CNSsolve>eval ($dihedrals_on=false) 
+ EVALUATE: symbol $DIHEDRALS_ON set to FALSE (logical)
+ CNSsolve>eval ($dihedrals_hot=5) 
+ EVALUATE: symbol $DIHEDRALS_HOT set to    5.00000     (real)
+ CNSsolve>eval ($dihedrals_cool1=5) 
+ EVALUATE: symbol $DIHEDRALS_COOL1 set to    5.00000     (real)
+ CNSsolve>eval ($dihedrals_cool2=50) 
+ EVALUATE: symbol $DIHEDRALS_COOL2 set to    50.0000     (real)
+ CNSsolve>eval ($dihedrals_cool3=200) 
+ EVALUATE: symbol $DIHEDRALS_COOL3 set to    200.000     (real)
+ CNSsolve>eval ($ssdihed="none") 
+ EVALUATE: symbol $SSDIHED set to "none" (string)
+ CNSsolve>eval ($error_dih=10) 
+ EVALUATE: symbol $ERROR_DIH set to    10.0000     (real)
+ CNSsolve>eval ($dnarest_on=false) 
+ EVALUATE: symbol $DNAREST_ON set to FALSE (logical)
+ CNSsolve>eval ($mrswi_hot=0.5) 
+ EVALUATE: symbol $MRSWI_HOT set to   0.500000     (real)
+ CNSsolve>eval ($mrswi_cool1=0.5) 
+ EVALUATE: symbol $MRSWI_COOL1 set to   0.500000     (real)
+ CNSsolve>eval ($mrswi_cool2=0.5) 
+ EVALUATE: symbol $MRSWI_COOL2 set to   0.500000     (real)
+ CNSsolve>eval ($mrswi_cool3=0.5) 
+ EVALUATE: symbol $MRSWI_COOL3 set to   0.500000     (real)
+ CNSsolve>eval ($rswi_hot=0.5) 
+ EVALUATE: symbol $RSWI_HOT set to   0.500000     (real)
+ CNSsolve>eval ($rswi_cool1=0.5) 
+ EVALUATE: symbol $RSWI_COOL1 set to   0.500000     (real)
+ CNSsolve>eval ($rswi_cool2=0.5) 
+ EVALUATE: symbol $RSWI_COOL2 set to   0.500000     (real)
+ CNSsolve>eval ($rswi_cool3=0.5) 
+ EVALUATE: symbol $RSWI_COOL3 set to   0.500000     (real)
+ CNSsolve>eval ($masy_hot=-1.0) 
+ EVALUATE: symbol $MASY_HOT set to   -1.00000     (real)
+ CNSsolve>eval ($masy_cool1=-1.0) 
+ EVALUATE: symbol $MASY_COOL1 set to   -1.00000     (real)
+ CNSsolve>eval ($masy_cool2=-0.1) 
+ EVALUATE: symbol $MASY_COOL2 set to  -0.100000     (real)
+ CNSsolve>eval ($masy_cool3=-0.1) 
+ EVALUATE: symbol $MASY_COOL3 set to  -0.100000     (real)
+ CNSsolve>eval ($asy_hot=1.0) 
+ EVALUATE: symbol $ASY_HOT set to    1.00000     (real)
+ CNSsolve>eval ($asy_cool1=1.0) 
+ EVALUATE: symbol $ASY_COOL1 set to    1.00000     (real)
+ CNSsolve>eval ($asy_cool2=0.1) 
+ EVALUATE: symbol $ASY_COOL2 set to   0.100000     (real)
+ CNSsolve>eval ($asy_cool3=0.1) 
+ EVALUATE: symbol $ASY_COOL3 set to   0.100000     (real)
+ CNSsolve>eval ($sym_on=false) 
+ EVALUATE: symbol $SYM_ON set to FALSE (logical)
+ CNSsolve>eval ($ksym=10.0) 
+ EVALUATE: symbol $KSYM set to    10.0000     (real)
+ CNSsolve>eval ($symtbl_fname="") 
+ EVALUATE: symbol $SYMTBL_FNAME set to "" (string)
+ CNSsolve>eval ($nc2sym=0) 
+ EVALUATE: symbol $NC2SYM set to    0.00000     (real)
+ CNSsolve>eval ($nc3sym=0) 
+ EVALUATE: symbol $NC3SYM set to    0.00000     (real)
+ CNSsolve>eval ($nc4sym=0) 
+ EVALUATE: symbol $NC4SYM set to    0.00000     (real)
+ CNSsolve>eval ($nc5sym=0) 
+ EVALUATE: symbol $NC5SYM set to    0.00000     (real)
+ CNSsolve>eval ($nc6sym=0) 
+ EVALUATE: symbol $NC6SYM set to    0.00000     (real)
+ CNSsolve>eval ($ns3sym=0) 
+ EVALUATE: symbol $NS3SYM set to    0.00000     (real)
+ CNSsolve>eval ($ncs_on=false) 
+ EVALUATE: symbol $NCS_ON set to FALSE (logical)
+ CNSsolve>eval ($kncs=1.0) 
+ EVALUATE: symbol $KNCS set to    1.00000     (real)
+ CNSsolve>eval ($nncs=0) 
+ EVALUATE: symbol $NNCS set to    0.00000     (real)
+ CNSsolve>eval ($w_air=0.1) 
+ EVALUATE: symbol $W_AIR set to   0.100000     (real)
+ CNSsolve>eval ($w_bsa=-0.01) 
+ EVALUATE: symbol $W_BSA set to  -0.100000E-01 (real)
+ CNSsolve>eval ($w_cdih=0.0) 
+ EVALUATE: symbol $W_CDIH set to    0.00000     (real)
+ CNSsolve>eval ($w_dani=0.1) 
+ EVALUATE: symbol $W_DANI set to   0.100000     (real)
+ CNSsolve>eval ($w_deint=0.0) 
+ EVALUATE: symbol $W_DEINT set to    0.00000     (real)
+ CNSsolve>eval ($w_desolv=1.0) 
+ EVALUATE: symbol $W_DESOLV set to    1.00000     (real)
+ CNSsolve>eval ($w_elec=1.0) 
+ EVALUATE: symbol $W_ELEC set to    1.00000     (real)
+ CNSsolve>eval ($w_lcc=-10000.0) 
+ EVALUATE: symbol $W_LCC set to   -10000.0     (real)
+ CNSsolve>eval ($w_rg=1.0) 
+ EVALUATE: symbol $W_RG set to    1.00000     (real)
+ CNSsolve>eval ($w_sani=0.1) 
+ EVALUATE: symbol $W_SANI set to   0.100000     (real)
+ CNSsolve>eval ($w_sym=0.1) 
+ EVALUATE: symbol $W_SYM set to   0.100000     (real)
+ CNSsolve>eval ($w_vdw=1.0) 
+ EVALUATE: symbol $W_VDW set to    1.00000     (real)
+ CNSsolve>eval ($w_vean=0.1) 
+ EVALUATE: symbol $W_VEAN set to   0.100000     (real)
+ CNSsolve>eval ($w_xpcs=0.1) 
+ EVALUATE: symbol $W_XPCS set to   0.100000     (real)
+ CNSsolve>eval ($w_xrdc=0.1) 
+ EVALUATE: symbol $W_XRDC set to   0.100000     (real)
+ CNSsolve>eval ($w_zres=0.1) 
+ EVALUATE: symbol $W_ZRES set to   0.100000     (real)
+ CNSsolve>eval ($ligand_param_fname="") 
+ EVALUATE: symbol $LIGAND_PARAM_FNAME set to "" (string)
+ CNSsolve>eval ($ligand_top_fname="") 
+ EVALUATE: symbol $LIGAND_TOP_FNAME set to "" (string)
+ CNSsolve>eval ($elecflag=true) 
+ EVALUATE: symbol $ELECFLAG set to TRUE (logical)
+ CNSsolve>eval ($dielec="rdie") 
+ EVALUATE: symbol $DIELEC set to "rdie" (string)
+ CNSsolve>eval ($epsilon=1.0) 
+ EVALUATE: symbol $EPSILON set to    1.00000     (real)
+ CNSsolve>eval ($dihedflag=true) 
+ EVALUATE: symbol $DIHEDFLAG set to TRUE (logical)
+ CNSsolve>eval ($sampling_factor=1) 
+ EVALUATE: symbol $SAMPLING_FACTOR set to    1.00000     (real)
+ CNSsolve>eval ($max_nmodels=10000) 
+ EVALUATE: symbol $MAX_NMODELS set to    10000.0     (real)
+ CNSsolve>eval ($nemsteps=200) 
+ EVALUATE: symbol $NEMSTEPS set to    200.000     (real)
+ CNSsolve>eval ($mdsteps_rigid=500) 
+ EVALUATE: symbol $MDSTEPS_RIGID set to    500.000     (real)
+ CNSsolve>eval ($mdsteps_cool1=500) 
+ EVALUATE: symbol $MDSTEPS_COOL1 set to    500.000     (real)
+ CNSsolve>eval ($mdsteps_cool2=1000) 
+ EVALUATE: symbol $MDSTEPS_COOL2 set to    1000.00     (real)
+ CNSsolve>eval ($mdsteps_cool3=1000) 
+ EVALUATE: symbol $MDSTEPS_COOL3 set to    1000.00     (real)
+ CNSsolve>eval ($randorien=false) 
+ EVALUATE: symbol $RANDORIEN set to FALSE (logical)
+ CNSsolve>eval ($timestep=0.002) 
+ EVALUATE: symbol $TIMESTEP set to   0.200000E-02 (real)
+ CNSsolve>eval ($tadfactor=8) 
+ EVALUATE: symbol $TADFACTOR set to    8.00000     (real)
+ CNSsolve>eval ($temp_high=2000) 
+ EVALUATE: symbol $TEMP_HIGH set to    2000.00     (real)
+ CNSsolve>eval ($temp_cool1_init=2000) 
+ EVALUATE: symbol $TEMP_COOL1_INIT set to    2000.00     (real)
+ CNSsolve>eval ($temp_cool1_final=500) 
+ EVALUATE: symbol $TEMP_COOL1_FINAL set to    500.000     (real)
+ CNSsolve>eval ($temp_cool2_init=1000) 
+ EVALUATE: symbol $TEMP_COOL2_INIT set to    1000.00     (real)
+ CNSsolve>eval ($temp_cool2_final=50) 
+ EVALUATE: symbol $TEMP_COOL2_FINAL set to    50.0000     (real)
+ CNSsolve>eval ($temp_cool3_init=1000) 
+ EVALUATE: symbol $TEMP_COOL3_INIT set to    1000.00     (real)
+ CNSsolve>eval ($temp_cool3_final=50) 
+ EVALUATE: symbol $TEMP_COOL3_FINAL set to    50.0000     (real)
+ CNSsolve>eval ($sinter_rigid_init=0.001) 
+ EVALUATE: symbol $SINTER_RIGID_INIT set to   0.100000E-02 (real)
+ CNSsolve>eval ($sinter_rigid_final=0.001) 
+ EVALUATE: symbol $SINTER_RIGID_FINAL set to   0.100000E-02 (real)
+ CNSsolve>eval ($sinter_cool2_init=0.001) 
+ EVALUATE: symbol $SINTER_COOL2_INIT set to   0.100000E-02 (real)
+ CNSsolve>eval ($sinter_cool2_final=1.0) 
+ EVALUATE: symbol $SINTER_COOL2_FINAL set to    1.00000     (real)
+ CNSsolve>eval ($sinter_cool3_init=0.05) 
+ EVALUATE: symbol $SINTER_COOL3_INIT set to   0.500000E-01 (real)
+ CNSsolve>eval ($sinter_cool3_final=1.0) 
+ EVALUATE: symbol $SINTER_COOL3_FINAL set to    1.00000     (real)
+ CNSsolve>eval ($iniseed=917) 
+ EVALUATE: symbol $INISEED set to    917.000     (real)
+ CNSsolve>eval ($keepwater=false) 
+ EVALUATE: symbol $KEEPWATER set to FALSE (logical)
+ CNSsolve>eval ($tolerance=5) 
+ EVALUATE: symbol $TOLERANCE set to    5.00000     (real)
+ CNSsolve>eval ($log_level="quiet") 
+ EVALUATE: symbol $LOG_LEVEL set to "quiet" (string)
+ CNSsolve>eval ($nseg1=-1) 
+ EVALUATE: symbol $NSEG1 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg2=-1) 
+ EVALUATE: symbol $NSEG2 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg3=-1) 
+ EVALUATE: symbol $NSEG3 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg4=-1) 
+ EVALUATE: symbol $NSEG4 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg5=-1) 
+ EVALUATE: symbol $NSEG5 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg6=-1) 
+ EVALUATE: symbol $NSEG6 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg7=-1) 
+ EVALUATE: symbol $NSEG7 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg8=-1) 
+ EVALUATE: symbol $NSEG8 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg9=-1) 
+ EVALUATE: symbol $NSEG9 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg10=-1) 
+ EVALUATE: symbol $NSEG10 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg11=-1) 
+ EVALUATE: symbol $NSEG11 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg12=-1) 
+ EVALUATE: symbol $NSEG12 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg13=-1) 
+ EVALUATE: symbol $NSEG13 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg14=-1) 
+ EVALUATE: symbol $NSEG14 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg15=-1) 
+ EVALUATE: symbol $NSEG15 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg16=-1) 
+ EVALUATE: symbol $NSEG16 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg17=-1) 
+ EVALUATE: symbol $NSEG17 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg18=-1) 
+ EVALUATE: symbol $NSEG18 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg19=-1) 
+ EVALUATE: symbol $NSEG19 set to   -1.00000     (real)
+ CNSsolve>eval ($nseg20=-1) 
+ EVALUATE: symbol $NSEG20 set to   -1.00000     (real)
+ CNSsolve>eval ($nfle=0) 
+ EVALUATE: symbol $NFLE set to    0.00000     (real)
+ CNSsolve>eval ($fle_seg_1="none") 
+ EVALUATE: symbol $FLE_SEG_1 set to "none" (string)
+ CNSsolve>eval ($int_1_1=1.0) 
+ EVALUATE: symbol $INT_1_1 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_2=1.0) 
+ EVALUATE: symbol $INT_1_2 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_3=1.0) 
+ EVALUATE: symbol $INT_1_3 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_4=1.0) 
+ EVALUATE: symbol $INT_1_4 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_5=1.0) 
+ EVALUATE: symbol $INT_1_5 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_6=1.0) 
+ EVALUATE: symbol $INT_1_6 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_7=1.0) 
+ EVALUATE: symbol $INT_1_7 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_8=1.0) 
+ EVALUATE: symbol $INT_1_8 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_9=1.0) 
+ EVALUATE: symbol $INT_1_9 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_10=1.0) 
+ EVALUATE: symbol $INT_1_10 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_11=1.0) 
+ EVALUATE: symbol $INT_1_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_12=1.0) 
+ EVALUATE: symbol $INT_1_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_13=1.0) 
+ EVALUATE: symbol $INT_1_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_14=1.0) 
+ EVALUATE: symbol $INT_1_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_15=1.0) 
+ EVALUATE: symbol $INT_1_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_16=1.0) 
+ EVALUATE: symbol $INT_1_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_17=1.0) 
+ EVALUATE: symbol $INT_1_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_18=1.0) 
+ EVALUATE: symbol $INT_1_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_19=1.0) 
+ EVALUATE: symbol $INT_1_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_1_20=1.0) 
+ EVALUATE: symbol $INT_1_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_2=1.0) 
+ EVALUATE: symbol $INT_2_2 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_3=1.0) 
+ EVALUATE: symbol $INT_2_3 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_4=1.0) 
+ EVALUATE: symbol $INT_2_4 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_5=1.0) 
+ EVALUATE: symbol $INT_2_5 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_6=1.0) 
+ EVALUATE: symbol $INT_2_6 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_7=1.0) 
+ EVALUATE: symbol $INT_2_7 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_8=1.0) 
+ EVALUATE: symbol $INT_2_8 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_9=1.0) 
+ EVALUATE: symbol $INT_2_9 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_10=1.0) 
+ EVALUATE: symbol $INT_2_10 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_11=1.0) 
+ EVALUATE: symbol $INT_2_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_12=1.0) 
+ EVALUATE: symbol $INT_2_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_13=1.0) 
+ EVALUATE: symbol $INT_2_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_14=1.0) 
+ EVALUATE: symbol $INT_2_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_15=1.0) 
+ EVALUATE: symbol $INT_2_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_16=1.0) 
+ EVALUATE: symbol $INT_2_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_17=1.0) 
+ EVALUATE: symbol $INT_2_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_18=1.0) 
+ EVALUATE: symbol $INT_2_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_19=1.0) 
+ EVALUATE: symbol $INT_2_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_2_20=1.0) 
+ EVALUATE: symbol $INT_2_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_3=1.0) 
+ EVALUATE: symbol $INT_3_3 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_4=1.0) 
+ EVALUATE: symbol $INT_3_4 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_5=1.0) 
+ EVALUATE: symbol $INT_3_5 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_6=1.0) 
+ EVALUATE: symbol $INT_3_6 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_7=1.0) 
+ EVALUATE: symbol $INT_3_7 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_8=1.0) 
+ EVALUATE: symbol $INT_3_8 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_9=1.0) 
+ EVALUATE: symbol $INT_3_9 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_10=1.0) 
+ EVALUATE: symbol $INT_3_10 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_11=1.0) 
+ EVALUATE: symbol $INT_3_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_12=1.0) 
+ EVALUATE: symbol $INT_3_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_13=1.0) 
+ EVALUATE: symbol $INT_3_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_14=1.0) 
+ EVALUATE: symbol $INT_3_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_15=1.0) 
+ EVALUATE: symbol $INT_3_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_16=1.0) 
+ EVALUATE: symbol $INT_3_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_17=1.0) 
+ EVALUATE: symbol $INT_3_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_18=1.0) 
+ EVALUATE: symbol $INT_3_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_19=1.0) 
+ EVALUATE: symbol $INT_3_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_3_20=1.0) 
+ EVALUATE: symbol $INT_3_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_4=1.0) 
+ EVALUATE: symbol $INT_4_4 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_5=1.0) 
+ EVALUATE: symbol $INT_4_5 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_6=1.0) 
+ EVALUATE: symbol $INT_4_6 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_7=1.0) 
+ EVALUATE: symbol $INT_4_7 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_8=1.0) 
+ EVALUATE: symbol $INT_4_8 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_9=1.0) 
+ EVALUATE: symbol $INT_4_9 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_10=1.0) 
+ EVALUATE: symbol $INT_4_10 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_11=1.0) 
+ EVALUATE: symbol $INT_4_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_12=1.0) 
+ EVALUATE: symbol $INT_4_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_13=1.0) 
+ EVALUATE: symbol $INT_4_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_14=1.0) 
+ EVALUATE: symbol $INT_4_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_15=1.0) 
+ EVALUATE: symbol $INT_4_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_16=1.0) 
+ EVALUATE: symbol $INT_4_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_17=1.0) 
+ EVALUATE: symbol $INT_4_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_18=1.0) 
+ EVALUATE: symbol $INT_4_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_19=1.0) 
+ EVALUATE: symbol $INT_4_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_4_20=1.0) 
+ EVALUATE: symbol $INT_4_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_5=1.0) 
+ EVALUATE: symbol $INT_5_5 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_6=1.0) 
+ EVALUATE: symbol $INT_5_6 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_7=1.0) 
+ EVALUATE: symbol $INT_5_7 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_8=1.0) 
+ EVALUATE: symbol $INT_5_8 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_9=1.0) 
+ EVALUATE: symbol $INT_5_9 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_10=1.0) 
+ EVALUATE: symbol $INT_5_10 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_11=1.0) 
+ EVALUATE: symbol $INT_5_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_12=1.0) 
+ EVALUATE: symbol $INT_5_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_13=1.0) 
+ EVALUATE: symbol $INT_5_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_14=1.0) 
+ EVALUATE: symbol $INT_5_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_15=1.0) 
+ EVALUATE: symbol $INT_5_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_16=1.0) 
+ EVALUATE: symbol $INT_5_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_17=1.0) 
+ EVALUATE: symbol $INT_5_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_18=1.0) 
+ EVALUATE: symbol $INT_5_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_19=1.0) 
+ EVALUATE: symbol $INT_5_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_5_20=1.0) 
+ EVALUATE: symbol $INT_5_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_6=1.0) 
+ EVALUATE: symbol $INT_6_6 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_7=1.0) 
+ EVALUATE: symbol $INT_6_7 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_8=1.0) 
+ EVALUATE: symbol $INT_6_8 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_9=1.0) 
+ EVALUATE: symbol $INT_6_9 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_10=1.0) 
+ EVALUATE: symbol $INT_6_10 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_11=1.0) 
+ EVALUATE: symbol $INT_6_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_12=1.0) 
+ EVALUATE: symbol $INT_6_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_13=1.0) 
+ EVALUATE: symbol $INT_6_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_14=1.0) 
+ EVALUATE: symbol $INT_6_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_15=1.0) 
+ EVALUATE: symbol $INT_6_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_16=1.0) 
+ EVALUATE: symbol $INT_6_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_17=1.0) 
+ EVALUATE: symbol $INT_6_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_18=1.0) 
+ EVALUATE: symbol $INT_6_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_19=1.0) 
+ EVALUATE: symbol $INT_6_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_6_20=1.0) 
+ EVALUATE: symbol $INT_6_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_7=1.0) 
+ EVALUATE: symbol $INT_7_7 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_8=1.0) 
+ EVALUATE: symbol $INT_7_8 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_9=1.0) 
+ EVALUATE: symbol $INT_7_9 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_10=1.0) 
+ EVALUATE: symbol $INT_7_10 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_11=1.0) 
+ EVALUATE: symbol $INT_7_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_12=1.0) 
+ EVALUATE: symbol $INT_7_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_13=1.0) 
+ EVALUATE: symbol $INT_7_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_14=1.0) 
+ EVALUATE: symbol $INT_7_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_15=1.0) 
+ EVALUATE: symbol $INT_7_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_16=1.0) 
+ EVALUATE: symbol $INT_7_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_17=1.0) 
+ EVALUATE: symbol $INT_7_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_18=1.0) 
+ EVALUATE: symbol $INT_7_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_19=1.0) 
+ EVALUATE: symbol $INT_7_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_8=1.0) 
+ EVALUATE: symbol $INT_8_8 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_9=1.0) 
+ EVALUATE: symbol $INT_8_9 set to    1.00000     (real)
+ CNSsolve>eval ($int_7_20=1.0) 
+ EVALUATE: symbol $INT_7_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_10=1.0) 
+ EVALUATE: symbol $INT_8_10 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_11=1.0) 
+ EVALUATE: symbol $INT_8_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_12=1.0) 
+ EVALUATE: symbol $INT_8_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_13=1.0) 
+ EVALUATE: symbol $INT_8_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_14=1.0) 
+ EVALUATE: symbol $INT_8_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_15=1.0) 
+ EVALUATE: symbol $INT_8_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_16=1.0) 
+ EVALUATE: symbol $INT_8_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_17=1.0) 
+ EVALUATE: symbol $INT_8_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_18=1.0) 
+ EVALUATE: symbol $INT_8_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_19=1.0) 
+ EVALUATE: symbol $INT_8_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_8_20=1.0) 
+ EVALUATE: symbol $INT_8_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_11=1.0) 
+ EVALUATE: symbol $INT_9_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_12=1.0) 
+ EVALUATE: symbol $INT_9_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_13=1.0) 
+ EVALUATE: symbol $INT_9_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_14=1.0) 
+ EVALUATE: symbol $INT_9_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_15=1.0) 
+ EVALUATE: symbol $INT_9_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_16=1.0) 
+ EVALUATE: symbol $INT_9_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_17=1.0) 
+ EVALUATE: symbol $INT_9_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_18=1.0) 
+ EVALUATE: symbol $INT_9_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_19=1.0) 
+ EVALUATE: symbol $INT_9_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_20=1.0) 
+ EVALUATE: symbol $INT_9_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_9=1.0) 
+ EVALUATE: symbol $INT_9_9 set to    1.00000     (real)
+ CNSsolve>eval ($int_9_10=1.0) 
+ EVALUATE: symbol $INT_9_10 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_10=1.0) 
+ EVALUATE: symbol $INT_10_10 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_11=1.0) 
+ EVALUATE: symbol $INT_10_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_12=1.0) 
+ EVALUATE: symbol $INT_10_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_13=1.0) 
+ EVALUATE: symbol $INT_10_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_14=1.0) 
+ EVALUATE: symbol $INT_10_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_15=1.0) 
+ EVALUATE: symbol $INT_10_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_16=1.0) 
+ EVALUATE: symbol $INT_10_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_17=1.0) 
+ EVALUATE: symbol $INT_10_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_18=1.0) 
+ EVALUATE: symbol $INT_10_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_19=1.0) 
+ EVALUATE: symbol $INT_10_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_10_20=1.0) 
+ EVALUATE: symbol $INT_10_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_11_11=1.0) 
+ EVALUATE: symbol $INT_11_11 set to    1.00000     (real)
+ CNSsolve>eval ($int_11_12=1.0) 
+ EVALUATE: symbol $INT_11_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_11_13=1.0) 
+ EVALUATE: symbol $INT_11_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_11_14=1.0) 
+ EVALUATE: symbol $INT_11_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_11_15=1.0) 
+ EVALUATE: symbol $INT_11_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_11_16=1.0) 
+ EVALUATE: symbol $INT_11_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_11_17=1.0) 
+ EVALUATE: symbol $INT_11_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_11_18=1.0) 
+ EVALUATE: symbol $INT_11_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_11_19=1.0) 
+ EVALUATE: symbol $INT_11_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_11_20=1.0) 
+ EVALUATE: symbol $INT_11_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_12_12=1.0) 
+ EVALUATE: symbol $INT_12_12 set to    1.00000     (real)
+ CNSsolve>eval ($int_12_13=1.0) 
+ EVALUATE: symbol $INT_12_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_12_14=1.0) 
+ EVALUATE: symbol $INT_12_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_12_15=1.0) 
+ EVALUATE: symbol $INT_12_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_12_16=1.0) 
+ EVALUATE: symbol $INT_12_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_12_17=1.0) 
+ EVALUATE: symbol $INT_12_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_12_18=1.0) 
+ EVALUATE: symbol $INT_12_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_12_19=1.0) 
+ EVALUATE: symbol $INT_12_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_12_20=1.0) 
+ EVALUATE: symbol $INT_12_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_13_13=1.0) 
+ EVALUATE: symbol $INT_13_13 set to    1.00000     (real)
+ CNSsolve>eval ($int_13_14=1.0) 
+ EVALUATE: symbol $INT_13_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_13_15=1.0) 
+ EVALUATE: symbol $INT_13_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_13_16=1.0) 
+ EVALUATE: symbol $INT_13_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_13_17=1.0) 
+ EVALUATE: symbol $INT_13_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_13_18=1.0) 
+ EVALUATE: symbol $INT_13_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_13_19=1.0) 
+ EVALUATE: symbol $INT_13_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_13_20=1.0) 
+ EVALUATE: symbol $INT_13_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_14_14=1.0) 
+ EVALUATE: symbol $INT_14_14 set to    1.00000     (real)
+ CNSsolve>eval ($int_14_15=1.0) 
+ EVALUATE: symbol $INT_14_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_14_16=1.0) 
+ EVALUATE: symbol $INT_14_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_14_17=1.0) 
+ EVALUATE: symbol $INT_14_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_14_18=1.0) 
+ EVALUATE: symbol $INT_14_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_14_19=1.0) 
+ EVALUATE: symbol $INT_14_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_14_20=1.0) 
+ EVALUATE: symbol $INT_14_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_15_15=1.0) 
+ EVALUATE: symbol $INT_15_15 set to    1.00000     (real)
+ CNSsolve>eval ($int_15_16=1.0) 
+ EVALUATE: symbol $INT_15_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_15_17=1.0) 
+ EVALUATE: symbol $INT_15_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_15_18=1.0) 
+ EVALUATE: symbol $INT_15_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_15_19=1.0) 
+ EVALUATE: symbol $INT_15_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_15_20=1.0) 
+ EVALUATE: symbol $INT_15_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_16_16=1.0) 
+ EVALUATE: symbol $INT_16_16 set to    1.00000     (real)
+ CNSsolve>eval ($int_16_17=1.0) 
+ EVALUATE: symbol $INT_16_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_16_18=1.0) 
+ EVALUATE: symbol $INT_16_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_16_19=1.0) 
+ EVALUATE: symbol $INT_16_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_16_20=1.0) 
+ EVALUATE: symbol $INT_16_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_17_17=1.0) 
+ EVALUATE: symbol $INT_17_17 set to    1.00000     (real)
+ CNSsolve>eval ($int_17_18=1.0) 
+ EVALUATE: symbol $INT_17_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_17_19=1.0) 
+ EVALUATE: symbol $INT_17_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_17_20=1.0) 
+ EVALUATE: symbol $INT_17_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_18_18=1.0) 
+ EVALUATE: symbol $INT_18_18 set to    1.00000     (real)
+ CNSsolve>eval ($int_18_19=1.0) 
+ EVALUATE: symbol $INT_18_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_18_20=1.0) 
+ EVALUATE: symbol $INT_18_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_19_19=1.0) 
+ EVALUATE: symbol $INT_19_19 set to    1.00000     (real)
+ CNSsolve>eval ($int_19_20=1.0) 
+ EVALUATE: symbol $INT_19_20 set to    1.00000     (real)
+ CNSsolve>eval ($int_20_20=1.0) 
+ EVALUATE: symbol $INT_20_20 set to    1.00000     (real)
+ CNSsolve>eval ($mol_fix_origin_2=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_2 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_3=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_3 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_4=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_4 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_5=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_5 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_6=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_6 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_7=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_7 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_8=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_8 set to FALSE (logical)
+ CNSsolve>eval ($mol_fix_origin_9=false) 
+ EVALUATE: symbol $MOL_FIX_ORIGIN_9 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_2=false) 
+ EVALUATE: symbol $MOL_SHAPE_2 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_3=false) 
+ EVALUATE: symbol $MOL_SHAPE_3 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_4=false) 
+ EVALUATE: symbol $MOL_SHAPE_4 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_5=false) 
+ EVALUATE: symbol $MOL_SHAPE_5 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_6=false) 
+ EVALUATE: symbol $MOL_SHAPE_6 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_7=false) 
+ EVALUATE: symbol $MOL_SHAPE_7 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_8=false) 
+ EVALUATE: symbol $MOL_SHAPE_8 set to FALSE (logical)
+ CNSsolve>eval ($mol_shape_9=false) 
+ EVALUATE: symbol $MOL_SHAPE_9 set to FALSE (logical)
+ CNSsolve>eval ($ambig_fname="") 
+ EVALUATE: symbol $AMBIG_FNAME set to "" (string)
+ CNSsolve> 
+ CNSsolve>! Input structure 
+ CNSsolve>structure 
+ STRUcture>  @@../0_topoaa/P1CLL_0_P1CLL_chain_A_haddock.psf 
+ ASSFIL: file P1CLL_0_P1CLL_chain_A_haddock.psf opened.
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="P1CLL_0_P1CLL_chain_A_haddock.psf"
+ REMARKS Patching histidine 104 to HISD
+ REMARKS DATE:20-Dec-2025  18:42:11       created by user: unknown
+ REMARKS VERSION:1.3U
+ Status of internal molecular topology database:
+ -> NATOM=       1368(MAXA=     1000000)  NBOND=       1380(MAXB=     1000000)
+ -> NTHETA=      1965(MAXT=     2000000)  NGRP=         144(MAXGRP=   1000000)
+ -> NPHI=        3500(MAXP=     2000000)  NIMPHI=       651(MAXIMP=   1000000)
+ -> NNB=           60(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve>structure 
+ STRUcture>  @@../0_topoaa/P7KBJ_0_P7KBJ_chain_A_haddock.psf 
+ ASSFIL: file P7KBJ_0_P7KBJ_chain_A_haddock.psf opened.
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="P7KBJ_0_P7KBJ_chain_A_haddock.psf"
+ REMARKS disulphide added: from B    9    to B    15
+ REMARKS Patching histidine 48 to HISE
+ REMARKS DATE:20-Dec-2025  18:42:12       created by user: unknown
+ REMARKS VERSION:1.3U
+ Status of internal molecular topology database:
+ -> NATOM=       2869(MAXA=     1000000)  NBOND=       2901(MAXB=     1000000)
+ -> NTHETA=      4147(MAXT=     2000000)  NGRP=         299(MAXGRP=   1000000)
+ -> NPHI=        7182(MAXP=     2000000)  NIMPHI=      1419(MAXIMP=   1000000)
+ -> NNB=          102(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve>structure 
+ STRUcture>  @@../0_topoaa/P7KBJ_1_P7KBJ_chain_B_haddock.psf 
+ ASSFIL: file P7KBJ_1_P7KBJ_chain_B_haddock.psf opened.
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="P7KBJ_1_P7KBJ_chain_B_haddock.psf"
+ REMARKS Patching histidine 32 to HISD
+ REMARKS Patching histidine 85 to HISD
+ REMARKS Patching histidine 10 to HISE
+ REMARKS DATE:20-Dec-2025  18:42:11       created by user: unknown
+ REMARKS VERSION:1.3U
+ Status of internal molecular topology database:
+ -> NATOM=       3870(MAXA=     1000000)  NBOND=       3930(MAXB=     1000000)
+ -> NTHETA=      5623(MAXT=     2000000)  NGRP=         404(MAXGRP=   1000000)
+ -> NPHI=        9620(MAXP=     2000000)  NIMPHI=      1961(MAXIMP=   1000000)
+ -> NNB=          186(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve>structure 
+ STRUcture>  @@../0_topoaa/P7KBJ_2_P7KBJ_chain_C_haddock.psf 
+ ASSFIL: file P7KBJ_2_P7KBJ_chain_C_haddock.psf opened.
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="P7KBJ_2_P7KBJ_chain_C_haddock.psf"
+ REMARKS disulphide added: from D    286  to D    297
+ REMARKS Patching histidine 215 to HISD
+ REMARKS Patching histidine 439 to HISD
+ REMARKS Patching histidine 595 to HISD
+ REMARKS Patching histidine 50 to HISE
+ REMARKS Patching histidine 221 to HISE
+ REMARKS Patching histidine 225 to HISE
+ REMARKS Patching histidine 278 to HISE
+ REMARKS Patching histidine 331 to HISE
+ REMARKS DATE:20-Dec-2025  18:42:19       created by user: unknown
+ REMARKS VERSION:1.3U
+ Status of internal molecular topology database:
+ -> NATOM=       9745(MAXA=     1000000)  NBOND=       9966(MAXB=     1000000)
+ -> NTHETA=     14286(MAXT=     2000000)  NGRP=        1004(MAXGRP=   1000000)
+ -> NPHI=       23733(MAXP=     2000000)  NIMPHI=      5268(MAXIMP=   1000000)
+ -> NNB=          660(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve>structure 
+ STRUcture>  @@../0_topoaa/P7KBJ_3_P7KBJ_chain_D_haddock.psf 
+ ASSFIL: file P7KBJ_3_P7KBJ_chain_D_haddock.psf opened.
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="P7KBJ_3_P7KBJ_chain_D_haddock.psf"
+ REMARKS disulphide added: from E    4    to E    23
+ REMARKS disulphide added: from E    21   to E    35
+ REMARKS disulphide added: from E    42   to E    64
+ REMARKS disulphide added: from E    62   to E    77
+ REMARKS disulphide added: from E    65   to E    81
+ REMARKS Patching histidine 41 to HISE
+ REMARKS DATE:20-Dec-2025  18:42:11       created by user: unknown
+ REMARKS VERSION:1.3U
+ Status of internal molecular topology database:
+ -> NATOM=      10484(MAXA=     1000000)  NBOND=      10719(MAXB=     1000000)
+ -> NTHETA=     15367(MAXT=     2000000)  NGRP=        1099(MAXGRP=   1000000)
+ -> NPHI=       25638(MAXP=     2000000)  NIMPHI=      5630(MAXIMP=   1000000)
+ -> NNB=          702(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve>structure 
+ STRUcture>  @@../0_topoaa/P7KBJ_4_P7KBJ_chain_E_haddock.psf 
+ ASSFIL: file P7KBJ_4_P7KBJ_chain_E_haddock.psf opened.
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="P7KBJ_4_P7KBJ_chain_E_haddock.psf"
+ REMARKS disulphide added: from F    9    to F    15
+ REMARKS Patching histidine 48 to HISE
+ REMARKS Patching histidine 148 to HISE
+ REMARKS DATE:20-Dec-2025  18:42:12       created by user: unknown
+ REMARKS VERSION:1.3U
+ Status of internal molecular topology database:
+ -> NATOM=      11996(MAXA=     1000000)  NBOND=      12252(MAXB=     1000000)
+ -> NTHETA=     17565(MAXT=     2000000)  NGRP=        1254(MAXGRP=   1000000)
+ -> NPHI=       29348(MAXP=     2000000)  NIMPHI=      6411(MAXIMP=   1000000)
+ -> NNB=          744(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve>structure 
+ STRUcture>  @@../0_topoaa/P7KBJ_5_P7KBJ_chain_F_haddock.psf 
+ ASSFIL: file P7KBJ_5_P7KBJ_chain_F_haddock.psf opened.
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="P7KBJ_5_P7KBJ_chain_F_haddock.psf"
+ REMARKS Patching histidine 34 to HISD
+ REMARKS Patching histidine 87 to HISE
+ REMARKS DATE:20-Dec-2025  18:42:11       created by user: unknown
+ REMARKS VERSION:1.3U
+ Status of internal molecular topology database:
+ -> NATOM=      13025(MAXA=     1000000)  NBOND=      13308(MAXB=     1000000)
+ -> NTHETA=     19081(MAXT=     2000000)  NGRP=        1363(MAXGRP=   1000000)
+ -> NPHI=       31819(MAXP=     2000000)  NIMPHI=      6961(MAXIMP=   1000000)
+ -> NNB=          828(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve>structure 
+ STRUcture>  @@../0_topoaa/P7KBJ_6_P7KBJ_chain_G_haddock.psf 
+ ASSFIL: file P7KBJ_6_P7KBJ_chain_G_haddock.psf opened.
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="P7KBJ_6_P7KBJ_chain_G_haddock.psf"
+ REMARKS disulphide added: from H    286  to H    297
+ REMARKS Patching histidine 215 to HISD
+ REMARKS Patching histidine 439 to HISD
+ REMARKS Patching histidine 511 to HISD
+ REMARKS Patching histidine 595 to HISD
+ REMARKS Patching histidine 50 to HISE
+ REMARKS Patching histidine 133 to HISE
+ REMARKS Patching histidine 221 to HISE
+ REMARKS Patching histidine 225 to HISE
+ REMARKS Patching histidine 278 to HISE
+ REMARKS Patching histidine 331 to HISE
+ REMARKS Patching histidine 572 to HISE
+ REMARKS DATE:20-Dec-2025  18:42:20       created by user: unknown
+ REMARKS VERSION:1.3U
+ Status of internal molecular topology database:
+ -> NATOM=      18907(MAXA=     1000000)  NBOND=      19349(MAXB=     1000000)
+ -> NTHETA=     27750(MAXT=     2000000)  NGRP=        1965(MAXGRP=   1000000)
+ -> NPHI=       45932(MAXP=     2000000)  NIMPHI=     10265(MAXIMP=   1000000)
+ -> NNB=         1302(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve>structure 
+ STRUcture>  @@../0_topoaa/P7KBJ_7_P7KBJ_chain_H_haddock.psf 
+ ASSFIL: file P7KBJ_7_P7KBJ_chain_H_haddock.psf opened.
+ STRUcture>data_cns_mtf 
+ REMARKS FILENAME="P7KBJ_7_P7KBJ_chain_H_haddock.psf"
+ REMARKS disulphide added: from I    6    to I    25
+ REMARKS disulphide added: from I    23   to I    37
+ REMARKS disulphide added: from I    44   to I    66
+ REMARKS disulphide added: from I    64   to I    79
+ REMARKS disulphide added: from I    67   to I    83
+ REMARKS DATE:20-Dec-2025  18:42:11       created by user: unknown
+ REMARKS VERSION:1.3U
+ Status of internal molecular topology database:
+ -> NATOM=      19663(MAXA=     1000000)  NBOND=      20120(MAXB=     1000000)
+ -> NTHETA=     28857(MAXT=     2000000)  NGRP=        2061(MAXGRP=   1000000)
+ -> NPHI=       47879(MAXP=     2000000)  NIMPHI=     10635(MAXIMP=   1000000)
+ -> NNB=         1344(MAXNB=    1000000) 
+ STRUcture> 
+ STRUcture>end 
+ CNSsolve>coor @@../1_rigidbody/rigidbody_5.pdb 
+ ASSFIL: file rigidbody_5.pdb opened.
+ COOR>REMARK FILENAME="rigidbody_5.pdb" 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK HADDOCK stats for rigidbody_5.pdb 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK HADDOCK score: 202.861 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK initial structure 1 - ../0_topoaa/P1CLL_0_P1CLL_chain_A_haddock.pdb 
+ COOR>REMARK initial structure 2 - ../0_topoaa/P7KBJ_0_P7KBJ_chain_A_haddock.pdb 
+ COOR>REMARK initial structure 3 - ../0_topoaa/P7KBJ_1_P7KBJ_chain_B_haddock.pdb 
+ COOR>REMARK initial structure 4 - ../0_topoaa/P7KBJ_2_P7KBJ_chain_C_haddock.pdb 
+ COOR>REMARK initial structure 5 - ../0_topoaa/P7KBJ_3_P7KBJ_chain_D_haddock.pdb 
+ COOR>REMARK initial structure 6 - ../0_topoaa/P7KBJ_4_P7KBJ_chain_E_haddock.pdb 
+ COOR>REMARK initial structure 7 - ../0_topoaa/P7KBJ_5_P7KBJ_chain_F_haddock.pdb 
+ COOR>REMARK initial structure 8 - ../0_topoaa/P7KBJ_6_P7KBJ_chain_G_haddock.pdb 
+ COOR>REMARK initial structure 9 - ../0_topoaa/P7KBJ_7_P7KBJ_chain_H_haddock.pdb 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK            total,bonds,angles,improper,dihe,vdw,elec,air,cdih,coup,rdcs,vean,dani,xpcs,rg 
+ COOR>REMARK energies: 38631.9, 622.245, 5567.82, 17954.8, 10433.2, 96.2606, -10.471, 38546.1, 0, 0, 0, 0, 0, 0, 0 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK            bonds,angles,impropers,dihe,air,cdih,coup,rdcs,vean,dani,xpcs 
+ COOR>REMARK rms-dev.: 5.561179E-03,1.12552,3.33031,42.5333,33.2937,0,0, 0, 0, 0, 0 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK               air,cdih,coup,rdcs,vean,dani,xpcs 
+ COOR>REMARK               >0.3,>5,>1,>0,>5,>0.2,>0.2 
+ COOR>REMARK violations.: 91, 0, 0, 0, 0, 0, 0 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK                        CVpartition#,violations,rms 
+ COOR>REMARK AIRs cross-validation: 2, 0, 0 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK NCS energy: 0 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK Symmetry energy: 0 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK Membrane restraining energy: 0 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK Local cross-correlation:  0.0000 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK Desolvation energy: -36.0573 
+ COOR>REMARK Internal energy free molecules: 21473.1 
+ COOR>REMARK Internal energy complex: 21473.1 
+ COOR>REMARK Binding energy: 49.7323 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK buried surface area: 13703.4 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK water - chain_1: 0 0 0 
+ COOR>REMARK water - chain_2: 0 0 0 
+ COOR>REMARK water - chain_3: 0 0 0 
+ COOR>REMARK water - chain_4: 0 0 0 
+ COOR>REMARK water - chain_5: 0 0 0 
+ COOR>REMARK water - chain_6: 0 0 0 
+ COOR>REMARK water - chain_7: 0 0 0 
+ COOR>REMARK water - chain_8: 0 0 0 
+ COOR>REMARK water - chain_9: 0 0 0 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK water - water: 0 0 0 
+ COOR>REMARK =============================================================== 
+ COOR>REMARK DATE:20-Dec-2025  18:47:25       created by user: unknown 
+ COOR>REMARK VERSION:1.3U 
+ COOR>ATOM      1  N   LEU A   1     -11.225  22.053   1.006  1.00 15.00      A    N 
+ COOR>ATOM      2  HN  LEU A   1     -11.033  22.963   1.314  1.00 15.00      A    H 
+ CNSsolve>eval ($input_pdb_filename_1="../1_rigidbody/rigidbody_5.pdb") 
+ EVALUATE: symbol $INPUT_PDB_FILENAME_1 set to "../1_rigidbody/rigidbody_5.pdb" (string)
+ CNSsolve>eval ($ncomponents=9) 
+ EVALUATE: symbol $NCOMPONENTS set to    9.00000     (real)
+ CNSsolve>eval ($seed=922) 
+ EVALUATE: symbol $SEED set to    922.000     (real)
+ CNSsolve> 
+ CNSsolve>! Output structure 
+ CNSsolve>eval ($output_pdb_filename="flexref_1.pdb") 
+ EVALUATE: symbol $OUTPUT_PDB_FILENAME set to "flexref_1.pdb" (string)
+ CNSsolve>eval ($count=1) 
+ EVALUATE: symbol $COUNT set to    1.00000     (real)
+ CNSsolve>eval ($prot_segid_1="A") 
+ EVALUATE: symbol $PROT_SEGID_1 set to "A" (string)
+ CNSsolve>eval ($prot_segid_2="B") 
+ EVALUATE: symbol $PROT_SEGID_2 set to "B" (string)
+ CNSsolve>eval ($prot_segid_3="C") 
+ EVALUATE: symbol $PROT_SEGID_3 set to "C" (string)
+ CNSsolve>eval ($prot_segid_4="D") 
+ EVALUATE: symbol $PROT_SEGID_4 set to "D" (string)
+ CNSsolve>eval ($prot_segid_5="E") 
+ EVALUATE: symbol $PROT_SEGID_5 set to "E" (string)
+ CNSsolve>eval ($prot_segid_6="F") 
+ EVALUATE: symbol $PROT_SEGID_6 set to "F" (string)
+ CNSsolve>eval ($prot_segid_7="G") 
+ EVALUATE: symbol $PROT_SEGID_7 set to "G" (string)
+ CNSsolve>eval ($prot_segid_8="H") 
+ EVALUATE: symbol $PROT_SEGID_8 set to "H" (string)
+ CNSsolve>eval ($prot_segid_9="I") 
+ EVALUATE: symbol $PROT_SEGID_9 set to "I" (string)
+ CNSsolve>! flexref.cns 
+ CNSsolve>!    The HADDOCK semi-flexible refinement in torsion angle space 
+ CNSsolve>!    This version supports only distance and symmetry/ncs restraints 
+ CNSsolve>! 
+ CNSsolve>! *********************************************************************** 
+ CNSsolve>! * Copyright 2003-2022 Alexandre Bonvin, Utrecht University.           * 
+ CNSsolve>! * All rights reserved.                                                * 
+ CNSsolve>! * This code is part of the HADDOCK software and governed by its       * 
+ CNSsolve>! * license. Please see the LICENSE file that should have been included * 
+ CNSsolve>! * as part of this package.                                            * 
+ CNSsolve>! *********************************************************************** 
+ CNSsolve> 
+ CNSsolve>if ( $log_level = "verbose" ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    set message=normal echo=on end 
+ CNSsolve>elseif ( $log_level = "normal" ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    set message=normal echo=off end 
+ CNSsolve>else 
+ CNSsolve>    set message=off echo=off end 
+ %PARRDR-info: duplication of bond CH1E OAS 
+ %PARRDR-info: duplication of angle CH2E C    NH1 
+ %PARRDR-info: duplication of nonbonded entry H   
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HC  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry OP1 
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HN  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry OA3H
+ %PARRDR-info: duplication of bond CH1E OAS 
+ %PARRDR-info: duplication of angle CH2E C    NH1 
+ %PARRDR-info: duplication of nonbonded entry H   
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HC  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry OP1 
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HN  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry OA3H
+ %PARRDR-info: duplication of bond CH1E OAS 
+ %PARRDR-info: duplication of angle CH2E C    NH1 
+ %PARRDR-info: duplication of nonbonded entry H   
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HC  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry OP1 
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HN  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry OA3H
+ %PARRDR-info: duplication of bond CH1E OAS 
+ %PARRDR-info: duplication of angle CH2E C    NH1 
+ %PARRDR-info: duplication of nonbonded entry H   
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HC  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry OP1 
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HN  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry OA3H
+ -----nonbonded-list-options-------------------------------
+ | CUTNb=   9.500 TOLErance=   0.500 WMIN=   0.500 ATOM   |
+ | INHIbit=   0.250                                       |
+ -----electrostatic options--------------------------------
+ | EPS=   1.000 E14Fac=   0.400 RDIElectric POTEN SWITch  |
+ -----van der Waals options--------------------------------
+ | VSWItch                                                |
+ -----switching /shifting parameters-----------------------
+ | CTONNB=   6.500 CTOFNB=   8.500                        |
+ -----exclusion list options-------------------------------
+ | NBXMOD=   5                                            |
+ ----------------------------------------------------------
+ %PARRDR-info: duplication of bond CH1E OAS 
+ %PARRDR-info: duplication of angle CH2E C    NH1 
+ %PARRDR-info: duplication of nonbonded entry H   
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HC  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry OP1 
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HO  
+ %PARRDR-info: duplication of nonbonded entry HN  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry HA  
+ %PARRDR-info: duplication of nonbonded entry OA3H
+ CNSsolve>inline @MODULE:read_data.cns 
+ ASSFIL: file read_data.cns opened.
+ CNSsolve>! read_data.cns 
+ CNSsolve>!    Read the various restraints data 
+ CNSsolve>!    (distances and dihedral angles only in this version) 
+ CNSsolve>! 
+ CNSsolve>! *********************************************************************** 
+ CNSsolve>! * Copyright 2003-2022 Alexandre Bonvin, Utrecht University.           * 
+ CNSsolve>! * All rights reserved.                                                * 
+ CNSsolve>! * This code is part of the HADDOCK software and governed by its       * 
+ CNSsolve>! * license. Please see the LICENSE file that should have been included * 
+ CNSsolve>! * as part of this package.                                            * 
+ CNSsolve>! *********************************************************************** 
+ CNSsolve>! 
+ CNSsolve>! Ambiguous and unambiguous distance restraints, hbonds 
+ CNSsolve>noe 
+ NOE>    reset 
+ NOE>    nrestraints = 12000000     ! allocate space for NOEs 
+ NOE: allocating space for ******* restraints.
+ NOE>    ceiling 1000 
+ NOE>end 
+ CNSsolve> 
+ CNSsolve>evaluate ($filenam0 = $ambig_fname + "_" + encode($count)) 
+ EVALUATE: symbol $FILENAM0 set to "_1" (string)
+ CNSsolve>fileexist $filenam0 end 
+ MISCOM: file does not exist
+ CNSsolve>if ($result eq false) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    evaluate ($filenam0 = $ambig_fname) 
+ EVALUATE: symbol $FILENAM0 set to "" (string)
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>if ($filenam0 # "") then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    fileexist $filenam0 end 
+ CNSsolve>    if ($result eq true) then 
+ CNSsolve>        noe class ambi @@$filenam0 end 
+ CNSsolve>    end if 
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>if ($Data.randremoval eq true) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    noe part $Data.npart end 
+ Data are not partitioned or partitioning removed.
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>if ($unambig_fname # "") then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    fileexist $unambig_fname end 
+ MISCOM: file exists
+ CNSsolve>    if ($result eq true) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>        noe class dist @@$unambig_fname end 
+ ASSFIL: file P7KBJ_restrain_bodies.tbl opened.
+ NOE>assign (segid B and resi 18 and name CA) (segid C and resi 12 and name CA) 18.877 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid B and resi 14 and name CA) (segid C and resi 84 and name CA) 36.680 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid B and resi 147 and name CA) (segid D and resi 397 and name CA) 42.799 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid B and resi 112 and name CA) (segid D and resi 288 and name CA) 34.855 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid B and resi 96 and name CA) (segid E and resi 49 and name CA) 79.579 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid B and resi 28 and name CA) (segid E and resi 64 and name CA) 79.377 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid B and resi 81 and name CA) (segid F and resi 104 and name CA) 107.267 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid B and resi 25 and name CA) (segid F and resi 87 and name CA) 98.152 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid B and resi 88 and name CA) (segid G and resi 10 and name CA) 61.712 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid B and resi 3 and name CA) (segid G and resi 24 and name CA) 77.060 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid B and resi 30 and name CA) (segid H and resi 256 and name CA) 87.431 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid B and resi 138 and name CA) (segid H and resi 183 and name CA) 64.143 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid B and resi 53 and name CA) (segid I and resi 7 and name CA) 91.349 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid B and resi 69 and name CA) (segid I and resi 29 and name CA) 84.496 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid C and resi 40 and name CA) (segid D and resi 257 and name CA) 15.467 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid C and resi 9 and name CA) (segid D and resi 486 and name CA) 62.513 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid C and resi 15 and name CA) (segid E and resi 24 and name CA) 76.339 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid C and resi 55 and name CA) (segid E and resi 32 and name CA) 56.844 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid C and resi 31 and name CA) (segid F and resi 131 and name CA) 117.376 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid C and resi 41 and name CA) (segid F and resi 87 and name CA) 75.525 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid C and resi 3 and name CA) (segid G and resi 30 and name CA) 98.220 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid C and resi 50 and name CA) (segid G and resi 72 and name CA) 80.416 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid C and resi 96 and name CA) (segid H and resi 216 and name CA) 62.691 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid C and resi 88 and name CA) (segid H and resi 491 and name CA) 104.652 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid C and resi 14 and name CA) (segid I and resi 37 and name CA) 68.628 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid C and resi 37 and name CA) (segid I and resi 82 and name CA) 42.313 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid D and resi 592 and name CA) (segid E and resi 63 and name CA) 36.550 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid D and resi 547 and name CA) (segid E and resi 6 and name CA) 26.507 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid D and resi 203 and name CA) (segid F and resi 121 and name CA) 82.707 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid D and resi 581 and name CA) (segid F and resi 77 and name CA) 97.819 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid D and resi 486 and name CA) (segid G and resi 82 and name CA) 90.356 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid D and resi 240 and name CA) (segid G and resi 1 and name CA) 59.463 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid D and resi 310 and name CA) (segid H and resi 350 and name CA) 30.867 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid D and resi 548 and name CA) (segid H and resi 110 and name CA) 70.048 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid D and resi 307 and name CA) (segid I and resi 51 and name CA) 28.712 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid D and resi 322 and name CA) (segid I and resi 34 and name CA) 60.994 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid E and resi 62 and name CA) (segid F and resi 98 and name CA) 84.431 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid E and resi 29 and name CA) (segid F and resi 113 and name CA) 96.803 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid E and resi 43 and name CA) (segid G and resi 25 and name CA) 62.772 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid E and resi 57 and name CA) (segid G and resi 37 and name CA) 60.256 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid E and resi 75 and name CA) (segid H and resi 464 and name CA) 72.163 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid E and resi 17 and name CA) (segid H and resi 17 and name CA) 81.700 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid E and resi 15 and name CA) (segid I and resi 35 and name CA) 81.262 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid E and resi 35 and name CA) (segid I and resi 14 and name CA) 82.968 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid F and resi 143 and name CA) (segid G and resi 35 and name CA) 19.501 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid F and resi 42 and name CA) (segid G and resi 80 and name CA) 24.301 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid F and resi 7 and name CA) (segid H and resi 588 and name CA) 57.014 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid F and resi 47 and name CA) (segid H and resi 144 and name CA) 36.827 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid F and resi 112 and name CA) (segid I and resi 55 and name CA) 66.136 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid F and resi 78 and name CA) (segid I and resi 82 and name CA) 72.669 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid G and resi 18 and name CA) (segid H and resi 556 and name CA) 77.166 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid G and resi 4 and name CA) (segid H and resi 441 and name CA) 55.361 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid G and resi 15 and name CA) (segid I and resi 80 and name CA) 68.628 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid G and resi 75 and name CA) (segid I and resi 35 and name CA) 44.626 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid H and resi 78 and name CA) (segid I and resi 5 and name CA) 41.002 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE>assign (segid H and resi 591 and name CA) (segid I and resi 56 and name CA) 30.225 0.0 0.0 
+ SELRPN:      1 atoms have been selected out of  19663
+ SELRPN:      1 atoms have been selected out of  19663
+ NOE> end 
+ CNSsolve>    end if 
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>if ($hbond_fname # "") then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    fileexist $hbond_fname end 
+ CNSsolve>    if ($result eq true) then 
+ CNSsolve>        noe class hbon @@$hbond_fname end 
+ CNSsolve>    end if 
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>noe 
+ NOE>    averaging  * sum 
+ NOE>    potential  * soft 
+ NOE>    scale      * 1.0 
+ NOE>    sqconstant * 1.0 
+ NOE>    sqexponent * 2 
+ NOE>    soexponent * 1 
+ NOE>    rswitch    * 1.0 
+ NOE>    sqoffset   * 0.0 
+ NOE>    asymptote  * 2.0 
+ NOE>    msoexponent * 1 
+ NOE>    masymptote  * -0.1 
+ NOE>    mrswitch    * 1.0 
+ NOE>end 
+ CNSsolve> 
+ CNSsolve> 
+ CNSsolve>!dihedral restraints: 
+ CNSsolve>restraints dihedral 
+ DIHEDRAL>    reset 
+ DIHEDRAL>    nassign 50000 
+ RSTDIH: allocating space for   50000 assignments.
+ DIHEDRAL>end 
+ CNSsolve>if ($dihe_fname # "") then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    fileexist $dihe_fname end 
+ CNSsolve>    if ($result eq true) then 
+ CNSsolve>        restraints dihedral 
+ CNSsolve>            @@$dihe_fname 
+ CNSsolve>        end 
+ CNSsolve>    end if 
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>restraints dihedral ? end 
+ Total number of dihedral angle restraints=     0
+  overall scale =    1.0000
+ Number of dihedral angle restraints=    0
+ RMS deviation=   0.000
+ CNSsolve> 
+ CNSsolve>! random removal of restaints 
+ CNSsolve>if ($Data.randremoval eq true) then 
+ NEXTCD: condition evaluated as true
+ CNSsolve>    noe cv $npart ? end 
+ NOE: total number of restraints:    56 partitioned into      1 classes
+ NOE: ceiling=    1000.000 current allocation=12000000
+ NOE: data are partitioned into working set and test set.
+ NOE: test set number=     2
+ CNSsolve>end if 
+ CNSsolve> 
+ CNSsolve>if ( $log_level = "verbose" ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    set message=normal echo=on end 
+ CNSsolve>elseif ( $log_level = "normal" ) then 
+ NEXTCD: condition evaluated as false
+ CNSsolve>    set message=normal echo=off end 
+ CNSsolve>else 
+ CNSsolve>    set message=off echo=off end 
+ NOE: total number of restraints:    56 partitioned into      1 classes
+ NOE: ceiling=    1000.000 current allocation=12000000
+ NOE: data are partitioned into working set and test set.
+ NOE: test set number=     2
+ %NOESET error encountered: duplicate class name specified. 
+   (CNS is in mode: SET ABORT=NORMal END)
+ MISCOM: file does not exist
+ NBONDS: generating intra-molecular exclusion list with mode= 5
+ MAKINB: mode   5 found  49649 exclusions and  34806 interactions(1-4)
+ NBONDS: found  1429570 intra-atom interactions
+ --------------- cycle=     1 --------------------------------------------------
+ | Etotal =-4319.436  grad(E)=58.016     E(BOND)=623.794    E(ANGL)=5571.276   |
+ | E(DIHE)=10433.345  E(IMPR)=17962.844  E(VDW )=-9558.457  E(ELEC)=-34606.622 |
+ | E(NOE )=5254.383                                                            |
+ -------------------------------------------------------------------------------
+AUTOMATIC DEFINITION OF FLEXIBLE SEGMENTS BASED ON INTERMOLECULAR PROXIMITY FOR MOLECULE 1
+THE FOLLOWING RESIDUES HAVE BEEN DEFINED AS FLEXIBLE for molecule 1
+AUTOMATICALLY SELECTED SEGMENT: LEU,1,A
+AUTOMATICALLY SELECTED SEGMENT: THR,2,A
+AUTOMATICALLY SELECTED SEGMENT: GLU,3,A
+AUTOMATICALLY SELECTED SEGMENT: GLU,4,A
+AUTOMATICALLY SELECTED SEGMENT: GLN,5,A
+AUTOMATICALLY SELECTED SEGMENT: ILE,6,A
+AUTOMATICALLY SELECTED SEGMENT: ALA,7,A
+AUTOMATICALLY SELECTED SEGMENT: GLU,8,A
+AUTOMATICALLY SELECTED SEGMENT: PHE,9,A
+AUTOMATICALLY SELECTED SEGMENT: LYS,10,A
+AUTOMATICALLY SELECTED SEGMENT: GLU,11,A
+AUTOMATICALLY SELECTED SEGMENT: ALA,12,A
+AUTOMATICALLY SELECTED SEGMENT: PHE,13,A
+AUTOMATICALLY SELECTED SEGMENT: SER,14,A
+AUTOMATICALLY SELECTED SEGMENT: LEU,15,A
+AUTOMATICALLY SELECTED SEGMENT: PHE,16,A
+AUTOMATICALLY SELECTED SEGMENT: ASP,17,A
+AUTOMATICALLY SELECTED SEGMENT: LYS,18,A
+AUTOMATICALLY SELECTED SEGMENT: ASP,19,A
+AUTOMATICALLY SELECTED SEGMENT: GLY,20,A
+AUTOMATICALLY SELECTED SEGMENT: ASP,21,A
+AUTOMATICALLY SELECTED SEGMENT: GLY,22,A
+AUTOMATICALLY SELECTED SEGMENT: THR,23,A
+AUTOMATICALLY SELECTED SEGMENT: THR,26,A
+AUTOMATICALLY SELECTED SEGMENT: LYS,27,A
+AUTOMATICALLY SELECTED SEGMENT: GLY,30,A
+AUTOMATICALLY SELECTED SEGMENT: THR,31,A
+AUTOMATICALLY SELECTED SEGMENT: MET,33,A
+AUTOMATICALLY SELECTED SEGMENT: ARG,34,A
+AUTOMATICALLY SELECTED SEGMENT: LEU,36,A
+AUTOMATICALLY SELECTED SEGMENT: GLY,37,A
+AUTOMATICALLY SELECTED SEGMENT: GLN,38,A
+AUTOMATICALLY SELECTED SEGMENT: ASN,39,A
+AUTOMATICALLY SELECTED SEGMENT: THR,41,A
+AUTOMATICALLY SELECTED SEGMENT: GLU,42,A
+AUTOMATICALLY SELECTED SEGMENT: ASP,53,A
+AUTOMATICALLY SELECTED SEGMENT: ALA,54,A
+AUTOMATICALLY SELECTED SEGMENT: GLY,56,A
+AUTOMATICALLY SELECTED SEGMENT: ASN,57,A
+AUTOMATICALLY SELECTED SEGMENT: ILE,60,A
+AUTOMATICALLY SELECTED SEGMENT: ASP,61,A
+AUTOMATICALLY SELECTED SEGMENT: PHE,62,A
+AUTOMATICALLY SELECTED SEGMENT: PRO,63,A
+AUTOMATICALLY SELECTED SEGMENT: GLU,64,A
+AUTOMATICALLY SELECTED SEGMENT: PHE,65,A
+AUTOMATICALLY SELECTED SEGMENT: LEU,66,A
+AUTOMATICALLY SELECTED SEGMENT: THR,67,A
+AUTOMATICALLY SELECTED SEGMENT: GLU,79,A
+AUTOMATICALLY SELECTED SEGMENT: GLU,80,A
+AUTOMATICALLY SELECTED SEGMENT: ILE,82,A
+AUTOMATICALLY SELECTED SEGMENT: ARG,83,A
+AUTOMATICALLY SELECTED SEGMENT: GLU,84,A
+AUTOMATICALLY SELECTED SEGMENT: PHE,86,A
+AUTOMATICALLY SELECTED SEGMENT: ARG,87,A
+AUTOMATICALLY SELECTED SEGMENT: LYS,91,A
+AUTOMATICALLY SELECTED SEGMENT: ASP,92,A
+AUTOMATICALLY SELECTED SEGMENT: GLY,93,A
+AUTOMATICALLY SELECTED SEGMENT: ASN,94,A
+AUTOMATICALLY SELECTED SEGMENT: GLY,95,A
+AUTOMATICALLY SELECTED SEGMENT: TYR,96,A
+AUTOMATIC DEFINITION OF FLEXIBLE SEGMENTS BASED ON INTERMOLECULAR PROXIMITY FOR MOLECULE 2
+THE FOLLOWING RESIDUES HAVE BEEN DEFINED AS FLEXIBLE for molecule 2
+AUTOMATICALLY SELECTED SEGMENT: VAL,1,B
+AUTOMATICALLY SELECTED SEGMENT: ASP,2,B
+AUTOMATICALLY SELECTED SEGMENT: ARG,3,B
+AUTOMATICALLY SELECTED SEGMENT: SER,4,B
+AUTOMATICALLY SELECTED SEGMENT: ASN,5,B
+AUTOMATICALLY SELECTED SEGMENT: PHE,6,B
+AUTOMATICALLY SELECTED SEGMENT: LYS,7,B
+AUTOMATICALLY SELECTED SEGMENT: THR,8,B
+AUTOMATICALLY SELECTED SEGMENT: CYS,9,B
+AUTOMATICALLY SELECTED SEGMENT: ASP,10,B
+AUTOMATICALLY SELECTED SEGMENT: GLU,11,B
+AUTOMATICALLY SELECTED SEGMENT: SER,12,B
+AUTOMATICALLY SELECTED SEGMENT: SER,13,B
+AUTOMATICALLY SELECTED SEGMENT: PHE,14,B
+AUTOMATICALLY SELECTED SEGMENT: CYS,15,B
+AUTOMATICALLY SELECTED SEGMENT: LYS,16,B
+AUTOMATICALLY SELECTED SEGMENT: ARG,17,B
+AUTOMATICALLY SELECTED SEGMENT: GLN,18,B
+AUTOMATICALLY SELECTED SEGMENT: ARG,19,B
+AUTOMATICALLY SELECTED SEGMENT: SER,20,B
+AUTOMATICALLY SELECTED SEGMENT: ILE,21,B
+AUTOMATICALLY SELECTED SEGMENT: ARG,22,B
+AUTOMATICALLY SELECTED SEGMENT: GLY,24,B
+AUTOMATICALLY SELECTED SEGMENT: LEU,25,B
+AUTOMATICALLY SELECTED SEGMENT: LEU,35,B
+AUTOMATICALLY SELECTED SEGMENT: GLN,36,B
+AUTOMATICALLY SELECTED SEGMENT: GLU,49,B
+AUTOMATICALLY SELECTED SEGMENT: VAL,50,B
+AUTOMATICALLY SELECTED SEGMENT: THR,51,B
+AUTOMATICALLY SELECTED SEGMENT: LYS,52,B
+AUTOMATICALLY SELECTED SEGMENT: VAL,53,B
+AUTOMATICALLY SELECTED SEGMENT: LEU,54,B
+AUTOMATICALLY SELECTED SEGMENT: LEU,62,B
+AUTOMATICALLY SELECTED SEGMENT: GLN,63,B
+AUTOMATICALLY SELECTED SEGMENT: LYS,64,B
+AUTOMATICALLY SELECTED SEGMENT: ASP,65,B
+AUTOMATICALLY SELECTED SEGMENT: MET,66,B
+AUTOMATICALLY SELECTED SEGMENT: THR,67,B
+AUTOMATICALLY SELECTED SEGMENT: ARG,68,B
+AUTOMATICALLY SELECTED SEGMENT: ILE,69,B
+AUTOMATICALLY SELECTED SEGMENT: ARG,70,B
+AUTOMATICALLY SELECTED SEGMENT: GLU,73,B
+AUTOMATICALLY SELECTED SEGMENT: LEU,74,B
+AUTOMATICALLY SELECTED SEGMENT: GLU,75,B
+AUTOMATICALLY SELECTED SEGMENT: PRO,76,B
+AUTOMATICALLY SELECTED SEGMENT: ARG,77,B
+AUTOMATICALLY SELECTED SEGMENT: ARG,78,B
+AUTOMATICALLY SELECTED SEGMENT: PRO,79,B
+AUTOMATICALLY SELECTED SEGMENT: ARG,80,B
+AUTOMATICALLY SELECTED SEGMENT: TYR,81,B
+AUTOMATICALLY SELECTED SEGMENT: ARG,82,B
+AUTOMATICALLY SELECTED SEGMENT: VAL,83,B
+AUTOMATICALLY SELECTED SEGMENT: PRO,84,B
+AUTOMATICALLY SELECTED SEGMENT: ASP,85,B
+AUTOMATICALLY SELECTED SEGMENT: VAL,86,B
+AUTOMATICALLY SELECTED SEGMENT: VAL,88,B
+AUTOMATICALLY SELECTED SEGMENT: ALA,89,B
+AUTOMATICALLY SELECTED SEGMENT: ASP,90,B
+AUTOMATICALLY SELECTED SEGMENT: ALA,111,B
+AUTOMATICALLY SELECTED SEGMENT: GLU,112,B
+AUTOMATICALLY SELECTED SEGMENT: GLY,113,B
+AUTOMATICALLY SELECTED SEGMENT: PRO,114,B
+AUTOMATICALLY SELECTED SEGMENT: TYR,115,B
+AUTOMATICALLY SELECTED SEGMENT: LEU,129,B
+AUTOMATICALLY SELECTED SEGMENT: GLU,130,B
+AUTOMATICALLY SELECTED SEGMENT: ASP,131,B
+AUTOMATICALLY SELECTED SEGMENT: VAL,138,B
+AUTOMATICALLY SELECTED SEGMENT: ASN,139,B
+AUTOMATICALLY SELECTED SEGMENT: GLY,142,B
+AUTOMATICALLY SELECTED SEGMENT: LEU,143,B
+AUTOMATICALLY SELECTED SEGMENT: PHE,146,B
+AUTOMATICALLY SELECTED SEGMENT: GLU,147,B
+AUTOMATICALLY SELECTED SEGMENT: HIS,148,B
+AUTOMATICALLY SELECTED SEGMENT: GLN,149,B
+AUTOMATICALLY SELECTED SEGMENT: ARG,150,B
+AUTOMATICALLY SELECTED SEGMENT: PRO,152,B
+AUTOMATICALLY SELECTED SEGMENT: SO4,153,B
+AUTOMATIC DEFINITION OF FLEXIBLE SEGMENTS BASED ON INTERMOLECULAR PROXIMITY FOR MOLECULE 3
+THE FOLLOWING RESIDUES HAVE BEEN DEFINED AS FLEXIBLE for molecule 3
+AUTOMATICALLY SELECTED SEGMENT: GLY,1,C
+AUTOMATICALLY SELECTED SEGMENT: ALA,2,C
+AUTOMATICALLY SELECTED SEGMENT: TRP,3,C
+AUTOMATICALLY SELECTED SEGMENT: GLU,4,C
+AUTOMATICALLY SELECTED SEGMENT: GLU,5,C
+AUTOMATICALLY SELECTED SEGMENT: THR,6,C
+AUTOMATICALLY SELECTED SEGMENT: PHE,7,C
+AUTOMATICALLY SELECTED SEGMENT: LYS,8,C
+AUTOMATICALLY SELECTED SEGMENT: THR,9,C
+AUTOMATICALLY SELECTED SEGMENT: HIS,10,C
+AUTOMATICALLY SELECTED SEGMENT: SER,11,C
+AUTOMATICALLY SELECTED SEGMENT: PRO,15,C
+AUTOMATICALLY SELECTED SEGMENT: TYR,16,C
+AUTOMATICALLY SELECTED SEGMENT: GLY,17,C
+AUTOMATICALLY SELECTED SEGMENT: PRO,18,C
+AUTOMATICALLY SELECTED SEGMENT: THR,19,C
+AUTOMATICALLY SELECTED SEGMENT: SER,20,C
+AUTOMATICALLY SELECTED SEGMENT: VAL,21,C
+AUTOMATICALLY SELECTED SEGMENT: GLY,22,C
+AUTOMATICALLY SELECTED SEGMENT: LEU,23,C
+AUTOMATICALLY SELECTED SEGMENT: TYR,34,C
+AUTOMATICALLY SELECTED SEGMENT: GLY,35,C
+AUTOMATICALLY SELECTED SEGMENT: ILE,36,C
+AUTOMATICALLY SELECTED SEGMENT: PRO,37,C
+AUTOMATICALLY SELECTED SEGMENT: GLU,38,C
+AUTOMATICALLY SELECTED SEGMENT: HIS,39,C
+AUTOMATICALLY SELECTED SEGMENT: ALA,40,C
+AUTOMATICALLY SELECTED SEGMENT: ASP,41,C
+AUTOMATICALLY SELECTED SEGMENT: SER,42,C
+AUTOMATICALLY SELECTED SEGMENT: LEU,43,C
+AUTOMATICALLY SELECTED SEGMENT: LEU,59,C
+AUTOMATICALLY SELECTED SEGMENT: ASP,60,C
+AUTOMATICALLY SELECTED SEGMENT: VAL,61,C
+AUTOMATICALLY SELECTED SEGMENT: PHE,62,C
+AUTOMATICALLY SELECTED SEGMENT: GLN,63,C
+AUTOMATICALLY SELECTED SEGMENT: TYR,64,C
+AUTOMATICALLY SELECTED SEGMENT: TYR,73,C
+AUTOMATICALLY SELECTED SEGMENT: GLY,74,C
+AUTOMATICALLY SELECTED SEGMENT: SER,75,C
+AUTOMATICALLY SELECTED SEGMENT: VAL,76,C
+AUTOMATICALLY SELECTED SEGMENT: PRO,77,C
+AUTOMATICALLY SELECTED SEGMENT: ARG,86,C
+AUTOMATICALLY SELECTED SEGMENT: ASP,87,C
+AUTOMATICALLY SELECTED SEGMENT: LEU,88,C
+AUTOMATICALLY SELECTED SEGMENT: GLY,89,C
+AUTOMATICALLY SELECTED SEGMENT: ILE,90,C
+AUTOMATICALLY SELECTED SEGMENT: PHE,91,C
+AUTOMATICALLY SELECTED SEGMENT: TRP,92,C
+AUTOMATICALLY SELECTED SEGMENT: LEU,93,C
+AUTOMATIC DEFINITION OF FLEXIBLE SEGMENTS BASED ON INTERMOLECULAR PROXIMITY FOR MOLECULE 4
+THE FOLLOWING RESIDUES HAVE BEEN DEFINED AS FLEXIBLE for molecule 4
+AUTOMATICALLY SELECTED SEGMENT: GLN,3,D
+AUTOMATICALLY SELECTED SEGMENT: THR,4,D
+AUTOMATICALLY SELECTED SEGMENT: ASP,5,D
+AUTOMATICALLY SELECTED SEGMENT: ILE,6,D
+AUTOMATICALLY SELECTED SEGMENT: ARG,53,D
+AUTOMATICALLY SELECTED SEGMENT: TRP,54,D
+AUTOMATICALLY SELECTED SEGMENT: ASP,66,D
+AUTOMATICALLY SELECTED SEGMENT: GLN,67,D
+AUTOMATICALLY SELECTED SEGMENT: PHE,69,D
+AUTOMATICALLY SELECTED SEGMENT: ASP,70,D
+AUTOMATICALLY SELECTED SEGMENT: ASP,71,D
+AUTOMATICALLY SELECTED SEGMENT: HIS,72,D
+AUTOMATICALLY SELECTED SEGMENT: ASN,73,D
+AUTOMATICALLY SELECTED SEGMENT: GLY,153,D
+AUTOMATICALLY SELECTED SEGMENT: TRP,154,D
+AUTOMATICALLY SELECTED SEGMENT: CYS,155,D
+AUTOMATICALLY SELECTED SEGMENT: TRP,156,D
+AUTOMATICALLY SELECTED SEGMENT: VAL,201,D
+AUTOMATICALLY SELECTED SEGMENT: PHE,202,D
+AUTOMATICALLY SELECTED SEGMENT: ASN,203,D
+AUTOMATICALLY SELECTED SEGMENT: PRO,205,D
+AUTOMATICALLY SELECTED SEGMENT: GLU,206,D
+AUTOMATICALLY SELECTED SEGMENT: VAL,207,D
+AUTOMATICALLY SELECTED SEGMENT: GLY,270,D
+AUTOMATICALLY SELECTED SEGMENT: ASP,271,D
+AUTOMATICALLY SELECTED SEGMENT: ASN,272,D
+AUTOMATICALLY SELECTED SEGMENT: THR,273,D
+AUTOMATICALLY SELECTED SEGMENT: ALA,274,D
+AUTOMATICALLY SELECTED SEGMENT: GLU,275,D
+AUTOMATICALLY SELECTED SEGMENT: TRP,276,D
+AUTOMATICALLY SELECTED SEGMENT: ASP,277,D
+AUTOMATICALLY SELECTED SEGMENT: HIS,278,D
+AUTOMATICALLY SELECTED SEGMENT: LYS,280,D
+AUTOMATICALLY SELECTED SEGMENT: ILE,281,D
+AUTOMATICALLY SELECTED SEGMENT: ILE,283,D
+AUTOMATICALLY SELECTED SEGMENT: PRO,284,D
+AUTOMATICALLY SELECTED SEGMENT: MET,285,D
+AUTOMATICALLY SELECTED SEGMENT: PHE,304,D
+AUTOMATICALLY SELECTED SEGMENT: PHE,305,D
+AUTOMATICALLY SELECTED SEGMENT: LYS,306,D
+AUTOMATICALLY SELECTED SEGMENT: ASN,307,D
+AUTOMATICALLY SELECTED SEGMENT: LEU,332,D
+AUTOMATICALLY SELECTED SEGMENT: ASP,333,D
+AUTOMATICALLY SELECTED SEGMENT: LEU,342,D
+AUTOMATICALLY SELECTED SEGMENT: ALA,343,D
+AUTOMATICALLY SELECTED SEGMENT: SER,344,D
+AUTOMATICALLY SELECTED SEGMENT: GLN,345,D
+AUTOMATICALLY SELECTED SEGMENT: TYR,346,D
+AUTOMATICALLY SELECTED SEGMENT: GLN,347,D
+AUTOMATICALLY SELECTED SEGMENT: ASP,348,D
+AUTOMATICALLY SELECTED SEGMENT: ILE,350,D
+AUTOMATICALLY SELECTED SEGMENT: ARG,351,D
+AUTOMATICALLY SELECTED SEGMENT: ASP,389,D
+AUTOMATICALLY SELECTED SEGMENT: MET,390,D
+AUTOMATICALLY SELECTED SEGMENT: SER,391,D
+AUTOMATICALLY SELECTED SEGMENT: THR,392,D
+AUTOMATICALLY SELECTED SEGMENT: PHE,393,D
+AUTOMATICALLY SELECTED SEGMENT: SER,394,D
+AUTOMATICALLY SELECTED SEGMENT: ILE,395,D
+AUTOMATICALLY SELECTED SEGMENT: GLU,396,D
+AUTOMATICALLY SELECTED SEGMENT: ASP,397,D
+AUTOMATICALLY SELECTED SEGMENT: ILE,407,D
+AUTOMATICALLY SELECTED SEGMENT: HIS,408,D
+AUTOMATICALLY SELECTED SEGMENT: SER,411,D
+AUTOMATICALLY SELECTED SEGMENT: ASP,412,D
+AUTOMATICALLY SELECTED SEGMENT: VAL,418,D
+AUTOMATICALLY SELECTED SEGMENT: GLN,419,D
+AUTOMATICALLY SELECTED SEGMENT: VAL,420,D
+AUTOMATICALLY SELECTED SEGMENT: TYR,421,D
+AUTOMATICALLY SELECTED SEGMENT: GLN,442,D
+AUTOMATICALLY SELECTED SEGMENT: THR,443,D
+AUTOMATICALLY SELECTED SEGMENT: LEU,444,D
+AUTOMATICALLY SELECTED SEGMENT: TYR,445,D
+AUTOMATICALLY SELECTED SEGMENT: LEU,446,D
+AUTOMATICALLY SELECTED SEGMENT: PRO,447,D
+AUTOMATICALLY SELECTED SEGMENT: ASP,573,D
+AUTOMATICALLY SELECTED SEGMENT: PRO,574,D
+AUTOMATICALLY SELECTED SEGMENT: GLU,575,D
+AUTOMATIC DEFINITION OF FLEXIBLE SEGMENTS BASED ON INTERMOLECULAR PROXIMITY FOR MOLECULE 5
+THE FOLLOWING RESIDUES HAVE BEEN DEFINED AS FLEXIBLE for molecule 5
+AUTOMATICALLY SELECTED SEGMENT: PRO,1,E
+AUTOMATICALLY SELECTED SEGMENT: PHE,2,E
+AUTOMATICALLY SELECTED SEGMENT: THR,3,E
+AUTOMATICALLY SELECTED SEGMENT: CYS,4,E
+AUTOMATICALLY SELECTED SEGMENT: LEU,5,E
+AUTOMATICALLY SELECTED SEGMENT: ASP,6,E
+AUTOMATICALLY SELECTED SEGMENT: GLY,7,E
+AUTOMATICALLY SELECTED SEGMENT: PRO,12,E
+AUTOMATICALLY SELECTED SEGMENT: PHE,13,E
+AUTOMATICALLY SELECTED SEGMENT: GLY,38,E
+AUTOMATICALLY SELECTED SEGMENT: SER,39,E
+AUTOMATICALLY SELECTED SEGMENT: PHE,40,E
+AUTOMATICALLY SELECTED SEGMENT: CYS,42,E
+AUTOMATICALLY SELECTED SEGMENT: THR,43,E
+AUTOMATICALLY SELECTED SEGMENT: ASN,44,E
+AUTOMATICALLY SELECTED SEGMENT: THR,45,E
+AUTOMATICALLY SELECTED SEGMENT: GLY,46,E
+AUTOMATICALLY SELECTED SEGMENT: TYR,47,E
+AUTOMATICALLY SELECTED SEGMENT: LEU,50,E
+AUTOMATICALLY SELECTED SEGMENT: TYR,51,E
+AUTOMATICALLY SELECTED SEGMENT: ILE,52,E
+AUTOMATICALLY SELECTED SEGMENT: LEU,53,E
+AUTOMATICALLY SELECTED SEGMENT: GLY,67,E
+AUTOMATICALLY SELECTED SEGMENT: THR,68,E
+AUTOMATICALLY SELECTED SEGMENT: THR,80,E
+AUTOMATICALLY SELECTED SEGMENT: CYS,81,E
+AUTOMATICALLY SELECTED SEGMENT: ARG,82,E
+AUTOMATIC DEFINITION OF FLEXIBLE SEGMENTS BASED ON INTERMOLECULAR PROXIMITY FOR MOLECULE 6
+THE FOLLOWING RESIDUES HAVE BEEN DEFINED AS FLEXIBLE for molecule 6
+AUTOMATICALLY SELECTED SEGMENT: VAL,1,F
+AUTOMATICALLY SELECTED SEGMENT: ASP,2,F
+AUTOMATICALLY SELECTED SEGMENT: ARG,3,F
+AUTOMATICALLY SELECTED SEGMENT: SER,4,F
+AUTOMATICALLY SELECTED SEGMENT: ASN,5,F
+AUTOMATICALLY SELECTED SEGMENT: PHE,6,F
+AUTOMATICALLY SELECTED SEGMENT: LYS,7,F
+AUTOMATICALLY SELECTED SEGMENT: ILE,21,F
+AUTOMATICALLY SELECTED SEGMENT: ARG,22,F
+AUTOMATICALLY SELECTED SEGMENT: PRO,23,F
+AUTOMATICALLY SELECTED SEGMENT: GLY,24,F
+AUTOMATICALLY SELECTED SEGMENT: LEU,25,F
+AUTOMATICALLY SELECTED SEGMENT: GLY,38,F
+AUTOMATICALLY SELECTED SEGMENT: PRO,39,F
+AUTOMATICALLY SELECTED SEGMENT: ASP,40,F
+AUTOMATICALLY SELECTED SEGMENT: LEU,62,F
+AUTOMATICALLY SELECTED SEGMENT: GLN,63,F
+AUTOMATICALLY SELECTED SEGMENT: LYS,64,F
+AUTOMATICALLY SELECTED SEGMENT: ARG,80,F
+AUTOMATICALLY SELECTED SEGMENT: TYR,81,F
+AUTOMATICALLY SELECTED SEGMENT: VAL,83,F
+AUTOMATICALLY SELECTED SEGMENT: PRO,84,F
+AUTOMATICALLY SELECTED SEGMENT: ASP,85,F
+AUTOMATICALLY SELECTED SEGMENT: VAL,86,F
+AUTOMATICALLY SELECTED SEGMENT: LEU,87,F
+AUTOMATICALLY SELECTED SEGMENT: VAL,88,F
+AUTOMATICALLY SELECTED SEGMENT: ALA,89,F
+AUTOMATICALLY SELECTED SEGMENT: ASP,90,F
+AUTOMATICALLY SELECTED SEGMENT: PRO,91,F
+AUTOMATICALLY SELECTED SEGMENT: PRO,92,F
+AUTOMATICALLY SELECTED SEGMENT: THR,93,F
+AUTOMATICALLY SELECTED SEGMENT: ALA,94,F
+AUTOMATICALLY SELECTED SEGMENT: ARG,95,F
+AUTOMATICALLY SELECTED SEGMENT: GLY,113,F
+AUTOMATICALLY SELECTED SEGMENT: PRO,114,F
+AUTOMATICALLY SELECTED SEGMENT: GLN,122,F
+AUTOMATICALLY SELECTED SEGMENT: PRO,123,F
+AUTOMATICALLY SELECTED SEGMENT: PHE,124,F
+AUTOMATICALLY SELECTED SEGMENT: ARG,125,F
+AUTOMATICALLY SELECTED SEGMENT: LEU,128,F
+AUTOMATICALLY SELECTED SEGMENT: LEU,129,F
+AUTOMATICALLY SELECTED SEGMENT: ASP,131,F
+AUTOMATICALLY SELECTED SEGMENT: ARG,132,F
+AUTOMATICALLY SELECTED SEGMENT: SER,133,F
+AUTOMATICALLY SELECTED SEGMENT: LEU,134,F
+AUTOMATICALLY SELECTED SEGMENT: LEU,136,F
+AUTOMATICALLY SELECTED SEGMENT: SER,137,F
+AUTOMATICALLY SELECTED SEGMENT: ASN,139,F
+AUTOMATICALLY SELECTED SEGMENT: ALA,140,F
+AUTOMATICALLY SELECTED SEGMENT: ARG,141,F
+AUTOMATIC DEFINITION OF FLEXIBLE SEGMENTS BASED ON INTERMOLECULAR PROXIMITY FOR MOLECULE 7
+THE FOLLOWING RESIDUES HAVE BEEN DEFINED AS FLEXIBLE for molecule 7
+AUTOMATICALLY SELECTED SEGMENT: ALA,4,G
+AUTOMATICALLY SELECTED SEGMENT: TRP,5,G
+AUTOMATICALLY SELECTED SEGMENT: GLU,6,G
+AUTOMATICALLY SELECTED SEGMENT: HIS,12,G
+AUTOMATICALLY SELECTED SEGMENT: SER,13,G
+AUTOMATICALLY SELECTED SEGMENT: ASP,14,G
+AUTOMATICALLY SELECTED SEGMENT: SER,15,G
+AUTOMATICALLY SELECTED SEGMENT: LYS,16,G
+AUTOMATICALLY SELECTED SEGMENT: PRO,17,G
+AUTOMATICALLY SELECTED SEGMENT: TYR,18,G
+AUTOMATICALLY SELECTED SEGMENT: GLY,19,G
+AUTOMATICALLY SELECTED SEGMENT: THR,21,G
+AUTOMATICALLY SELECTED SEGMENT: SER,22,G
+AUTOMATICALLY SELECTED SEGMENT: VAL,23,G
+AUTOMATICALLY SELECTED SEGMENT: GLY,24,G
+AUTOMATICALLY SELECTED SEGMENT: LEU,25,G
+AUTOMATICALLY SELECTED SEGMENT: ASP,26,G
+AUTOMATICALLY SELECTED SEGMENT: PHE,27,G
+AUTOMATICALLY SELECTED SEGMENT: SER,28,G
+AUTOMATICALLY SELECTED SEGMENT: LEU,29,G
+AUTOMATICALLY SELECTED SEGMENT: PRO,30,G
+AUTOMATICALLY SELECTED SEGMENT: THR,50,G
+AUTOMATICALLY SELECTED SEGMENT: GLU,51,G
+AUTOMATICALLY SELECTED SEGMENT: GLY,52,G
+AUTOMATICALLY SELECTED SEGMENT: GLY,53,G
+AUTOMATICALLY SELECTED SEGMENT: GLU,54,G
+AUTOMATICALLY SELECTED SEGMENT: PRO,55,G
+AUTOMATICALLY SELECTED SEGMENT: LEU,58,G
+AUTOMATICALLY SELECTED SEGMENT: TYR,59,G
+AUTOMATICALLY SELECTED SEGMENT: ASN,60,G
+AUTOMATICALLY SELECTED SEGMENT: LEU,61,G
+AUTOMATICALLY SELECTED SEGMENT: ASP,62,G
+AUTOMATICALLY SELECTED SEGMENT: LEU,74,G
+AUTOMATICALLY SELECTED SEGMENT: TYR,75,G
+AUTOMATICALLY SELECTED SEGMENT: LEU,90,G
+AUTOMATICALLY SELECTED SEGMENT: GLY,91,G
+AUTOMATICALLY SELECTED SEGMENT: ILE,92,G
+AUTOMATICALLY SELECTED SEGMENT: PHE,93,G
+AUTOMATICALLY SELECTED SEGMENT: TRP,94,G
+AUTOMATICALLY SELECTED SEGMENT: LEU,95,G
+AUTOMATICALLY SELECTED SEGMENT: ASN,96,G
+AUTOMATICALLY SELECTED SEGMENT: ALA,97,G
+AUTOMATICALLY SELECTED SEGMENT: THR,100,G
+AUTOMATICALLY SELECTED SEGMENT: TRP,101,G
+AUTOMATICALLY SELECTED SEGMENT: VAL,102,G
+AUTOMATICALLY SELECTED SEGMENT: ASP,103,G
+AUTOMATICALLY SELECTED SEGMENT: ILE,104,G
+AUTOMATICALLY SELECTED SEGMENT: SER,105,G
+AUTOMATICALLY SELECTED SEGMENT: SER,106,G
+AUTOMATICALLY SELECTED SEGMENT: ASN,107,G
+AUTOMATIC DEFINITION OF FLEXIBLE SEGMENTS BASED ON INTERMOLECULAR PROXIMITY FOR MOLECULE 8
+THE FOLLOWING RESIDUES HAVE BEEN DEFINED AS FLEXIBLE for molecule 8
+AUTOMATICALLY SELECTED SEGMENT: MET,20,H
+AUTOMATICALLY SELECTED SEGMENT: LEU,21,H
+AUTOMATICALLY SELECTED SEGMENT: GLY,22,H
+AUTOMATICALLY SELECTED SEGMENT: PRO,23,H
+AUTOMATICALLY SELECTED SEGMENT: SER,24,H
+AUTOMATICALLY SELECTED SEGMENT: VAL,25,H
+AUTOMATICALLY SELECTED SEGMENT: PHE,26,H
+AUTOMATICALLY SELECTED SEGMENT: ASP,27,H
+AUTOMATICALLY SELECTED SEGMENT: PHE,29,H
+AUTOMATICALLY SELECTED SEGMENT: ARG,30,H
+AUTOMATICALLY SELECTED SEGMENT: GLN,31,H
+AUTOMATICALLY SELECTED SEGMENT: ALA,33,H
+AUTOMATICALLY SELECTED SEGMENT: SER,34,H
+AUTOMATICALLY SELECTED SEGMENT: LEU,35,H
+AUTOMATICALLY SELECTED SEGMENT: THR,36,H
+AUTOMATICALLY SELECTED SEGMENT: GLY,37,H
+AUTOMATICALLY SELECTED SEGMENT: LEU,103,H
+AUTOMATICALLY SELECTED SEGMENT: ASN,104,H
+AUTOMATICALLY SELECTED SEGMENT: LEU,106,H
+AUTOMATICALLY SELECTED SEGMENT: GLU,107,H
+AUTOMATICALLY SELECTED SEGMENT: ALA,187,H
+AUTOMATICALLY SELECTED SEGMENT: PRO,188,H
+AUTOMATICALLY SELECTED SEGMENT: HIS,233,H
+AUTOMATICALLY SELECTED SEGMENT: MET,234,H
+AUTOMATICALLY SELECTED SEGMENT: ALA,237,H
+AUTOMATICALLY SELECTED SEGMENT: ASP,238,H
+AUTOMATICALLY SELECTED SEGMENT: LEU,240,H
+AUTOMATICALLY SELECTED SEGMENT: ILE,241,H
+AUTOMATICALLY SELECTED SEGMENT: GLN,242,H
+AUTOMATICALLY SELECTED SEGMENT: ARG,243,H
+AUTOMATICALLY SELECTED SEGMENT: SER,244,H
+AUTOMATICALLY SELECTED SEGMENT: GLY,245,H
+AUTOMATICALLY SELECTED SEGMENT: GLY,246,H
+AUTOMATICALLY SELECTED SEGMENT: ILE,247,H
+AUTOMATICALLY SELECTED SEGMENT: GLN,262,H
+AUTOMATICALLY SELECTED SEGMENT: ARG,263,H
+AUTOMATICALLY SELECTED SEGMENT: PHE,264,H
+AUTOMATICALLY SELECTED SEGMENT: TYR,386,H
+AUTOMATICALLY SELECTED SEGMENT: PRO,387,H
+AUTOMATICALLY SELECTED SEGMENT: GLU,388,H
+AUTOMATICALLY SELECTED SEGMENT: VAL,469,H
+AUTOMATICALLY SELECTED SEGMENT: ARG,470,H
+AUTOMATICALLY SELECTED SEGMENT: LYS,477,H
+AUTOMATICALLY SELECTED SEGMENT: ASP,478,H
+AUTOMATICALLY SELECTED SEGMENT: THR,504,H
+AUTOMATICALLY SELECTED SEGMENT: PHE,505,H
+AUTOMATICALLY SELECTED SEGMENT: TYR,507,H
+AUTOMATICALLY SELECTED SEGMENT: GLN,508,H
+AUTOMATICALLY SELECTED SEGMENT: THR,509,H
+AUTOMATICALLY SELECTED SEGMENT: ARG,510,H
+AUTOMATICALLY SELECTED SEGMENT: ARG,516,H
+AUTOMATICALLY SELECTED SEGMENT: ARG,517,H
+AUTOMATICALLY SELECTED SEGMENT: SER,528,H
+AUTOMATICALLY SELECTED SEGMENT: SER,529,H
+AUTOMATICALLY SELECTED SEGMENT: ALA,530,H
+AUTOMATICALLY SELECTED SEGMENT: ASP,531,H
+AUTOMATICALLY SELECTED SEGMENT: PRO,532,H
+AUTOMATICALLY SELECTED SEGMENT: LYS,533,H
+AUTOMATICALLY SELECTED SEGMENT: LEU,536,H
+AUTOMATICALLY SELECTED SEGMENT: GLU,537,H
+AUTOMATICALLY SELECTED SEGMENT: THR,538,H
+AUTOMATICALLY SELECTED SEGMENT: PRO,539,H
+AUTOMATICALLY SELECTED SEGMENT: LEU,558,H
+AUTOMATICALLY SELECTED SEGMENT: GLN,559,H
+AUTOMATICALLY SELECTED SEGMENT: THR,560,H
+AUTOMATICALLY SELECTED SEGMENT: LYS,561,H
+AUTOMATICALLY SELECTED SEGMENT: GLY,562,H
+AUTOMATICALLY SELECTED SEGMENT: SER,563,H
+AUTOMATICALLY SELECTED SEGMENT: PRO,564,H
+AUTOMATICALLY SELECTED SEGMENT: GLU,565,H
+AUTOMATICALLY SELECTED SEGMENT: SER,566,H
+AUTOMATICALLY SELECTED SEGMENT: ARG,567,H
+AUTOMATICALLY SELECTED SEGMENT: LEU,568,H
+AUTOMATICALLY SELECTED SEGMENT: LEU,581,H
+AUTOMATICALLY SELECTED SEGMENT: ARG,582,H
+AUTOMATICALLY SELECTED SEGMENT: LYS,583,H
+AUTOMATICALLY SELECTED SEGMENT: VAL,586,H
+AUTOMATICALLY SELECTED SEGMENT: SER,587,H
+AUTOMATICALLY SELECTED SEGMENT: LEU,596,H
+AUTOMATICALLY SELECTED SEGMENT: ARG,597,H
+AUTOMATIC DEFINITION OF FLEXIBLE SEGMENTS BASED ON INTERMOLECULAR PROXIMITY FOR MOLECULE 9
+THE FOLLOWING RESIDUES HAVE BEEN DEFINED AS FLEXIBLE for molecule 9
+AUTOMATICALLY SELECTED SEGMENT: SER,1,I
+AUTOMATICALLY SELECTED SEGMENT: LYS,2,I
+AUTOMATICALLY SELECTED SEGMENT: PHE,4,I
+AUTOMATICALLY SELECTED SEGMENT: THR,5,I
+AUTOMATICALLY SELECTED SEGMENT: CYS,6,I
+AUTOMATICALLY SELECTED SEGMENT: LEU,7,I
+AUTOMATICALLY SELECTED SEGMENT: GLY,9,I
+AUTOMATICALLY SELECTED SEGMENT: THR,10,I
+AUTOMATICALLY SELECTED SEGMENT: ASP,16,I
+AUTOMATICALLY SELECTED SEGMENT: GLN,17,I
+AUTOMATICALLY SELECTED SEGMENT: ASP,20,I
+AUTOMATICALLY SELECTED SEGMENT: ASP,21,I
+AUTOMATICALLY SELECTED SEGMENT: TYR,22,I
+AUTOMATICALLY SELECTED SEGMENT: CYS,23,I
+AUTOMATICALLY SELECTED SEGMENT: ASP,24,I
+AUTOMATICALLY SELECTED SEGMENT: CYS,25,I
+AUTOMATICALLY SELECTED SEGMENT: LYS,26,I
+AUTOMATICALLY SELECTED SEGMENT: THR,34,I
+AUTOMATICALLY SELECTED SEGMENT: ALA,35,I
+AUTOMATICALLY SELECTED SEGMENT: ALA,36,I
+AUTOMATICALLY SELECTED SEGMENT: CYS,37,I
+AUTOMATICALLY SELECTED SEGMENT: PRO,38,I
+AUTOMATICALLY SELECTED SEGMENT: GLY,40,I
+AUTOMATICALLY SELECTED SEGMENT: SER,41,I
+AUTOMATICALLY SELECTED SEGMENT: PHE,42,I
+AUTOMATICALLY SELECTED SEGMENT: HIS,43,I
+AUTOMATICALLY SELECTED SEGMENT: THR,45,I
+AUTOMATICALLY SELECTED SEGMENT: ASN,46,I
+AUTOMATICALLY SELECTED SEGMENT: TYR,49,I
+AUTOMATICALLY SELECTED SEGMENT: LYS,50,I
+AUTOMATICALLY SELECTED SEGMENT: PRO,51,I
+AUTOMATICALLY SELECTED SEGMENT: LEU,52,I
+AUTOMATICALLY SELECTED SEGMENT: TYR,53,I
+AUTOMATICALLY SELECTED SEGMENT: ILE,54,I
+AUTOMATICALLY SELECTED SEGMENT: LEU,55,I
+AUTOMATICALLY SELECTED SEGMENT: SER,57,I
+AUTOMATICALLY SELECTED SEGMENT: ARG,58,I
+AUTOMATICALLY SELECTED SEGMENT: VAL,59,I
+AUTOMATICALLY SELECTED SEGMENT: ASN,60,I
+AUTOMATICALLY SELECTED SEGMENT: ASP,61,I
+AUTOMATICALLY SELECTED SEGMENT: GLY,62,I
+AUTOMATICALLY SELECTED SEGMENT: VAL,63,I
+AUTOMATICALLY SELECTED SEGMENT: CYS,64,I
+AUTOMATICALLY SELECTED SEGMENT: ASP,65,I
+AUTOMATICALLY SELECTED SEGMENT: CYS,66,I
+AUTOMATICALLY SELECTED SEGMENT: CYS,67,I
+AUTOMATICALLY SELECTED SEGMENT: TYR,73,I
+AUTOMATICALLY SELECTED SEGMENT: ASN,74,I
+AUTOMATICALLY SELECTED SEGMENT: SER,75,I
+AUTOMATICALLY SELECTED SEGMENT: GLY,76,I
+AUTOMATICALLY SELECTED SEGMENT: THR,77,I
+AUTOMATICALLY SELECTED SEGMENT: GLU,80,I
+AUTOMATICALLY SELECTED SEGMENT: ASN,81,I
+AUTOMATICALLY SELECTED SEGMENT: THR,82,I
+AUTOMATICALLY SELECTED SEGMENT: CYS,83,I
+AUTOMATICALLY SELECTED SEGMENT: ARG,84,I
+NO FLEXIBLE SEGMENTS for all molecule at this stage
+NO FULLY FLEXIBLE SEGMENTS
+ POWELL: number of degrees of freedom= 23091
+ NBONDS: found  1429578 intra-atom interactions
+ NBONDS: found  1429583 intra-atom interactions
+ NBONDS: found  1429598 intra-atom interactions
+ NBONDS: found  1429651 intra-atom interactions
+ --------------- cycle=    25 ------ stepsize=    0.0000 -----------------------
+ | Etotal =-16006.179 grad(E)=39.105     E(BOND)=608.104    E(ANGL)=5062.731   |
+ | E(DIHE)=10444.851  E(IMPR)=7621.493   E(VDW )=-9934.094  E(ELEC)=-35057.691 |
+ | E(NOE )=5248.427                                                            |
+ -------------------------------------------------------------------------------
+ NBONDS: found  1429607 intra-atom interactions
+ NBONDS: found  1429612 intra-atom interactions
+ NBONDS: found  1429659 intra-atom interactions
+ --------------- cycle=    50 ------ stepsize=    0.0002 -----------------------
+ | Etotal =-17767.824 grad(E)=38.481     E(BOND)=578.784    E(ANGL)=4609.271   |
+ | E(DIHE)=10440.930  E(IMPR)=7007.775   E(VDW )=-10002.297 E(ELEC)=-35654.666 |
+ | E(NOE )=5252.379                                                            |
+ -------------------------------------------------------------------------------
+ NBONDS: found  1429651 intra-atom interactions
+ NBONDS: found  1429621 intra-atom interactions
+ --------------- cycle=    75 ------ stepsize=    0.0000 -----------------------
+ | Etotal =-18540.724 grad(E)=38.409     E(BOND)=563.598    E(ANGL)=4434.052   |
+ | E(DIHE)=10448.718  E(IMPR)=6949.002   E(VDW )=-9991.405  E(ELEC)=-36197.620 |
+ | E(NOE )=5252.932                                                            |
+ -------------------------------------------------------------------------------
+ NBONDS: found  1429649 intra-atom interactions
+ --------------- cycle=   100 ------ stepsize=    0.0002 -----------------------
+ | Etotal =-19222.061 grad(E)=38.576     E(BOND)=544.609    E(ANGL)=4283.564   |
+ | E(DIHE)=10467.006  E(IMPR)=6944.154   E(VDW )=-9926.539  E(ELEC)=-36785.124 |
+ | E(NOE )=5250.269                                                            |
+ -------------------------------------------------------------------------------
+ NBONDS: found  1429802 intra-atom interactions
+ --------------- cycle=   125 ------ stepsize=    0.0000 -----------------------
+ | Etotal =-19703.090 grad(E)=38.335     E(BOND)=540.709    E(ANGL)=4222.079   |
+ | E(DIHE)=10484.332  E(IMPR)=6888.701   E(VDW )=-9827.688  E(ELEC)=-37261.906 |
+ | E(NOE )=5250.684                                                            |
+ -------------------------------------------------------------------------------
+ NBONDS: found  1429872 intra-atom interactions
+ NBONDS: found  1429878 intra-atom interactions
+ --------------- cycle=   150 ------ stepsize=    0.0002 -----------------------
+ | Etotal =-20104.250 grad(E)=38.354     E(BOND)=522.661    E(ANGL)=4156.331   |
+ | E(DIHE)=10488.474  E(IMPR)=6868.117   E(VDW )=-9858.031  E(ELEC)=-37528.022 |
+ | E(NOE )=5246.220                                                            |
+ -------------------------------------------------------------------------------
+ --------------- cycle=   175 ------ stepsize=   -0.0000 -----------------------
+ | Etotal =-20314.977 grad(E)=38.253     E(BOND)=514.931    E(ANGL)=4127.843   |
+ | E(DIHE)=10484.660  E(IMPR)=6842.093   E(VDW )=-9894.017  E(ELEC)=-37633.900 |
+ | E(NOE )=5243.413                                                            |
+ -------------------------------------------------------------------------------
+ NBONDS: found  1429981 intra-atom interactions
+ --------------- cycle=   200 ------ stepsize=    0.0001 -----------------------
+ | Etotal =-20507.488 grad(E)=38.276     E(BOND)=520.856    E(ANGL)=4130.630   |
+ | E(DIHE)=10483.126  E(IMPR)=6828.858   E(VDW )=-9887.728  E(ELEC)=-37825.147 |
+ | E(NOE )=5241.918                                                            |
+ -------------------------------------------------------------------------------
+ POWELL: STEP number limit. Normal termination
+ POWELL: Current coordinates set to last minimum
+ --------------- cycle=     2 --------------------------------------------------
+ | Etotal =-20507.488 grad(E)=38.276     E(BOND)=520.856    E(ANGL)=4130.630   |
+ | E(DIHE)=10483.126  E(IMPR)=6828.858   E(VDW )=-9887.728  E(ELEC)=-37825.147 |
+ | E(NOE )=5241.918                                                            |
+ -------------------------------------------------------------------------------
+NO FLEXIBLE SEGMENTS for all molecule at this stage
+NO FULLY FLEXIBLE SEGMENTS
+NUMTREES set to 310
+ DTOREST2: total number of groups         21
+ DTOREST2: total number of joints          0
+ DTOREST2: total number of closed loops          0
+ DTOREST2: total number of distinct bodies         21
+ DTOREST2: total number of chains          0
+ DTOREST2: maximum number of chains (per distinct body)          0
+ DTOREST2: maximum unbranched chain length          0
+ DTOREST2: adj. max. number of chains (per distinct body)          2
+ DTOREST2: adj. maximum unbranched chain length          2
+ -------------------------- Torsion Topology -----------------------------------
+   ERROR: A single-group tree does not have an
+            acceptable base.
+   There are certain limitations with the current
+   implementation of torsion angle dynamics.
+
+   The problem is caused by isolated
+   (not covalently bonded) atoms.
+
+   We have made every effort to capture these
+   situations automatically.  However, in some
+   cases you may still encounter this problem.
+
+   In order to fix this problem
+   (a) fix (fix atom selection) the offending
+       atoms
+   (b) if everything fails, use the Cartesian
+       dynamics option.
+
+ %TORSION:TOPOLOGY error encountered: Fatal Topology Error
+   (CNS is in mode: SET ABORT=NORMal END)
+ *****************************************************
+ ABORT mode will terminate program execution. 
+ *****************************************************
+ Program will stop immediately.
+          ============================================================
+           Maximum dynamic memory allocation:  3015193920 bytes
+           Maximum dynamic memory overhead:          3984 bytes
+           Program started at: 18:47:53 on 20-Dec-2025
+           Program stopped at: 18:48:36 on 20-Dec-2025
+           CPU time used:      42.5129 seconds
+          ============================================================

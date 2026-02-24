@@ -1,0 +1,29 @@
+run_dir = "run_P1CLL_vs_P1ZG4_20251220_185640"
+mode = "local"
+ncores = 8
+debug = true
+molecules = [
+  "input/P1CLL_0_P1CLL_chain_A.pdb",
+  "input/P1ZG4_0_P1ZG4_chain_A.pdb",
+]
+
+['topoaa.1']
+
+['rigidbody.1']
+tolerance = 5
+sampling = 100
+cmrest = true
+
+['seletop.1']
+select = 50
+
+['flexref.1']
+tolerance = 5
+
+['emref.1']
+tolerance = 5
+
+['seletop.2']
+select = 1
+
+['prodigyprotein.1']

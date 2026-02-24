@@ -1,0 +1,28 @@
+run_dir = "run_P1CLL_vs_P7KBJ_20251220_071048"
+mode = "local"
+ncores = 8
+
+molecules = [
+  "P1CLL_0_P1CLL_combined.pdb",
+  "P7KBJ_merged.pdb",
+]
+
+[topoaa]
+
+[rigidbody]
+tolerance = 5
+sampling = 2000
+cmrest = true
+[seletop]
+select = 50
+
+[flexref]
+tolerance = 5
+
+[emref]
+tolerance = 5
+
+[seletop]
+select = 1
+
+[prodigyprotein]
